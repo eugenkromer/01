@@ -28,6 +28,11 @@ if (smtpConfigured) {
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,
     socketTimeout: 10_000,
+    // Many hosting platforms (Render included) resolve mail hosts like
+    // Gmail to an IPv6 address but don't actually have IPv6 egress, which
+    // fails with ENETUNREACH. Force IPv4, which every SMTP provider also
+    // supports.
+    family: 4,
   });
 }
 
