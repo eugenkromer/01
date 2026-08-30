@@ -1,4 +1,4 @@
-# Hochzeitsträume Verleih – Website
+# Hochzeits-Verleih – Website (Firmenname noch offen)
 
 Eine stilvolle, responsive Website für einen Hochzeits-Verleih (Tische, Stühle, Dekoration). Reines HTML/CSS/JavaScript – kein Build-Prozess nötig.
 
@@ -20,12 +20,17 @@ und dann `http://localhost:8000` aufrufen.
 
 ## Vor dem Live-Gang bitte anpassen
 
-1. **Name & Kontaktdaten**: Firmenname "Hochzeitsträume Verleih" ist ein Platzhalter – in `index.html` (Logo, Footer) und ggf. im `<title>` durch den echten Namen ersetzen. Adresse, Telefonnummer und E-Mail im Abschnitt „Kontakt" sowie im Header aktualisieren.
-2. **Echte Fotos**: Der Galerie-Bereich (`#galerie`) nutzt aktuell farbige Platzhalter statt echter Fotos. Sobald Bilder vorhanden sind, `.gallery-item` durch `<img>`-Elemente ersetzen.
-3. **Kundenstimmen**: Der Abschnitt „Kundenstimmen" enthält Platzhaltertexte – bitte durch echte, freigegebene Zitate zufriedener Kundinnen und Kunden ersetzen.
-4. **Kontaktformular funktionsfähig machen**: Das Formular sendet aktuell keine Daten – es zeigt nur eine Bestätigung an. Um Anfragen wirklich zu empfangen, an einen Formular-/E-Mail-Dienst anbinden (z. B. Formspree, Netlify Forms) oder ein eigenes Backend anbinden. Die Logik dafür steht in `js/script.js`.
-5. **Karte/Anfahrt** (optional): Ein Google-Maps-Iframe mit der echten Adresse kann im Kontakt-Bereich ergänzt werden.
-6. **Social-Media-Links**: Platzhalter-Links (`#`) im Kontaktbereich und Footer durch echte Profile ersetzen.
+Firmenname und Kontaktdaten waren zum Zeitpunkt der Erstellung noch nicht bekannt. Alle Stellen, die noch ausgefüllt werden müssen, sind in `index.html` als **eckige Platzhalter** markiert – am einfachsten findet man sie per Suche (Strg+F / Cmd+F) nach `[`:
+
+1. **`[FIRMENNAME]`** – kommt im `<title>`, im Logo (Header) und im Footer vor. An allen Stellen durch den echten Firmennamen ersetzen (Suchen & Ersetzen über die ganze Datei).
+2. **`[TELEFONNUMMER]`** – im Header und im Kontaktbereich. Beide `tel:`-Links (Format z. B. `+491234567890`) sowie den angezeigten Text ersetzen.
+3. **`[E-MAIL-ADRESSE]`** – im Kontaktbereich, sowohl im `mailto:`-Link als auch im angezeigten Text.
+4. **`[STRASSE HAUSNUMMER, PLZ ORT]`** und **`[ÖFFNUNGSZEITEN / ERREICHBARKEIT]`** – im Kontaktbereich.
+5. **Social-Media-Links**: Die `#`-Platzhalter-Links (Instagram/Facebook) im Kontaktbereich durch echte Profile ersetzen (mit `<!-- TODO -->`-Kommentar markiert).
+6. **Echte Fotos**: Der Galerie-Bereich (`#galerie`) nutzt aktuell farbige Platzhalter statt echter Fotos. Sobald Bilder vorhanden sind, `.gallery-item` durch `<img>`-Elemente ersetzen.
+7. **Kundenstimmen**: Der Abschnitt „Kundenstimmen" enthält Platzhaltertexte – bitte durch echte, freigegebene Zitate zufriedener Kundinnen und Kunden ersetzen.
+8. **Kontaktformular funktionsfähig machen**: Das Formular sendet aktuell keine Daten – es zeigt nur eine Bestätigung an. Um Anfragen wirklich zu empfangen, an einen Formular-/E-Mail-Dienst anbinden (z. B. Formspree, Netlify Forms) oder ein eigenes Backend anbinden. Die Logik dafür steht in `js/script.js`.
+9. **Karte/Anfahrt** (optional): Ein Google-Maps-Iframe mit der echten Adresse kann im Kontakt-Bereich ergänzt werden.
 
 ## Hosting
 
