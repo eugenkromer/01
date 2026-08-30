@@ -10,7 +10,15 @@
   <div class="container">
     <p class="section-eyebrow">Rental Catalog</p>
     <h1 class="section-title">Pick what you need</h1>
-    <p class="section-lead">Set a quantity for anything you'd like, then send us a request - it's not a purchase, just the fastest way to get an accurate quote.</p>
+    <p class="section-lead">Set a quantity for anything you'd like, then send us a request - it's not a purchase, just the fastest way to get an accurate quote. Perfect for weddings, and just as easy to use for any other event.</p>
+    <% if (settings.cleaningFee || settings.deliveryFee) { %>
+      <p class="fee-note">
+        <% if (settings.cleaningFee) { %>A one-time $<%= settings.cleaningFee.toFixed(2) %> cleaning fee<% } %>
+        <% if (settings.cleaningFee && settings.deliveryFee) { %> and <% } %>
+        <% if (settings.deliveryFee) { %>a $<%= settings.deliveryFee.toFixed(2) %> delivery fee<% } %>
+        apply per order.
+      </p>
+    <% } %>
   </div>
 </section>
 
@@ -67,6 +75,9 @@
     <p class="dialog-lead">We'll email your request and get back to you with a firm quote.</p>
 
     <div class="dialog-cart-list" id="dialog-cart-list"></div>
+    <% if (settings.cleaningFee || settings.deliveryFee) { %>
+      <p class="fee-note">Plus<% if (settings.cleaningFee) { %> a $<%= settings.cleaningFee.toFixed(2) %> cleaning fee<% } %><% if (settings.cleaningFee && settings.deliveryFee) { %> and<% } %><% if (settings.deliveryFee) { %> a $<%= settings.deliveryFee.toFixed(2) %> delivery fee<% } %>.</p>
+    <% } %>
 
     <div class="form-row">
       <label for="dlgCustomerName">Name*</label>
@@ -76,9 +87,17 @@
       <label for="dlgCustomerEmail">Email*</label>
       <input type="email" id="dlgCustomerEmail" name="customerEmail" required autocomplete="email">
     </div>
-    <div class="form-row">
-      <label for="dlgEventDate">Wedding date</label>
-      <input type="date" id="dlgEventDate" name="eventDate">
+    <div class="form-row form-row-half">
+      <div>
+        <label for="dlgEventType">Event type</label>
+        <select id="dlgEventType" name="eventType">
+          <% eventTypes.forEach(function(t) { %><option value="<%= t %>"><%= t %></option><% }) %>
+        </select>
+      </div>
+      <div>
+        <label for="dlgEventDate">Event date</label>
+        <input type="date" id="dlgEventDate" name="eventDate">
+      </div>
     </div>
     <div class="form-row">
       <label for="dlgMessage">Message</label>

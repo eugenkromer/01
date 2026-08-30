@@ -203,18 +203,61 @@ function saveRequests(requests) {
 
 function createRequest(data) {
   const requests = getRequests();
+  const itemsTotal = (data.items || []).reduce((sum, i) => sum + i.price * i.qty, 0);
+  const hasItems = (data.items || []).length > 0;
+  // Flat fees only apply to an actual rental request, not a general
+  // no-items inquiry - and are snapshotted at request time so a later
+  // change to the fee settings doesn't rewrite past requests' totals.
+  const cleaningFee = hasItems ? data.cleaningFee || 0 : 0;
+  const deliveryFee = hasItems ? data.deliveryFee || 0 : 0;
   const request = {
     id: crypto.randomUUID(),
     customerName: data.customerName,
     customerEmail: data.customerEmail,
+    eventType: data.eventType || 'Wedding',
     eventDate: data.eventDate || '',
     message: data.message || '',
     items: data.items || [],
+    itemsTotal,
+    cleaningFee,
+    deliveryFee,
+    total: itemsTotal + cleaningFee + deliveryFee,
+    status: 'pending',
     createdAt: new Date().toISOString(),
+    confirmedAt: null,
   };
   requests.unshift(request);
   saveRequests(requests);
   return request;
+}
+
+function getRequest(id) {
+  return getRequests().find((r) => r.id === id) || null;
+}
+
+function confirmRequest(id) {
+  const requests = getRequests();
+  const request = requests.find((r) => r.id === id);
+  if (!request) return null;
+  request.status = 'confirmed';
+  request.confirmedAt = new Date().toISOString();
+  saveRequests(requests);
+  return request;
+}
+
+// ---------- Fee settings (cleaning / delivery) ----------
+
+function getSettings() {
+  return readJSON('settings', { cleaningFee: 0, deliveryFee: 0 });
+}
+
+function updateSettings(data) {
+  const settings = {
+    cleaningFee: Math.max(0, Number(data.cleaningFee) || 0),
+    deliveryFee: Math.max(0, Number(data.deliveryFee) || 0),
+  };
+  writeJSON('settings', settings);
+  return settings;
 }
 
 // ---------- Login & handover tokens ----------
@@ -300,7 +343,11 @@ module.exports = {
   updateItem,
   deleteItem,
   getRequests,
+  getRequest,
   createRequest,
+  confirmRequest,
+  getSettings,
+  updateSettings,
   createToken,
   findValidToken,
   markLoginTokenUsed,

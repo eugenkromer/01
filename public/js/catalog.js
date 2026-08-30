@@ -21,7 +21,8 @@ function updateCartBar() {
   }
   cartBar.hidden = false;
   const itemCount = cart.size;
-  cartSummary.textContent = `${totalQty} item${totalQty === 1 ? '' : 's'} selected (${itemCount} type${itemCount === 1 ? '' : 's'})`;
+  const subtotal = Array.from(cart.values()).reduce((sum, entry) => sum + entry.price * entry.qty, 0);
+  cartSummary.textContent = `${totalQty} item${totalQty === 1 ? '' : 's'} selected (${itemCount} type${itemCount === 1 ? '' : 's'}) - subtotal $${subtotal.toFixed(2)}`;
 }
 
 function setQty(card, qty) {
@@ -29,13 +30,14 @@ function setQty(card, qty) {
   const name = card.dataset.itemName;
   const stepper = card.querySelector('.qty-stepper');
   const max = Number(stepper.dataset.max);
+  const price = Number(stepper.dataset.price);
   const clamped = Math.max(0, Math.min(max, qty));
   card.querySelector('.qty-input').value = clamped;
 
   if (clamped === 0) {
     cart.delete(id);
   } else {
-    cart.set(id, { name, qty: clamped });
+    cart.set(id, { name, qty: clamped, price });
   }
   updateCartBar();
 }

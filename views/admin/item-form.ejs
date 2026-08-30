@@ -16,7 +16,7 @@
 
   <% if (error) { %><p class="admin-notice admin-notice-error"><%= error %></p><% } %>
 
-  <form method="POST" action="<%= item && item.id ? `/admin/items/${item.id}/update` : '/admin/items' %>" class="admin-form">
+  <form method="POST" action="<%= item && item.id ? `/admin/items/${item.id}/update` : '/admin/items' %>" class="admin-form" enctype="multipart/form-data">
     <div class="form-row">
       <label for="name">Item name*</label>
       <input type="text" id="name" name="name" required value="<%= item ? item.name || '' : '' %>" placeholder="e.g. 60&quot; Round Table">
@@ -48,8 +48,17 @@
       </div>
     </div>
     <div class="form-row">
-      <label for="imageUrl">Photo URL (optional)</label>
-      <input type="url" id="imageUrl" name="imageUrl" value="<%= item ? item.imageUrl || '' : '' %>" placeholder="https://...">
+      <label for="photo">Photo</label>
+      <% if (item && item.imageUrl) { %>
+        <img src="<%= item.imageUrl %>" alt="" class="admin-photo-preview">
+      <% } %>
+      <input type="file" id="photo" name="photo" accept="image/*">
+      <p class="field-hint">JPG, PNG, GIF or WebP, up to 5 MB.<% if (item && item.imageUrl) { %> Leave empty to keep the current photo.<% } %></p>
+    </div>
+    <div class="form-row">
+      <label for="imageUrl">...or a photo URL instead</label>
+      <input type="url" id="imageUrl" name="imageUrl" value="<%= item && item.imageUrl && item.imageUrl.startsWith('http') ? item.imageUrl : '' %>" placeholder="https://...">
+      <p class="field-hint">Only used if no file is uploaded above.</p>
     </div>
     <button type="submit" class="btn btn-primary btn-large"><%= item && item.id ? 'Save Changes' : 'Add Item' %></button>
   </form>

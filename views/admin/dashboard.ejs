@@ -42,14 +42,14 @@
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Date</th><th>Customer</th><th>Event Date</th><th>Items</th><th>Message</th></tr>
+            <tr><th>Date</th><th>Customer</th><th>Event</th><th>Items</th><th>Message</th><th>Status</th><% if (currentUser.role === 'admin') { %><th></th><% } %></tr>
           </thead>
           <tbody>
             <% requests.forEach(function(r) { %>
               <tr>
                 <td><%= new Date(r.createdAt).toLocaleDateString() %></td>
                 <td><%= r.customerName %><br><a href="mailto:<%= r.customerEmail %>"><%= r.customerEmail %></a></td>
-                <td><%= r.eventDate || '—' %></td>
+                <td><%= r.eventType %><% if (r.eventDate) { %><br><span class="muted"><%= r.eventDate %></span><% } %></td>
                 <td>
                   <% if (r.items.length === 0) { %>
                     <em>General inquiry</em>
@@ -57,9 +57,26 @@
                     <ul class="admin-item-list">
                       <% r.items.forEach(function(i) { %><li><%= i.name %> &times; <%= i.qty %></li><% }) %>
                     </ul>
+                    <span class="muted">Subtotal $<%= r.itemsTotal.toFixed(2) %><% if (r.cleaningFee) { %> + $<%= r.cleaningFee.toFixed(2) %> cleaning<% } %><% if (r.deliveryFee) { %> + $<%= r.deliveryFee.toFixed(2) %> delivery<% } %> = $<%= r.total.toFixed(2) %></span>
                   <% } %>
                 </td>
                 <td class="admin-message-cell"><%= r.message || '—' %></td>
+                <td>
+                  <% if (r.status === 'confirmed') { %>
+                    <span class="status-badge status-badge-confirmed">Confirmed</span>
+                  <% } else { %>
+                    <span class="status-badge status-badge-pending">Pending</span>
+                  <% } %>
+                </td>
+                <% if (currentUser.role === 'admin') { %>
+                  <td>
+                    <% if (r.status !== 'confirmed') { %>
+                      <form method="POST" action="/admin/requests/<%= r.id %>/confirm" class="inline-form">
+                        <button type="submit" class="btn btn-primary btn-small">Confirm</button>
+                      </form>
+                    <% } %>
+                  </td>
+                <% } %>
               </tr>
             <% }) %>
           </tbody>
@@ -85,11 +102,14 @@
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>Name</th><th>Dimensions</th><th>Price</th><th>Stock</th><% if (currentUser.role === 'admin') { %><th></th><% } %></tr>
+            <tr><th></th><th>Name</th><th>Dimensions</th><th>Price</th><th>Stock</th><% if (currentUser.role === 'admin') { %><th></th><% } %></tr>
           </thead>
           <tbody>
             <% group.items.forEach(function(item) { %>
               <tr>
+                <td>
+                  <% if (item.imageUrl) { %><img src="<%= item.imageUrl %>" alt="" class="admin-thumb"><% } %>
+                </td>
                 <td><%= item.name %></td>
                 <td><%= item.dimensions || '—' %></td>
                 <td>$<%= item.price.toFixed(2) %> <span class="muted"><%= item.priceUnit %></span></td>
@@ -111,6 +131,29 @@
   </section>
 
   <% if (currentUser.role === 'admin') { %>
+    <section class="admin-section" id="settings">
+      <div class="admin-section-header">
+        <h2>Fees</h2>
+      </div>
+      <p class="admin-lead">Applied once per order (not per item) whenever a customer requests at least one catalog item.</p>
+      <% if (typeof settingsError !== 'undefined' && settingsError) { %>
+        <p class="admin-notice admin-notice-error"><%= settingsError %></p>
+      <% } %>
+      <form method="POST" action="/admin/settings" class="admin-form">
+        <div class="form-row-third" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-row">
+            <label for="cleaningFee">Cleaning fee (USD)</label>
+            <input type="number" id="cleaningFee" name="cleaningFee" min="0" step="0.01" value="<%= settings.cleaningFee %>">
+          </div>
+          <div class="form-row">
+            <label for="deliveryFee">Delivery fee (USD)</label>
+            <input type="number" id="deliveryFee" name="deliveryFee" min="0" step="0.01" value="<%= settings.deliveryFee %>">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Fees</button>
+      </form>
+    </section>
+
     <section class="admin-section" id="handover">
       <div class="admin-section-header">
         <h2>Admin Handover</h2>

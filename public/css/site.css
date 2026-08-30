@@ -138,8 +138,9 @@ em { font-style: italic; color: var(--rose-dark); }
 .form-row { margin-bottom: 18px; }
 .form-row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 label { display: block; font-size: .85rem; color: var(--ink-soft); margin-bottom: 6px; font-weight: 700; }
-input, textarea { width: 100%; padding: 11px 14px; border: 1px solid rgba(61,47,44,.2); border-radius: 4px; background: var(--white); font-family: var(--font-body); font-size: .95rem; color: var(--ink); }
-input:focus, textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+input, textarea, select { width: 100%; padding: 11px 14px; border: 1px solid rgba(61,47,44,.2); border-radius: 4px; background: var(--white); font-family: var(--font-body); font-size: .95rem; color: var(--ink); }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.fee-note { font-size: .85rem; color: var(--ink-soft); font-style: italic; }
 
 .site-footer { background: var(--ink); color: var(--cream-alt); padding: 50px 0 20px; }
 .footer-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,.12); max-width: 1160px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
@@ -159,6 +160,8 @@ input:focus, textarea:focus { outline: 2px solid var(--gold); outline-offset: 1p
 .thanks-summary { max-width: 420px; margin: 0 auto 34px; text-align: left; background: var(--cream-alt); border-radius: var(--radius); padding: 24px 28px; }
 .thanks-summary h2 { font-size: 1.1rem; }
 .thanks-summary li { padding: 4px 0; color: var(--ink-soft); }
+.thanks-total { border-top: 1px dashed rgba(61,47,44,.2); margin-top: 12px; padding-top: 12px; font-size: .92rem; color: var(--ink-soft); }
+.thanks-total strong { color: var(--ink); }
 .empty-state { text-align: center; padding: 60px 0; color: var(--ink-soft); }
 
 /* ---------- Catalog ---------- */

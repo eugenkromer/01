@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const { sendMail } = require('../mailer');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { handleUpload } = require('../upload');
 
 const router = express.Router();
 
@@ -17,20 +18,23 @@ function groupByCategory(items) {
   return Array.from(groups.entries()).map(([category, items]) => ({ category, items }));
 }
 
+function dashboardData(req) {
+  return {
+    title: 'Admin Dashboard',
+    groups: groupByCategory(db.getItems()),
+    requests: db.getRequests().slice(0, 50),
+    settings: db.getSettings(),
+    pendingTransfer: req.user.role === 'admin' ? db.getPendingTransferFor(req.user.email) : null,
+    smtpConfigured: require('../mailer').smtpConfigured,
+    transferError: null,
+    settingsError: null,
+  };
+}
+
 // ---------- Dashboard ----------
 
 router.get('/', requireAuth, (req, res) => {
-  const items = db.getItems();
-  const requests = db.getRequests().slice(0, 50);
-  const pendingTransfer = req.user.role === 'admin' ? db.getPendingTransferFor(req.user.email) : null;
-
-  res.render('admin/dashboard', {
-    title: 'Admin Dashboard',
-    groups: groupByCategory(items),
-    requests,
-    pendingTransfer,
-    smtpConfigured: require('../mailer').smtpConfigured,
-  });
+  res.render('admin/dashboard', dashboardData(req));
 });
 
 // ---------- Catalog items (admin write access only) ----------
@@ -39,7 +43,12 @@ router.get('/items/new', requireAdmin, (req, res) => {
   res.render('admin/item-form', { title: 'Add Item', item: null, error: null });
 });
 
-router.post('/items', requireAdmin, (req, res) => {
+router.post('/items', requireAdmin, async (req, res) => {
+  try {
+    await handleUpload(req, res);
+  } catch (err) {
+    return res.render('admin/item-form', { title: 'Add Item', item: req.body, error: err.message });
+  }
   const { name, category, description, dimensions, price, priceUnit, stock, imageUrl } = req.body;
   if (!name || !category || price === undefined || price === '') {
     return res.render('admin/item-form', {
@@ -48,7 +57,8 @@ router.post('/items', requireAdmin, (req, res) => {
       error: 'Name, category, and price are required.',
     });
   }
-  db.createItem({ name, category, description, dimensions, price, priceUnit, stock, imageUrl });
+  const finalImageUrl = req.file ? `/uploads/${req.file.filename}` : imageUrl;
+  db.createItem({ name, category, description, dimensions, price, priceUnit, stock, imageUrl: finalImageUrl });
   res.redirect('/admin#catalog');
 });
 
@@ -58,7 +68,12 @@ router.get('/items/:id/edit', requireAdmin, (req, res) => {
   res.render('admin/item-form', { title: 'Edit Item', item, error: null });
 });
 
-router.post('/items/:id/update', requireAdmin, (req, res) => {
+router.post('/items/:id/update', requireAdmin, async (req, res) => {
+  try {
+    await handleUpload(req, res);
+  } catch (err) {
+    return res.render('admin/item-form', { title: 'Edit Item', item: { ...req.body, id: req.params.id }, error: err.message });
+  }
   const { name, category, description, dimensions, price, priceUnit, stock, imageUrl } = req.body;
   if (!name || !category || price === undefined || price === '') {
     return res.render('admin/item-form', {
@@ -67,7 +82,11 @@ router.post('/items/:id/update', requireAdmin, (req, res) => {
       error: 'Name, category, and price are required.',
     });
   }
-  db.updateItem(req.params.id, { name, category, description, dimensions, price, priceUnit, stock, imageUrl });
+  // Keep the existing photo unless a new file was uploaded or a new URL was
+  // typed in - an empty form field here should not wipe out a good photo.
+  const existing = db.getItem(req.params.id);
+  const finalImageUrl = req.file ? `/uploads/${req.file.filename}` : imageUrl || (existing ? existing.imageUrl : '');
+  db.updateItem(req.params.id, { name, category, description, dimensions, price, priceUnit, stock, imageUrl: finalImageUrl });
   res.redirect('/admin#catalog');
 });
 
@@ -76,19 +95,41 @@ router.post('/items/:id/delete', requireAdmin, (req, res) => {
   res.redirect('/admin#catalog');
 });
 
+// ---------- Rental requests ----------
+
+router.post('/requests/:id/confirm', requireAdmin, async (req, res) => {
+  const request = db.confirmRequest(req.params.id);
+  if (request) {
+    const itemLines = request.items.length
+      ? request.items.map((i) => `  - ${i.name} x${i.qty}`).join('\n')
+      : '';
+    const feeLines =
+      (request.cleaningFee ? `\nCleaning fee: $${request.cleaningFee.toFixed(2)}` : '') +
+      (request.deliveryFee ? `\nDelivery fee: $${request.deliveryFee.toFixed(2)}` : '') +
+      (request.items.length ? `\nTotal: $${request.total.toFixed(2)}` : '');
+
+    await sendMail({
+      to: request.customerEmail,
+      subject: `Your ${request.eventType.toLowerCase()} rental order is confirmed`,
+      text: `Hi ${request.customerName},\n\nGreat news - your rental order is confirmed! We'll bring the following to your event${request.eventDate ? ` on ${request.eventDate}` : ''}:\n\n${itemLines || '(details as discussed)'}\n${feeLines}\n\nIf anything needs to change, just reply to this email.\n`,
+    });
+  }
+  res.redirect('/admin#requests');
+});
+
+// ---------- Fee settings ----------
+
+router.post('/settings', requireAdmin, (req, res) => {
+  db.updateSettings({ cleaningFee: req.body.cleaningFee, deliveryFee: req.body.deliveryFee });
+  res.redirect('/admin#settings');
+});
+
 // ---------- Admin handover ----------
 
 router.post('/transfer', requireAdmin, (req, res) => {
   const newAdminEmail = (req.body.newAdminEmail || '').trim();
   if (!EMAIL_RE.test(newAdminEmail)) {
-    return res.render('admin/dashboard', {
-      title: 'Admin Dashboard',
-      groups: groupByCategory(db.getItems()),
-      requests: db.getRequests().slice(0, 50),
-      pendingTransfer: db.getPendingTransferFor(req.user.email),
-      smtpConfigured: require('../mailer').smtpConfigured,
-      transferError: 'Please enter a valid email address.',
-    });
+    return res.render('admin/dashboard', { ...dashboardData(req), transferError: 'Please enter a valid email address.' });
   }
   if (newAdminEmail.toLowerCase() === req.user.email.toLowerCase()) {
     return res.redirect('/admin');

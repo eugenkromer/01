@@ -78,6 +78,13 @@ code { background: var(--a-accent-soft); padding: 1px 6px; border-radius: 4px; f
 .role-badge-admin { background: var(--a-success-bg); color: var(--a-success-ink); }
 .role-badge-viewer { background: var(--a-accent-soft); color: var(--a-accent); }
 
+.status-badge { text-transform: uppercase; font-size: .68rem; font-weight: 700; letter-spacing: .06em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.status-badge-confirmed { background: var(--a-success-bg); color: var(--a-success-ink); }
+.status-badge-pending { background: var(--a-warning-bg); color: var(--a-warning-ink); }
+
+.admin-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--a-border); }
+.admin-photo-preview { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid var(--a-border); margin-bottom: 10px; }
+
 /* ---------- Main content ---------- */
 .admin-main { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
 .admin-main-narrow { max-width: 620px; }
@@ -114,6 +121,8 @@ input, textarea {
   font-family: var(--a-font-body); font-size: .92rem; color: var(--a-ink); background: var(--a-surface);
 }
 input:focus, textarea:focus { outline: 2px solid var(--a-gold); outline-offset: 1px; }
+.field-hint { font-size: .78rem; color: var(--a-ink-soft); margin: 6px 0 0; }
+input[type="file"] { padding: 6px; }
 
 @media (max-width: 640px) {
   .form-row-third { grid-template-columns: 1fr; }

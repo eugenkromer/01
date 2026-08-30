@@ -10,7 +10,7 @@
   <div class="container">
     <p class="section-eyebrow">Request Sent</p>
     <h1 class="section-title">Thank you, <%= request.customerName %>!</h1>
-    <p class="section-lead">We've received your request and will be in touch at <strong><%= request.customerEmail %></strong> shortly with a quote.</p>
+    <p class="section-lead">We've received your <%= request.eventType.toLowerCase() %> request. We'll review it and email <strong><%= request.customerEmail %></strong> to confirm as soon as it's approved.</p>
 
     <% if (request.items.length > 0) { %>
       <div class="thanks-summary">
@@ -20,6 +20,12 @@
             <li><%= i.name %> &times; <%= i.qty %></li>
           <% }) %>
         </ul>
+        <p class="thanks-total">
+          Subtotal: $<%= request.itemsTotal.toFixed(2) %><br>
+          <% if (request.cleaningFee) { %>Cleaning fee: $<%= request.cleaningFee.toFixed(2) %><br><% } %>
+          <% if (request.deliveryFee) { %>Delivery fee: $<%= request.deliveryFee.toFixed(2) %><br><% } %>
+          <strong>Estimated total: $<%= request.total.toFixed(2) %></strong>
+        </p>
       </div>
     <% } %>
 
