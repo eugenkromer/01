@@ -93,6 +93,16 @@ async function handleRequest(req, res) {
     });
   }
 
+  const customerItemLines = items.length
+    ? items.map((i) => `  - ${i.name} x${i.qty}`).join('\n')
+    : '';
+
+  await sendMail({
+    to: customerEmail,
+    subject: `We've received your ${eventType.toLowerCase()} rental request`,
+    text: `Hi ${customerName},\n\nThanks for reaching out! Your request is now being reviewed - we'll email you again to confirm as soon as it's approved, along with a receipt.\n\n${items.length ? `What you requested:\n${customerItemLines}\n\nEstimated total (pending confirmation): $${request.total.toFixed(2)}\n\n` : ''}If anything changes in the meantime, just reply to this email.\n`,
+  });
+
   res.render('request-thanks', { title: 'Thank You', request });
 }
 

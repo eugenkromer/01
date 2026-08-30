@@ -1,3 +1,5 @@
+const path = require('path');
+const ejs = require('ejs');
 const express = require('express');
 const db = require('../db');
 const { sendMail } = require('../mailer');
@@ -101,17 +103,34 @@ router.post('/requests/:id/confirm', requireAdmin, async (req, res) => {
   const request = db.confirmRequest(req.params.id);
   if (request) {
     const itemLines = request.items.length
-      ? request.items.map((i) => `  - ${i.name} x${i.qty}`).join('\n')
+      ? request.items.map((i) => `  - ${i.name} x${i.qty} ($${i.price.toFixed(2)} each = $${(i.price * i.qty).toFixed(2)})`).join('\n')
       : '';
     const feeLines =
       (request.cleaningFee ? `\nCleaning fee: $${request.cleaningFee.toFixed(2)}` : '') +
       (request.deliveryFee ? `\nDelivery fee: $${request.deliveryFee.toFixed(2)}` : '') +
       (request.items.length ? `\nTotal: $${request.total.toFixed(2)}` : '');
 
+    const orderNumber = request.id.slice(0, 8).toUpperCase();
+    const confirmedDate = new Date(request.confirmedAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    let html;
+    if (request.items.length) {
+      html = await ejs.renderFile(path.join(__dirname, '..', '..', 'views', 'emails', 'receipt.ejs'), {
+        request,
+        orderNumber,
+        confirmedDate,
+      });
+    }
+
     await sendMail({
       to: request.customerEmail,
-      subject: `Your ${request.eventType.toLowerCase()} rental order is confirmed`,
-      text: `Hi ${request.customerName},\n\nGreat news - your rental order is confirmed! We'll bring the following to your event${request.eventDate ? ` on ${request.eventDate}` : ''}:\n\n${itemLines || '(details as discussed)'}\n${feeLines}\n\nIf anything needs to change, just reply to this email.\n`,
+      subject: `Receipt: your ${request.eventType.toLowerCase()} rental order is confirmed`,
+      text: `Hi ${request.customerName},\n\nGreat news - your rental order is confirmed! We'll bring the following to your event${request.eventDate ? ` on ${request.eventDate}` : ''}:\n\n${itemLines || '(details as discussed)'}\n${feeLines}\n\nOrder #${orderNumber}\n\nIf anything needs to change, just reply to this email.\n`,
+      html,
     });
   }
   res.redirect('/admin#requests');
