@@ -2,7 +2,7 @@ const path = require('path');
 const ejs = require('ejs');
 const express = require('express');
 const db = require('../db');
-const { sendMail } = require('../mailer');
+const { sendMail, emailConfigured } = require('../mailer');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { handleUpload } = require('../upload');
 
@@ -27,7 +27,7 @@ function dashboardData(req) {
     requests: db.getRequests().slice(0, 50),
     settings: db.getSettings(),
     pendingTransfer: req.user.role === 'admin' ? db.getPendingTransferFor(req.user.email) : null,
-    smtpConfigured: require('../mailer').smtpConfigured,
+    emailConfigured,
     transferError: null,
     settingsError: null,
   };

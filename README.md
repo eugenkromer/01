@@ -35,9 +35,28 @@ Alle Daten liegen in JSON-Dateien im Ordner `data/` (keine Datenbank nötig). Di
 
 ## E-Mail-Versand einrichten (wichtig!)
 
-Ohne Konfiguration werden Login-Links und Anfrage-Benachrichtigungen **nicht wirklich verschickt**, sondern nur in `data/outbox.log` protokolliert und in der Konsole ausgegeben. So lässt sich alles lokal testen, aber für den echten Betrieb muss ein E-Mail-Anbieter eingetragen werden.
+Ohne Konfiguration werden Login-Links und Anfrage-Benachrichtigungen **nicht wirklich verschickt**, sondern nur in `data/outbox.log` protokolliert und in der Konsole ausgegeben. So lässt sich alles lokal testen, aber für den echten Betrieb muss ein E-Mail-Anbieter eingetragen werden. Solange keiner konfiguriert ist, zeigt das Admin-Dashboard einen Warnhinweis.
 
-In `.env` folgende Werte setzen (siehe `.env.example` für Details):
+### Option A (empfohlen): Resend
+
+Viele Hosting-Plattformen (Render's kostenloser Tarif eingeschlossen) blockieren ausgehende SMTP-Verbindungen (Port 25/465/587), lassen aber ganz normales HTTPS zu. [Resend](https://resend.com) verschickt E-Mails über eine HTTP-API statt über SMTP und funktioniert deshalb auch dort zuverlässig, wo klassisches SMTP hängen bleibt oder mit „Connection timeout" fehlschlägt (genau das Problem, das wir beim Testen auf Render hatten).
+
+1. Bei [resend.com](https://resend.com) registrieren (kostenlos, 100 E-Mails/Tag)
+2. Unter „Domains" → „Add Domain" die eigene Domain eintragen (z. B. `hv-manager.de`) und die angezeigten DNS-Einträge beim Domain-Anbieter (z. B. Strato) hinzufügen
+3. Unter „API Keys" einen neuen Key erstellen
+4. In `.env` bzw. bei Render unter „Environment" setzen:
+
+```
+RESEND_API_KEY=dein-api-key
+RESEND_FROM="[COMPANY NAME] <no-reply@hv-manager.de>"
+BASE_URL=https://deine-echte-domain.de
+```
+
+Die Absenderadresse in `RESEND_FROM` muss zu einer bei Resend verifizierten Domain gehören (Schritt 2), sonst lehnt Resend den Versand ab.
+
+### Option B: klassisches SMTP
+
+Funktioniert gut, wenn die App später auf einem eigenen Server/VPS läuft (dort ist SMTP normalerweise nicht blockiert). Auf reinem PaaS-Hosting wie Render kann es wie beschrieben an blockierten Ports scheitern.
 
 ```
 SMTP_HOST=smtp.gmail.com
@@ -45,10 +64,9 @@ SMTP_PORT=587
 SMTP_USER=deine-adresse@gmail.com
 SMTP_PASS=dein-app-passwort
 SMTP_FROM="Wedding Rentals <no-reply@example.com>"
-BASE_URL=https://deine-echte-domain.de
 ```
 
-Funktioniert mit jedem SMTP-fähigen Anbieter (Gmail mit „App-Passwort", oder Dienste wie Resend, SendGrid, Postmark, Mailgun). Solange `SMTP_HOST`, `SMTP_USER` und `SMTP_PASS` nicht gesetzt sind, zeigt das Admin-Dashboard einen Warnhinweis.
+Funktioniert mit jedem SMTP-fähigen Anbieter (Gmail mit „App-Passwort", oder Diensten wie SendGrid, Postmark, Mailgun). Sind sowohl `RESEND_API_KEY` als auch SMTP-Werte gesetzt, wird Resend bevorzugt.
 
 `BASE_URL` unbedingt auf die echte Domain setzen, sobald die Seite live ist - sonst zeigen die Links in den E-Mails auf `localhost`.
 

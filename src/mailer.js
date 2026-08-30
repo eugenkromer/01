@@ -1,8 +1,17 @@
 // Sends outgoing emails (login links, admin handover, quote request
-// notifications). If SMTP_* environment variables are not configured, falls
-// back to logging the email to the console and appending it to
-// data/outbox.log so the whole flow can still be tested locally without a
-// real mail account. See .env.example for how to configure a real provider.
+// notifications). Two real delivery methods are supported, tried in this
+// order:
+//
+//   1. Resend's HTTP API (RESEND_API_KEY) - plain HTTPS, so it works even on
+//      hosts that block outbound SMTP ports (which several free-tier PaaS
+//      platforms, Render included, appear to do for anything on 25/465/587).
+//      This is the recommended option - see .env.example.
+//   2. Direct SMTP (SMTP_HOST/USER/PASS) - useful once this app runs
+//      somewhere with unrestricted outbound access, e.g. a VPS.
+//
+// If neither is configured, emails are logged to the console and appended to
+// data/outbox.log so the whole flow can still be tested without a real
+// mail account.
 
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +20,9 @@ const nodemailer = require('nodemailer');
 
 const OUTBOX_LOG = path.join(__dirname, '..', 'data', 'outbox.log');
 
+const resendConfigured = Boolean(process.env.RESEND_API_KEY);
 const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+const emailConfigured = resendConfigured || smtpConfigured;
 
 function logToOutbox({ to, subject, text }) {
   const entry = `\n----- ${new Date().toISOString()} -----\nTo: ${to}\nSubject: ${subject}\n\n${text}\n`;
@@ -20,7 +31,29 @@ function logToOutbox({ to, subject, text }) {
   // Printed in full (not just a summary) because on a hosted platform like
   // Render there is usually no file browser for the free tier - the
   // platform's live log stream is the only place to actually read this.
-  console.log(`[mailer] SMTP not configured - email NOT delivered, only logged below.\n${entry}`);
+  console.log(`[mailer] No email provider configured - email NOT delivered, only logged below.\n${entry}`);
+}
+
+async function sendViaResend({ to, subject, text, html }) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.RESEND_FROM || process.env.SMTP_FROM || 'Wedding Rentals <onboarding@resend.dev>',
+      to,
+      subject,
+      text,
+      html,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Resend API returned ${res.status}: ${body.slice(0, 300)}`);
+  }
 }
 
 // Nodemailer resolves both A and AAAA records for the SMTP host and then
@@ -41,9 +74,9 @@ async function resolveSmtpHost(hostname) {
   return hostname;
 }
 
-async function buildTransporter() {
+async function sendViaSmtp({ to, subject, text, html }) {
   const resolvedHost = await resolveSmtpHost(process.env.SMTP_HOST);
-  return nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: resolvedHost,
     port: Number(process.env.SMTP_PORT) || 587,
     secure: Number(process.env.SMTP_PORT) === 465,
@@ -59,25 +92,29 @@ async function buildTransporter() {
     greetingTimeout: 10_000,
     socketTimeout: 10_000,
   });
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || 'Wedding Rentals <no-reply@example.com>',
+    to,
+    subject,
+    text,
+    html,
+  });
 }
 
 async function sendMail({ to, subject, text, html }) {
-  if (!smtpConfigured) {
+  if (!emailConfigured) {
     logToOutbox({ to, subject, text: text || html });
     return { delivered: false };
   }
   try {
-    const transporter = await buildTransporter();
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'Wedding Rentals <no-reply@example.com>',
-      to,
-      subject,
-      text,
-      html,
-    });
+    if (resendConfigured) {
+      await sendViaResend({ to, subject, text, html });
+    } else {
+      await sendViaSmtp({ to, subject, text, html });
+    }
     return { delivered: true };
   } catch (err) {
-    // A bad SMTP password, a blocked port, or the mail server being briefly
+    // A bad password, a blocked port, or the mail provider being briefly
     // unreachable should never take down the page that triggered the email
     // (a customer submitting a request, an admin confirming one, etc.) - log
     // it clearly instead so it shows up in the hosting platform's logs.
@@ -86,4 +123,4 @@ async function sendMail({ to, subject, text, html }) {
   }
 }
 
-module.exports = { sendMail, smtpConfigured };
+module.exports = { sendMail, emailConfigured };

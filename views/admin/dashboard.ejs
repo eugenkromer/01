@@ -19,7 +19,7 @@
 
 <main class="admin-main">
 
-  <% if (!smtpConfigured) { %>
+  <% if (!emailConfigured) { %>
     <div class="admin-banner admin-banner-warning">
       ⚠️ Outgoing email is not configured yet. Login links and request notifications are only being logged to <code>data/outbox.log</code>, not actually delivered. See the README to connect a real email provider.
     </div>
