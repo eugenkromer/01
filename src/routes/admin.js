@@ -168,17 +168,18 @@ router.post('/transfer/confirm', requireAdmin, async (req, res) => {
   });
   const acceptLink = `${process.env.BASE_URL || 'http://localhost:3000'}/admin/transfer/accept?token=${token.token}`;
 
-  await sendMail({
-    to: newAdminEmail,
-    subject: 'You have been offered admin control of the wedding rental site',
-    text: `${req.user.email} wants to hand over admin control of the wedding rental website to you.\n\nAs the admin, you will manage the catalog and receive rental request emails.\n\nTo accept, open this link:\n${acceptLink}\n\nThis link expires in 7 days. If you don't recognize this, you can ignore this email.`,
-  });
-
-  await sendMail({
-    to: req.user.email,
-    subject: 'Handover request sent',
-    text: `We sent an invitation to ${newAdminEmail} to take over as admin. Nothing changes until they accept it - you'll get an email as soon as they do.`,
-  });
+  await Promise.all([
+    sendMail({
+      to: newAdminEmail,
+      subject: 'You have been offered admin control of the wedding rental site',
+      text: `${req.user.email} wants to hand over admin control of the wedding rental website to you.\n\nAs the admin, you will manage the catalog and receive rental request emails.\n\nTo accept, open this link:\n${acceptLink}\n\nThis link expires in 7 days. If you don't recognize this, you can ignore this email.`,
+    }),
+    sendMail({
+      to: req.user.email,
+      subject: 'Handover request sent',
+      text: `We sent an invitation to ${newAdminEmail} to take over as admin. Nothing changes until they accept it - you'll get an email as soon as they do.`,
+    }),
+  ]);
 
   res.render('admin/transfer-sent', { title: 'Handover Sent', newAdminEmail });
 });
@@ -204,16 +205,18 @@ router.post('/transfer/accept', async (req, res) => {
   db.markTransferAccepted(tokenValue);
   req.session.email = token.email;
 
-  await sendMail({
-    to: token.fromEmail,
-    subject: 'Admin control has been transferred',
-    text: `${token.email} has accepted admin control of the wedding rental website. You now have read-only access - you can still view the catalog and request history, but rental request emails will now go to ${token.email}.`,
-  });
-  await sendMail({
-    to: token.email,
-    subject: 'You are now the admin',
-    text: `You are now the admin of the wedding rental website. New rental requests will be emailed to this address (${token.email}), and you can manage the catalog from the admin dashboard.`,
-  });
+  await Promise.all([
+    sendMail({
+      to: token.fromEmail,
+      subject: 'Admin control has been transferred',
+      text: `${token.email} has accepted admin control of the wedding rental website. You now have read-only access - you can still view the catalog and request history, but rental request emails will now go to ${token.email}.`,
+    }),
+    sendMail({
+      to: token.email,
+      subject: 'You are now the admin',
+      text: `You are now the admin of the wedding rental website. New rental requests will be emailed to this address (${token.email}), and you can manage the catalog from the admin dashboard.`,
+    }),
+  ]);
 
   req.session.save(() => res.redirect('/admin'));
 });

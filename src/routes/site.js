@@ -75,6 +75,8 @@ async function handleRequest(req, res) {
   });
 
   const admin = db.getAdminUser();
+  const emailPromises = [];
+
   if (admin) {
     const itemLines = items.length
       ? items.map((i) => `  - ${i.name} x${i.qty} ($${i.price.toFixed(2)} ${i.priceUnit})`).join('\n')
@@ -86,22 +88,30 @@ async function handleRequest(req, res) {
         `\nEstimated total: $${request.total.toFixed(2)}\n`
       : '';
 
-    await sendMail({
-      to: admin.email,
-      subject: `New ${eventType.toLowerCase()} rental request from ${customerName}`,
-      text: `You have a new rental request - review it in the admin dashboard and confirm it to notify the customer.\n\nName: ${customerName}\nEmail: ${customerEmail}\nEvent type: ${eventType}\nEvent date: ${eventDate || 'not specified'}\n\nRequested items:\n${itemLines}\n${feeLines}\nMessage:\n${message || '(none)'}\n`,
-    });
+    emailPromises.push(
+      sendMail({
+        to: admin.email,
+        subject: `New ${eventType.toLowerCase()} rental request from ${customerName}`,
+        text: `You have a new rental request - review it in the admin dashboard and confirm it to notify the customer.\n\nName: ${customerName}\nEmail: ${customerEmail}\nEvent type: ${eventType}\nEvent date: ${eventDate || 'not specified'}\n\nRequested items:\n${itemLines}\n${feeLines}\nMessage:\n${message || '(none)'}\n`,
+      })
+    );
   }
 
   const customerItemLines = items.length
     ? items.map((i) => `  - ${i.name} x${i.qty}`).join('\n')
     : '';
 
-  await sendMail({
-    to: customerEmail,
-    subject: `We've received your ${eventType.toLowerCase()} rental request`,
-    text: `Hi ${customerName},\n\nThanks for reaching out! Your request is now being reviewed - we'll email you again to confirm as soon as it's approved, along with a receipt.\n\n${items.length ? `What you requested:\n${customerItemLines}\n\nEstimated total (pending confirmation): $${request.total.toFixed(2)}\n\n` : ''}If anything changes in the meantime, just reply to this email.\n`,
-  });
+  emailPromises.push(
+    sendMail({
+      to: customerEmail,
+      subject: `We've received your ${eventType.toLowerCase()} rental request`,
+      text: `Hi ${customerName},\n\nThanks for reaching out! Your request is now being reviewed - we'll email you again to confirm as soon as it's approved, along with a receipt.\n\n${items.length ? `What you requested:\n${customerItemLines}\n\nEstimated total (pending confirmation): $${request.total.toFixed(2)}\n\n` : ''}If anything changes in the meantime, just reply to this email.\n`,
+    })
+  );
+
+  // Sent in parallel so a slow/failing SMTP server costs at most one
+  // timeout, not one per email.
+  await Promise.all(emailPromises);
 
   res.render('request-thanks', { title: 'Thank You', request });
 }

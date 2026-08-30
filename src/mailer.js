@@ -22,6 +22,12 @@ if (smtpConfigured) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // Nodemailer's defaults wait up to 2 minutes before giving up on a
+    // connection - that would leave the customer staring at a spinner if
+    // the SMTP host/port is wrong or blocked. Fail fast instead.
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 10_000,
   });
 }
 
@@ -40,14 +46,23 @@ async function sendMail({ to, subject, text, html }) {
     logToOutbox({ to, subject, text: text || html });
     return { delivered: false };
   }
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'Wedding Rentals <no-reply@example.com>',
-    to,
-    subject,
-    text,
-    html,
-  });
-  return { delivered: true };
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || 'Wedding Rentals <no-reply@example.com>',
+      to,
+      subject,
+      text,
+      html,
+    });
+    return { delivered: true };
+  } catch (err) {
+    // A bad SMTP password, a blocked port, or the mail server being briefly
+    // unreachable should never take down the page that triggered the email
+    // (a customer submitting a request, an admin confirming one, etc.) - log
+    // it clearly instead so it shows up in the hosting platform's logs.
+    console.error(`[mailer] Failed to send email to ${to} ("${subject}"): ${err.message}`);
+    return { delivered: false, error: err.message };
+  }
 }
 
 module.exports = { sendMail, smtpConfigured };
