@@ -6,35 +6,12 @@
 
 const fs = require('fs');
 const path = require('path');
+const dns = require('dns').promises;
 const nodemailer = require('nodemailer');
 
 const OUTBOX_LOG = path.join(__dirname, '..', 'data', 'outbox.log');
 
 const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-
-let transporter = null;
-if (smtpConfigured) {
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    // Nodemailer's defaults wait up to 2 minutes before giving up on a
-    // connection - that would leave the customer staring at a spinner if
-    // the SMTP host/port is wrong or blocked. Fail fast instead.
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 10_000,
-    // Many hosting platforms (Render included) resolve mail hosts like
-    // Gmail to an IPv6 address but don't actually have IPv6 egress, which
-    // fails with ENETUNREACH. Force IPv4, which every SMTP provider also
-    // supports.
-    family: 4,
-  });
-}
 
 function logToOutbox({ to, subject, text }) {
   const entry = `\n----- ${new Date().toISOString()} -----\nTo: ${to}\nSubject: ${subject}\n\n${text}\n`;
@@ -46,12 +23,51 @@ function logToOutbox({ to, subject, text }) {
   console.log(`[mailer] SMTP not configured - email NOT delivered, only logged below.\n${entry}`);
 }
 
+// Nodemailer resolves both A and AAAA records for the SMTP host and then
+// picks a RANDOM address from the combined list to connect to - there's no
+// option that makes it prefer or stick to IPv4. On hosts like Render, the
+// container reports an IPv6-capable network interface even though it has no
+// real IPv6 route to the internet, so about half of all attempts fail with
+// ENETUNREACH. Work around it by resolving the A record ourselves and
+// connecting to that IP directly, while telling TLS to still validate the
+// certificate (and negotiate SNI) against the real hostname.
+async function resolveSmtpHost(hostname) {
+  try {
+    const addresses = await dns.resolve4(hostname);
+    if (addresses.length) return addresses[Math.floor(Math.random() * addresses.length)];
+  } catch (err) {
+    console.warn(`[mailer] Could not resolve an IPv4 address for ${hostname} (${err.message}) - connecting by hostname instead, which may hit IPv6 routing issues.`);
+  }
+  return hostname;
+}
+
+async function buildTransporter() {
+  const resolvedHost = await resolveSmtpHost(process.env.SMTP_HOST);
+  return nodemailer.createTransport({
+    host: resolvedHost,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: Number(process.env.SMTP_PORT) === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: { servername: process.env.SMTP_HOST },
+    // Nodemailer's defaults wait up to 2 minutes before giving up on a
+    // connection - that would leave the customer staring at a spinner if
+    // the SMTP host/port is wrong or blocked. Fail fast instead.
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 10_000,
+  });
+}
+
 async function sendMail({ to, subject, text, html }) {
-  if (!transporter) {
+  if (!smtpConfigured) {
     logToOutbox({ to, subject, text: text || html });
     return { delivered: false };
   }
   try {
+    const transporter = await buildTransporter();
     await transporter.sendMail({
       from: process.env.SMTP_FROM || 'Wedding Rentals <no-reply@example.com>',
       to,
