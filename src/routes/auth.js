@@ -51,7 +51,20 @@ router.get('/login/verify', (req, res) => {
 
   db.markLoginTokenUsed(tokenValue);
   req.session.email = token.email;
-  res.redirect('/admin');
+  // Explicitly wait for the session to be persisted before redirecting -
+  // on some hosts/proxies a redirect issued immediately after touching the
+  // session can reach the browser before the session store finishes
+  // saving, so the very next request looks logged-out again.
+  req.session.save((err) => {
+    if (err) {
+      return res.render('admin/login', {
+        title: 'Admin Login',
+        sent: false,
+        error: 'Something went wrong logging you in. Please request a new link below.',
+      });
+    }
+    res.redirect('/admin');
+  });
 });
 
 router.post('/logout', (req, res) => {

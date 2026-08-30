@@ -155,7 +155,7 @@ router.post('/transfer/accept', async (req, res) => {
     text: `You are now the admin of the wedding rental website. New rental requests will be emailed to this address (${token.email}), and you can manage the catalog from the admin dashboard.`,
   });
 
-  res.redirect('/admin');
+  req.session.save(() => res.redirect('/admin'));
 });
 
 module.exports = router;

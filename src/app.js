@@ -14,6 +14,11 @@ db.pruneExpiredTokens();
 
 const app = express();
 
+// Render (and most hosting platforms) terminate TLS at a proxy in front of
+// the app and forward plain HTTP internally. Without this, Express can't
+// correctly tell the request was actually HTTPS.
+app.set('trust proxy', 1);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 
