@@ -29,7 +29,10 @@ function logToOutbox({ to, subject, text }) {
   const entry = `\n----- ${new Date().toISOString()} -----\nTo: ${to}\nSubject: ${subject}\n\n${text}\n`;
   fs.mkdirSync(path.dirname(OUTBOX_LOG), { recursive: true });
   fs.appendFileSync(OUTBOX_LOG, entry);
-  console.log(`[mailer] SMTP not configured - email logged to data/outbox.log (To: ${to}, Subject: ${subject})`);
+  // Printed in full (not just a summary) because on a hosted platform like
+  // Render there is usually no file browser for the free tier - the
+  // platform's live log stream is the only place to actually read this.
+  console.log(`[mailer] SMTP not configured - email NOT delivered, only logged below.\n${entry}`);
 }
 
 async function sendMail({ to, subject, text, html }) {
