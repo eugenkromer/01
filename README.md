@@ -1,37 +1,89 @@
-# Hochzeits-Verleih – Website (Firmenname noch offen)
+# Wedding Rental Website (Firmenname noch offen)
 
-Eine stilvolle, responsive Website für einen Hochzeits-Verleih (Tische, Stühle, Dekoration). Reines HTML/CSS/JavaScript – kein Build-Prozess nötig.
+Eine Node.js/Express-Webanwendung für einen Hochzeits-Verleih: eine öffentliche Website mit interaktivem Katalog (Tische, Stühle, Deko, Geschirr ...) auf Englisch, plus einen passwortlosen Admin-Bereich zur Katalogpflege, Anfragenübersicht und Admin-Übergabe.
 
-## Lokal ansehen
+Das ist **kein statisches HTML mehr** wie die erste Version, sondern eine echte Anwendung mit Server, Login und E-Mail-Versand.
 
-Einfach `index.html` im Browser öffnen, oder z. B. mit:
+## Was die Seite kann
+
+- **Öffentliche Seite (Englisch)**: Startseite, Katalog mit Mengen-Auswahl (+/-), allgemeines Kontaktformular.
+- **Katalog-Anfrage**: Kunden wählen Stückzahlen aus, klicken „Send Request", tragen Name/E-Mail/Wunschdatum ein. Die Anfrage wird gespeichert und per E-Mail an den aktuellen Admin geschickt.
+- **Admin-Login ohne Passwort**: Man gibt seine E-Mail-Adresse ein und bekommt einen Login-Link per Mail (gültig 30 Minuten).
+- **Admin-Bereich**: Katalogartikel anlegen/bearbeiten/löschen (Name, Kategorie, Maße, Beschreibung, Preis, Preiseinheit, Stückzahl, optionales Foto), alle eingegangenen Anfragen einsehen.
+- **Admin-Übergabe**: Der aktuelle Admin trägt die E-Mail-Adresse der nächsten Person ein und bestätigt. Diese Person bekommt eine E-Mail mit einem Bestätigungslink, muss die Kontrolle aktiv annehmen - erst dann wechseln die Adminrechte. Der bisherige Admin behält danach **Lesezugriff** (sieht Katalog & Anfragen, kann aber nichts mehr ändern und bekommt keine Anfrage-Mails mehr).
+- Aktuell voreingetragener Admin: **eugenkromer@hv-manager.de**
+
+## Lokal starten
+
+Voraussetzung: [Node.js](https://nodejs.org) (Version 18 oder neuer).
 
 ```bash
-python3 -m http.server 8000
+npm install
+cp .env.example .env
+npm start
 ```
 
-und dann `http://localhost:8000` aufrufen.
+Dann `http://localhost:3000` im Browser öffnen. Für automatischen Neustart bei Änderungen: `npm run dev`.
 
-## Struktur
+Beim ersten Start werden automatisch angelegt:
+- ein Admin-Konto mit der E-Mail aus `.env` (`SEED_ADMIN_EMAIL`, Standard: `eugenkromer@hv-manager.de`)
+- ein paar Beispiel-Katalogartikel (Tische, Stühle, Besteck, Deko) zum Ausprobieren - im Admin-Bereich einfach löschen/anpassen
 
-- `index.html` – gesamte Seite (Home, Leistungen, Galerie, Über uns, Kundenstimmen, Kontakt)
-- `css/style.css` – Design (Farben, Layout, Responsive-Verhalten)
-- `js/script.js` – mobiles Menü, Formular-Verhalten
+Alle Daten liegen in JSON-Dateien im Ordner `data/` (keine Datenbank nötig). Dieser Ordner ist in `.gitignore` und wird nicht mit committet.
 
-## Vor dem Live-Gang bitte anpassen
+## E-Mail-Versand einrichten (wichtig!)
 
-Firmenname und Kontaktdaten waren zum Zeitpunkt der Erstellung noch nicht bekannt. Alle Stellen, die noch ausgefüllt werden müssen, sind in `index.html` als **eckige Platzhalter** markiert – am einfachsten findet man sie per Suche (Strg+F / Cmd+F) nach `[`:
+Ohne Konfiguration werden Login-Links und Anfrage-Benachrichtigungen **nicht wirklich verschickt**, sondern nur in `data/outbox.log` protokolliert und in der Konsole ausgegeben. So lässt sich alles lokal testen, aber für den echten Betrieb muss ein E-Mail-Anbieter eingetragen werden.
 
-1. **`[FIRMENNAME]`** – kommt im `<title>`, im Logo (Header) und im Footer vor. An allen Stellen durch den echten Firmennamen ersetzen (Suchen & Ersetzen über die ganze Datei).
-2. **`[TELEFONNUMMER]`** – im Header und im Kontaktbereich. Beide `tel:`-Links (Format z. B. `+491234567890`) sowie den angezeigten Text ersetzen.
-3. **`[E-MAIL-ADRESSE]`** – im Kontaktbereich, sowohl im `mailto:`-Link als auch im angezeigten Text.
-4. **`[STRASSE HAUSNUMMER, PLZ ORT]`** und **`[ÖFFNUNGSZEITEN / ERREICHBARKEIT]`** – im Kontaktbereich.
-5. **Social-Media-Links**: Die `#`-Platzhalter-Links (Instagram/Facebook) im Kontaktbereich durch echte Profile ersetzen (mit `<!-- TODO -->`-Kommentar markiert).
-6. **Echte Fotos**: Der Galerie-Bereich (`#galerie`) nutzt aktuell farbige Platzhalter statt echter Fotos. Sobald Bilder vorhanden sind, `.gallery-item` durch `<img>`-Elemente ersetzen.
-7. **Kundenstimmen**: Der Abschnitt „Kundenstimmen" enthält Platzhaltertexte – bitte durch echte, freigegebene Zitate zufriedener Kundinnen und Kunden ersetzen.
-8. **Kontaktformular funktionsfähig machen**: Das Formular sendet aktuell keine Daten – es zeigt nur eine Bestätigung an. Um Anfragen wirklich zu empfangen, an einen Formular-/E-Mail-Dienst anbinden (z. B. Formspree, Netlify Forms) oder ein eigenes Backend anbinden. Die Logik dafür steht in `js/script.js`.
-9. **Karte/Anfahrt** (optional): Ein Google-Maps-Iframe mit der echten Adresse kann im Kontakt-Bereich ergänzt werden.
+In `.env` folgende Werte setzen (siehe `.env.example` für Details):
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=deine-adresse@gmail.com
+SMTP_PASS=dein-app-passwort
+SMTP_FROM="Wedding Rentals <no-reply@example.com>"
+BASE_URL=https://deine-echte-domain.de
+```
+
+Funktioniert mit jedem SMTP-fähigen Anbieter (Gmail mit „App-Passwort", oder Dienste wie Resend, SendGrid, Postmark, Mailgun). Solange `SMTP_HOST`, `SMTP_USER` und `SMTP_PASS` nicht gesetzt sind, zeigt das Admin-Dashboard einen Warnhinweis.
+
+`BASE_URL` unbedingt auf die echte Domain setzen, sobald die Seite live ist - sonst zeigen die Links in den E-Mails auf `localhost`.
+
+## Vor dem Live-Gang noch anzupassen
+
+Genau wie schon bei der ersten Version stehen Firmenname und Kontaktdaten als Platzhalter in eckigen Klammern in den Dateien unter `views/`:
+
+- `[COMPANY NAME]` - in `views/partials/header.ejs`, `views/partials/footer.ejs`, `views/partials/head.ejs`, `views/home.ejs`, `views/admin/*.ejs`
+- `[PHONE NUMBER]`, `[EMAIL ADDRESS]`, `[STREET ADDRESS, CITY, STATE ZIP]`, `[BUSINESS HOURS]` - in `views/partials/header.ejs` und `views/home.ejs`
+
+Am einfachsten per Suchen & Ersetzen über den ganzen `views/`-Ordner.
+
+Weitere Punkte:
+- **Fotos**: Im Admin-Bereich kann bei jedem Artikel eine Bild-URL hinterlegt werden. Ohne Foto zeigt die Karte einen farbigen Platzhalter mit Kategorienamen.
+- **Startadmin ändern**: Falls die Seite nicht mit `eugenkromer@hv-manager.de`, sondern direkt mit einer anderen E-Mail starten soll, `SEED_ADMIN_EMAIL` in `.env` setzen, bevor der Server zum ersten Mal läuft (danach lässt sich die Rolle nur noch über die Übergabe-Funktion im Admin-Bereich ändern).
+- **Session-Secret**: `SESSION_SECRET` in `.env` auf einen zufälligen, langen Wert setzen (Befehl dafür steht in `.env.example`).
 
 ## Hosting
 
-Da es sich um eine statische Seite handelt, kann sie z. B. über GitHub Pages, Netlify oder Vercel kostenlos gehostet werden.
+Diese App braucht - anders als die erste, rein statische Version - einen laufenden Node.js-Prozess (kein reines "ZIP hochladen" mehr möglich). Geeignet sind z. B. Render, Railway, Fly.io oder ein eigener kleiner Server/VPS. Wichtig beim Deployment:
+- `.env` mit echten Werten anlegen (nicht ins Git-Repo committen)
+- `data/`-Ordner muss beschreibbar sein und sollte bei Neustarts/Deployments erhalten bleiben (persistentes Volume), sonst gehen Katalog und Anfragen-Historie verloren
+
+## Projektstruktur
+
+```
+src/
+  app.js            Express-Setup, Middleware, Routen
+  server.js         Startpunkt
+  db.js             Datenschicht (JSON-Dateien unter /data)
+  mailer.js         E-Mail-Versand (mit Konsole/Datei-Fallback)
+  middleware/auth.js
+  routes/
+    site.js         Startseite, Katalog, Anfragen/Kontakt
+    auth.js         Login per Magic Link
+    admin.js        Dashboard, Katalogpflege, Admin-Übergabe
+views/              EJS-Templates (öffentliche Seite + Admin)
+public/             CSS & Client-JavaScript
+data/               Laufzeitdaten (JSON), nicht im Git
+```

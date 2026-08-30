@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('../partials/admin-head') %>
+</head>
+<body class="admin-body admin-body-centered">
+<main class="admin-auth-card">
+  <p class="admin-eyebrow">[COMPANY NAME]</p>
+  <h1>Admin Login</h1>
+
+  <% if (sent) { %>
+    <p class="admin-notice admin-notice-success">If that email has admin access, we've sent a login link to it. The link is valid for 30 minutes.</p>
+  <% } else { %>
+    <% if (error) { %><p class="admin-notice admin-notice-error"><%= error %></p><% } %>
+    <p class="admin-lead">Enter the email address associated with your admin account. We'll email you a one-time login link - no password needed.</p>
+    <form method="POST" action="/admin/login">
+      <div class="form-row">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primary btn-large btn-block">Send Login Link</button>
+    </form>
+  <% } %>
+
+  <a href="/" class="admin-back-link">&larr; Back to website</a>
+</main>
+</body>
+</html>

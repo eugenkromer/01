@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('../partials/admin-head') %>
+</head>
+<body class="admin-body">
+<header class="admin-topbar">
+  <div class="admin-topbar-inner">
+    <span class="admin-brand">[COMPANY NAME] <em>Admin</em></span>
+    <div class="admin-topbar-user">
+      <span class="role-badge role-badge-<%= currentUser.role %>"><%= currentUser.role %></span>
+      <span class="admin-user-email"><%= currentUser.email %></span>
+      <form method="POST" action="/admin/logout" class="inline-form">
+        <button type="submit" class="btn btn-ghost btn-small">Log Out</button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<main class="admin-main">
+
+  <% if (!smtpConfigured) { %>
+    <div class="admin-banner admin-banner-warning">
+      ⚠️ Outgoing email is not configured yet. Login links and request notifications are only being logged to <code>data/outbox.log</code>, not actually delivered. See the README to connect a real email provider.
+    </div>
+  <% } %>
+
+  <% if (currentUser.role === 'viewer') { %>
+    <div class="admin-banner admin-banner-info">
+      👁️ You have <strong>read-only</strong> access. Admin control was transferred to another account, so editing and rental request emails now go there.
+    </div>
+  <% } %>
+
+  <section class="admin-section" id="requests">
+    <div class="admin-section-header">
+      <h2>Rental Requests</h2>
+      <span class="admin-count"><%= requests.length %> total</span>
+    </div>
+    <% if (requests.length === 0) { %>
+      <p class="admin-empty">No requests yet.</p>
+    <% } else { %>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Date</th><th>Customer</th><th>Event Date</th><th>Items</th><th>Message</th></tr>
+          </thead>
+          <tbody>
+            <% requests.forEach(function(r) { %>
+              <tr>
+                <td><%= new Date(r.createdAt).toLocaleDateString() %></td>
+                <td><%= r.customerName %><br><a href="mailto:<%= r.customerEmail %>"><%= r.customerEmail %></a></td>
+                <td><%= r.eventDate || '—' %></td>
+                <td>
+                  <% if (r.items.length === 0) { %>
+                    <em>General inquiry</em>
+                  <% } else { %>
+                    <ul class="admin-item-list">
+                      <% r.items.forEach(function(i) { %><li><%= i.name %> &times; <%= i.qty %></li><% }) %>
+                    </ul>
+                  <% } %>
+                </td>
+                <td class="admin-message-cell"><%= r.message || '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="admin-section" id="catalog">
+    <div class="admin-section-header">
+      <h2>Catalog</h2>
+      <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/items/new" class="btn btn-primary btn-small">+ Add Item</a>
+      <% } %>
+    </div>
+
+    <% if (groups.length === 0) { %>
+      <p class="admin-empty">No catalog items yet.</p>
+    <% } %>
+
+    <% groups.forEach(function(group) { %>
+      <h3 class="admin-group-title"><%= group.category %></h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Name</th><th>Dimensions</th><th>Price</th><th>Stock</th><% if (currentUser.role === 'admin') { %><th></th><% } %></tr>
+          </thead>
+          <tbody>
+            <% group.items.forEach(function(item) { %>
+              <tr>
+                <td><%= item.name %></td>
+                <td><%= item.dimensions || '—' %></td>
+                <td>$<%= item.price.toFixed(2) %> <span class="muted"><%= item.priceUnit %></span></td>
+                <td><%= item.stock %></td>
+                <% if (currentUser.role === 'admin') { %>
+                  <td class="admin-row-actions">
+                    <a href="/admin/items/<%= item.id %>/edit" class="btn btn-ghost btn-small">Edit</a>
+                    <form method="POST" action="/admin/items/<%= item.id %>/delete" class="inline-form" onsubmit="return confirm('Delete this item?');">
+                      <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                    </form>
+                  </td>
+                <% } %>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% }) %>
+  </section>
+
+  <% if (currentUser.role === 'admin') { %>
+    <section class="admin-section" id="handover">
+      <div class="admin-section-header">
+        <h2>Admin Handover</h2>
+      </div>
+      <p class="admin-lead">Hand over admin control to someone else. They'll get an email and must accept before anything changes. Once they accept, your access becomes read-only.</p>
+
+      <% if (pendingTransfer) { %>
+        <div class="admin-banner admin-banner-info">
+          ⏳ Invitation sent to <strong><%= pendingTransfer.email %></strong>, waiting for them to accept.
+        </div>
+      <% } else { %>
+        <% if (typeof transferError !== 'undefined' && transferError) { %>
+          <p class="admin-notice admin-notice-error"><%= transferError %></p>
+        <% } %>
+        <form method="POST" action="/admin/transfer" class="handover-form">
+          <div class="form-row">
+            <label for="newAdminEmail">New admin's email</label>
+            <input type="email" id="newAdminEmail" name="newAdminEmail" required placeholder="cousin@example.com">
+          </div>
+          <button type="submit" class="btn btn-primary">Transfer Admin Control</button>
+        </form>
+      <% } %>
+    </section>
+  <% } %>
+
+</main>
+</body>
+</html>

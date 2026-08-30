@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('../partials/admin-head') %>
+</head>
+<body class="admin-body admin-body-centered">
+<main class="admin-auth-card">
+  <p class="admin-eyebrow">[COMPANY NAME]</p>
+  <h1>Accept admin control</h1>
+  <p class="admin-lead">
+    <strong><%= token.fromEmail %></strong> wants to hand over admin control of the wedding rental website to
+    <strong><%= token.email %></strong>.
+  </p>
+  <p class="admin-lead">Once you accept:</p>
+  <ul class="admin-confirm-list">
+    <li>You'll be able to manage the catalog and edit item text, prices, and quantities.</li>
+    <li>New rental requests will be emailed to <strong><%= token.email %></strong>.</li>
+    <li><%= token.fromEmail %> will keep read-only access.</li>
+  </ul>
+
+  <form method="POST" action="/admin/transfer/accept">
+    <input type="hidden" name="token" value="<%= token.token %>">
+    <button type="submit" class="btn btn-primary btn-large btn-block">Accept Admin Control</button>
+  </form>
+</main>
+</body>
+</html>

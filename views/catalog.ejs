@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body class="has-cart-bar">
+<%- include('partials/header') %>
+
+<section class="page-intro">
+  <div class="container">
+    <p class="section-eyebrow">Rental Catalog</p>
+    <h1 class="section-title">Pick what you need</h1>
+    <p class="section-lead">Set a quantity for anything you'd like, then send us a request - it's not a purchase, just the fastest way to get an accurate quote.</p>
+  </div>
+</section>
+
+<section class="section catalog-section">
+  <div class="container">
+    <% if (groups.length === 0) { %>
+      <p class="empty-state">The catalog is empty right now. Please check back soon, or use the <a href="/#contact">contact form</a> to reach us directly.</p>
+    <% } %>
+
+    <% groups.forEach(function(group) { %>
+      <div class="catalog-group">
+        <h2 class="catalog-group-title"><%= group.category %></h2>
+        <div class="catalog-grid">
+          <% group.items.forEach(function(item) { %>
+            <article class="catalog-card" data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
+              <div class="catalog-card-media" style="<%= item.imageUrl ? `background-image:url('${item.imageUrl}')` : '' %>">
+                <% if (!item.imageUrl) { %><span class="catalog-card-placeholder"><%= group.category %></span><% } %>
+              </div>
+              <div class="catalog-card-body">
+                <h3><%= item.name %></h3>
+                <% if (item.dimensions) { %><p class="catalog-dimensions"><%= item.dimensions %></p><% } %>
+                <% if (item.description) { %><p class="catalog-description"><%= item.description %></p><% } %>
+                <p class="catalog-price">$<%= item.price.toFixed(2) %> <span><%= item.priceUnit %></span></p>
+                <% if (item.stock > 0) { %>
+                  <div class="qty-stepper" data-max="<%= item.stock %>" data-price="<%= item.price %>">
+                    <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">&minus;</button>
+                    <input type="number" class="qty-input" value="0" min="0" max="<%= item.stock %>" inputmode="numeric">
+                    <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+                  </div>
+                  <p class="catalog-stock"><%= item.stock %> available</p>
+                <% } else { %>
+                  <p class="catalog-stock catalog-stock-out">Currently unavailable</p>
+                <% } %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<div class="cart-bar" id="cart-bar" hidden>
+  <div class="container cart-bar-inner">
+    <p class="cart-summary" id="cart-summary">0 items selected</p>
+    <button type="button" class="btn btn-primary" id="cart-open-btn">Send Request</button>
+  </div>
+</div>
+
+<dialog id="request-dialog" class="request-dialog">
+  <form method="POST" action="/request" id="request-form">
+    <button type="button" class="dialog-close" id="dialog-close-btn" aria-label="Close">&times;</button>
+    <h2>Request These Items</h2>
+    <p class="dialog-lead">We'll email your request and get back to you with a firm quote.</p>
+
+    <div class="dialog-cart-list" id="dialog-cart-list"></div>
+
+    <div class="form-row">
+      <label for="dlgCustomerName">Name*</label>
+      <input type="text" id="dlgCustomerName" name="customerName" required autocomplete="name">
+    </div>
+    <div class="form-row">
+      <label for="dlgCustomerEmail">Email*</label>
+      <input type="email" id="dlgCustomerEmail" name="customerEmail" required autocomplete="email">
+    </div>
+    <div class="form-row">
+      <label for="dlgEventDate">Wedding date</label>
+      <input type="date" id="dlgEventDate" name="eventDate">
+    </div>
+    <div class="form-row">
+      <label for="dlgMessage">Message</label>
+      <textarea id="dlgMessage" name="message" rows="3" placeholder="Anything else we should know?"></textarea>
+    </div>
+
+    <input type="hidden" name="itemsJson" id="itemsJsonField">
+    <button type="submit" class="btn btn-primary btn-large">Send Request</button>
+  </form>
+</dialog>
+
+<%- include('partials/footer') %>
+<script src="/js/catalog.js"></script>
+</body>
+</html>

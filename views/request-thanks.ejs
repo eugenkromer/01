@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body>
+<%- include('partials/header') %>
+
+<section class="section thanks-section">
+  <div class="container">
+    <p class="section-eyebrow">Request Sent</p>
+    <h1 class="section-title">Thank you, <%= request.customerName %>!</h1>
+    <p class="section-lead">We've received your request and will be in touch at <strong><%= request.customerEmail %></strong> shortly with a quote.</p>
+
+    <% if (request.items.length > 0) { %>
+      <div class="thanks-summary">
+        <h2>What you requested</h2>
+        <ul>
+          <% request.items.forEach(function(i) { %>
+            <li><%= i.name %> &times; <%= i.qty %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <a href="/" class="btn btn-primary">Back to Home</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('../partials/admin-head') %>
+</head>
+<body class="admin-body admin-body-centered">
+<main class="admin-auth-card">
+  <p class="admin-eyebrow">Admin Handover</p>
+  <h1>Confirm handover</h1>
+  <p class="admin-lead">
+    You're about to invite <strong><%= newAdminEmail %></strong> to take over as admin.
+    They will need to accept before anything changes. Once they accept:
+  </p>
+  <ul class="admin-confirm-list">
+    <li>They become the admin and receive future rental request emails.</li>
+    <li>Your account becomes <strong>read-only</strong> - you can still view the catalog and request history.</li>
+  </ul>
+
+  <form method="POST" action="/admin/transfer/confirm">
+    <input type="hidden" name="newAdminEmail" value="<%= newAdminEmail %>">
+    <button type="submit" class="btn btn-primary btn-large btn-block">Yes, Send Invitation</button>
+  </form>
+  <a href="/admin" class="admin-back-link">&larr; Cancel</a>
+</main>
+</body>
+</html>

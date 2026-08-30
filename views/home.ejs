@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body>
+<%- include('partials/header') %>
+
+<section class="hero" id="home">
+  <div class="hero-petals" aria-hidden="true">
+    <svg viewBox="0 0 24 24" class="petal p1"><path d="M12 2C7 2 2 7 2 12c5 0 10-5 10-10z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal p2"><path d="M12 2C7 2 2 7 2 12c5 0 10-5 10-10z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal p3"><path d="M12 2C7 2 2 7 2 12c5 0 10-5 10-10z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal p4"><path d="M12 2C7 2 2 7 2 12c5 0 10-5 10-10z"/></svg>
+    <svg viewBox="0 0 24 24" class="petal p5"><path d="M12 2C7 2 2 7 2 12c5 0 10-5 10-10z"/></svg>
+  </div>
+  <div class="container hero-inner">
+    <p class="eyebrow">Tables &middot; Chairs &middot; Decor Rentals</p>
+    <h1>Your dream wedding,<br><em>beautifully furnished</em></h1>
+    <p class="hero-text">We help couples across the region furnish their wedding with high-quality tables, chairs, and decor - matched to your style, from the first inquiry to pickup after the big day.</p>
+    <div class="hero-actions">
+      <a href="/catalog" class="btn btn-primary btn-large">Browse the Catalog</a>
+      <a href="#about" class="btn btn-ghost btn-large">Learn More</a>
+    </div>
+    <ul class="hero-trust">
+      <li>★★★★★ from happy couples</li>
+      <li>Personal consultation</li>
+      <li>Delivery &amp; setup available</li>
+    </ul>
+  </div>
+  <svg class="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C360,100 1080,0 1440,50 L1440,100 L0,100 Z"></path>
+  </svg>
+</section>
+
+<section class="usp-strip">
+  <div class="container usp-grid">
+    <div class="usp-item">
+      <span class="usp-icon">💍</span>
+      <h3>Wedding specialists</h3>
+      <p>Not a generic party-rental warehouse - our selection is curated specifically for wedding moments.</p>
+    </div>
+    <div class="usp-item">
+      <span class="usp-icon">🚚</span>
+      <h3>Delivery &amp; setup</h3>
+      <p>We can deliver, set up, and pick everything back up after the celebration - you focus on the day.</p>
+    </div>
+    <div class="usp-item">
+      <span class="usp-icon">🌿</span>
+      <h3>A look that fits</h3>
+      <p>Boho, classic-elegant, or modern minimalist - we help you put together a matching combination.</p>
+    </div>
+    <div class="usp-item">
+      <span class="usp-icon">🤝</span>
+      <h3>Personal service</h3>
+      <p>We take the time to understand what you need, from the first conversation to the big day.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="catalog-preview">
+  <div class="container">
+    <p class="section-eyebrow">What We Offer</p>
+    <h2 class="section-title">Everything for your reception table</h2>
+    <p class="section-lead">Browse our full catalog, pick the quantities you need, and send us a request - no account required.</p>
+    <a href="/catalog" class="btn btn-primary btn-large">Open the Catalog</a>
+  </div>
+</section>
+
+<section class="section about section-alt" id="about">
+  <div class="container about-grid">
+    <div class="about-visual" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="92" fill="none" stroke-width="1.5"/>
+        <path d="M100 60c-16 0-30 12-30 30 0 24 30 46 30 46s30-22 30-46c0-18-14-30-30-30z"/>
+      </svg>
+    </div>
+    <div class="about-text">
+      <p class="section-eyebrow">About Us</p>
+      <h2 class="section-title">Furnishing your special day, with care</h2>
+      <p>[COMPANY NAME] grew out of a passion for beautiful celebrations. What started as a small collection of tables and chairs has grown into a full rental catalog that helps couples bring their wedding vision to life.</p>
+      <p>Word of mouth has carried us for years - now we want to make it even easier to find us and send a request.</p>
+      <p>Whether it's an intimate gathering or a large wedding party, we listen, advise honestly, and make sure everything fits on your big day.</p>
+      <a href="/catalog" class="btn btn-primary">Browse the Catalog</a>
+    </div>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <div class="container contact-grid">
+    <div class="contact-info">
+      <p class="section-eyebrow">Contact</p>
+      <h2 class="section-title">Tell us about your wedding</h2>
+      <p class="section-lead">Have a general question rather than a specific rental list? Send us a note and we'll get back to you.</p>
+
+      <ul class="contact-list">
+        <li>📍 [STREET ADDRESS, CITY, STATE ZIP]</li>
+        <li>📞 <a href="tel:[PHONE NUMBER]">[PHONE NUMBER]</a></li>
+        <li>✉️ <a href="mailto:[EMAIL ADDRESS]">[EMAIL ADDRESS]</a></li>
+        <li>🕐 [BUSINESS HOURS]</li>
+      </ul>
+    </div>
+
+    <form class="contact-form" method="POST" action="/contact">
+      <div class="form-row">
+        <label for="customerName">Name*</label>
+        <input type="text" id="customerName" name="customerName" required autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label for="customerEmail">Email*</label>
+        <input type="email" id="customerEmail" name="customerEmail" required autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label for="eventDate">Wedding date</label>
+        <input type="date" id="eventDate" name="eventDate">
+      </div>
+      <div class="form-row">
+        <label for="message">Your message*</label>
+        <textarea id="message" name="message" rows="5" required placeholder="Tell us about your wedding: location, style, what you're looking for..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-large">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+</body>
+</html>
