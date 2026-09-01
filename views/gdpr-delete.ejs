@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body>
+<%- include('partials/header') %>
+
+<section class="hero hero-small">
+  <div class="container">
+    <h1>Data Deletion Request</h1>
+    <p class="section-lead">GDPR Article 17: Right to be Forgotten</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="form-container" style="max-width: 600px; margin: 0 auto;">
+
+<h2>Request Deletion of Your Personal Data</h2>
+
+<p>Under GDPR Article 17, you have the right to request that we delete your personal data. We will permanently delete all data associated with your email address within 30 days of your request.</p>
+
+<div style="background: #ffe6e6; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #d32f2f; margin: 1.5rem 0;">
+  <h3 style="margin-top: 0; color: #d32f2f;">⚠️ Important: This action is permanent</h3>
+  <p style="margin-bottom: 0;">Once deleted, your rental history and contact information cannot be recovered. If you may need this data in the future, consider exporting it first.</p>
+  <p style="margin: 0.5rem 0 0 0;"><a href="/gdpr/export">Export your data before deleting →</a></p>
+</div>
+
+<p><strong>We will delete:</strong></p>
+<ul>
+  <li>All rental requests associated with your email</li>
+  <li>Your name and contact information</li>
+  <li>Event details and dates</li>
+  <li>Items you requested</li>
+  <li>Any messages or notes you provided</li>
+  <li>All backup copies (within technical limits)</li>
+</ul>
+
+<p><strong>Exceptions:</strong></p>
+<p>We may retain limited data if required by law, including:</p>
+<ul>
+  <li>Tax and accounting records (7 years per law)</li>
+  <li>Fraud prevention records</li>
+  <li>Legal dispute resolution</li>
+  <li>Contractual obligations</li>
+</ul>
+
+<form id="deleteForm" method="POST" action="/gdpr/delete" style="background: #f9f9f9; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+
+  <div class="form-group">
+    <label for="email">Your Email Address</label>
+    <input type="email" id="email" name="email" required placeholder="your@email.com" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+    <small>Enter the email associated with your rental request(s)</small>
+  </div>
+
+  <div class="form-group">
+    <label for="reason">Reason for Deletion (Optional)</label>
+    <select id="reason" name="reason" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+      <option value="">-- Select a reason --</option>
+      <option value="no_longer_needed">Data no longer needed</option>
+      <option value="privacy_concern">Privacy concerns</option>
+      <option value="not_using_service">No longer using service</option>
+      <option value="other">Other reason</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="other_reason">If "Other", please explain:</label>
+    <textarea id="other_reason" name="other_reason" placeholder="(Optional)" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 80px;"></textarea>
+  </div>
+
+  <div class="form-group" style="background: #ffe6e6; padding: 1rem; border-left: 4px solid #d32f2f; border-radius: 4px; margin: 1rem 0;">
+    <label style="display: flex; align-items: start; gap: 0.5rem;">
+      <input type="checkbox" id="confirm" name="confirm" required style="margin-top: 0.25rem;">
+      <span><strong>I understand this deletion is permanent and cannot be undone. I confirm that this is my email address and I request permanent deletion of all my personal data.</strong></span>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-danger" style="width: 100%; padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; border-radius: 4px; background: #d32f2f; color: white;">
+      Permanently Delete My Data
+    </button>
+  </div>
+
+  <p style="font-size: 0.9rem; color: #666; text-align: center; margin-top: 1rem;">
+    We will send a confirmation email once your data has been deleted (within 30 days).
+  </p>
+
+</form>
+
+<div style="background: #f0f8ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #2c5aa0; margin-top: 2rem;">
+  <h3 style="margin-top: 0;">Need to export your data first?</h3>
+  <p>If you'd like to keep a copy of your rental history before deletion, <a href="/gdpr/export">click here to export your data</a>.</p>
+
+  <h3>Questions?</h3>
+  <p>If you have questions about deletion or need assistance, please contact us:</p>
+  <ul>
+    <li><strong>Email:</strong> <a href="mailto:[EMAIL ADDRESS]">[EMAIL ADDRESS]</a></li>
+    <li><strong>Phone:</strong> [PHONE NUMBER]</li>
+  </ul>
+  <p style="font-size: 0.9rem; color: #666; margin-bottom: 0;">We will respond to all GDPR requests within 30 days.</p>
+</div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.form-container input, .form-container select, .form-container textarea, .form-container button {
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form-group small {
+  display: block;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+</style>
+
+<%- include('partials/footer') %>
+</body>
+</html>

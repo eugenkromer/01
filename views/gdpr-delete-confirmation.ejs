@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body>
+<%- include('partials/header') %>
+
+<section class="hero hero-small">
+  <div class="container">
+    <h1>Deletion Request Received</h1>
+    <p class="section-lead">GDPR Article 17: Right to be Forgotten</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="confirmation-box" style="max-width: 600px; margin: 0 auto; background: #f0f8ff; padding: 2rem; border-radius: 8px; border-left: 4px solid #2c5aa0; text-align: center;">
+
+<h2 style="color: #2c5aa0;">✓ Deletion Request Received</h2>
+
+<p style="font-size: 1.1rem; margin: 1.5rem 0;">Your data deletion request has been submitted and processed.</p>
+
+<div style="background: white; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0; text-align: left;">
+  <h3>Details</h3>
+  <ul style="list-style: none; padding: 0;">
+    <li style="padding: 0.5rem 0;"><strong>Email:</strong> <%= email %></li>
+    <li style="padding: 0.5rem 0;"><strong>Records Deleted:</strong> <%= deletedCount %> rental request(s)</li>
+    <li style="padding: 0.5rem 0;"><strong>Deleted At:</strong> <%= new Date().toLocaleString() %></li>
+    <li style="padding: 0.5rem 0;"><strong>Status:</strong> <span style="color: #2c5aa0; font-weight: 600;">Completed</span></li>
+  </ul>
+</div>
+
+<p style="color: #666; font-size: 0.9rem;">Your personal data and rental history have been permanently deleted from our active systems. Backup copies will be purged within 7 days.</p>
+
+<div style="margin-top: 2rem;">
+  <a href="/" class="btn btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem; background: #2c5aa0; color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+    Return to Home
+  </a>
+</div>
+
+<div style="background: #fffacd; padding: 1rem; border-left: 4px solid #ffd700; border-radius: 4px; margin-top: 2rem; text-align: left;">
+  <h3 style="margin-top: 0;">Questions?</h3>
+  <p>If you have any questions about your deletion or encounter any issues, please contact us:</p>
+  <ul>
+    <li><strong>Email:</strong> <a href="mailto:[EMAIL ADDRESS]">[EMAIL ADDRESS]</a></li>
+    <li><strong>Phone:</strong> [PHONE NUMBER]</li>
+  </ul>
+  <p style="font-size: 0.9rem; color: #666; margin-bottom: 0;">We're here to help and respect your privacy rights.</p>
+</div>
+
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+</body>
+</html>

@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { sendMail } = require('../mailer');
+const auditLogger = require('../auditLogger');
 
 const router = express.Router();
 
@@ -32,6 +33,13 @@ router.post('/login', async (req, res) => {
       subject: 'Your admin login link',
       text: `Click this link to log in to the admin area:\n\n${link}\n\nThis link expires in 30 minutes. If you did not request this, you can ignore this email.`,
     });
+    auditLogger.logSecurityEvent('LOGIN_LINK_SENT', user.email, 'info', {
+      userRole: user.role
+    });
+  } else {
+    auditLogger.logSecurityEvent('LOGIN_ATTEMPT_UNKNOWN_EMAIL', email, 'warning', {
+      email
+    });
   }
 
   res.render('admin/login', { title: 'Admin Login', sent: true, error: null });
@@ -51,12 +59,19 @@ router.get('/login/verify', (req, res) => {
 
   db.markLoginTokenUsed(tokenValue);
   req.session.email = token.email;
+
+  const user = db.findUserByEmail(token.email);
+  auditLogger.logSecurityEvent('LOGIN_SUCCESSFUL', token.email, 'info', {
+    userRole: user ? user.role : 'unknown'
+  });
+
   // Explicitly wait for the session to be persisted before redirecting -
   // on some hosts/proxies a redirect issued immediately after touching the
   // session can reach the browser before the session store finishes
   // saving, so the very next request looks logged-out again.
   req.session.save((err) => {
     if (err) {
+      auditLogger.logSecurityEvent('LOGIN_SESSION_SAVE_FAILED', token.email, 'warning');
       return res.render('admin/login', {
         title: 'Admin Login',
         sent: false,
@@ -68,6 +83,11 @@ router.get('/login/verify', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
+  if (req.user) {
+    auditLogger.logSecurityEvent('LOGOUT', req.user.email, 'info', {
+      userRole: req.user.role
+    });
+  }
   req.session.destroy(() => res.redirect('/'));
 });
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { sendMail } = require('../mailer');
+const auditLogger = require('../auditLogger');
 
 const router = express.Router();
 
@@ -74,6 +75,11 @@ async function handleRequest(req, res) {
     deliveryFee: settings.deliveryFee,
   });
 
+  auditLogger.logDataAccess('RENTAL_REQUEST_CREATED', 'rental_request', request.id, customerEmail, 'success', {
+    eventType,
+    itemCount: items.length
+  });
+
   const admin = db.getAdminUser();
   const emailPromises = [];
 
@@ -118,5 +124,115 @@ async function handleRequest(req, res) {
 
 router.post('/request', (req, res) => handleRequest(req, res));
 router.post('/contact', (req, res) => handleRequest(req, res));
+
+// Legal & Compliance Pages
+router.get('/privacy', (req, res) => {
+  res.render('privacy', { title: 'Privacy Policy' });
+});
+
+router.get('/terms', (req, res) => {
+  res.render('terms', { title: 'Terms of Service' });
+});
+
+// GDPR Data Export (Art. 20)
+router.get('/gdpr/export', (req, res) => {
+  res.render('gdpr-export', { title: 'Data Export Request - GDPR' });
+});
+
+router.post('/gdpr/export', (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const format = req.body.format || 'json';
+
+  if (!EMAIL_RE.test(email)) {
+    return res.status(400).render('gdpr-export', {
+      title: 'Data Export Request',
+      error: 'Please provide a valid email address'
+    });
+  }
+
+  const requests = db.getRequests().filter(r => r.customerEmail.toLowerCase() === email);
+  auditLogger.logDataExport(email, format, requests.length, {
+    requestCount: requests.length
+  });
+
+  if (format === 'json') {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      exportedBy: email,
+      totalRecords: requests.length,
+      requests
+    };
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="rental-data-${Date.now()}.json"`);
+    return res.send(JSON.stringify(data, null, 2));
+  } else if (format === 'csv') {
+    let csv = 'Date Submitted,Event Type,Event Date,Items Requested,Total,Status\n';
+    for (const req of requests) {
+      const items = req.items.map(i => `${i.name} x${i.qty}`).join('; ');
+      const row = [
+        new Date(req.createdAt).toLocaleDateString(),
+        req.eventType,
+        req.eventDate || 'Not specified',
+        items || 'None',
+        `$${req.total.toFixed(2)}`,
+        req.status
+      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(',');
+      csv += row + '\n';
+    }
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="rental-data-${Date.now()}.csv"`);
+    return res.send(csv);
+  }
+
+  res.status(400).render('gdpr-export', {
+    title: 'Data Export Request',
+    error: 'Invalid format selected'
+  });
+});
+
+// GDPR Data Deletion (Art. 17)
+router.get('/gdpr/delete', (req, res) => {
+  res.render('gdpr-delete', { title: 'Data Deletion Request - GDPR' });
+});
+
+router.post('/gdpr/delete', async (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const confirm = req.body.confirm === 'on';
+
+  if (!EMAIL_RE.test(email) || !confirm) {
+    return res.status(400).render('gdpr-delete', {
+      title: 'Data Deletion Request',
+      error: 'Please provide a valid email and confirm the deletion'
+    });
+  }
+
+  const requests = db.getRequests();
+  const beforeCount = requests.length;
+  const filtered = requests.filter(r => r.customerEmail.toLowerCase() !== email);
+  const deletedCount = beforeCount - filtered.length;
+
+  if (deletedCount > 0) {
+    db.saveRequests(filtered);
+  }
+
+  auditLogger.logDataDeletion(email, 'rental_requests', deletedCount, {
+    confirmation: 'user_requested'
+  });
+
+  const admin = db.getAdminUser();
+  if (admin) {
+    await sendMail({
+      to: admin.email,
+      subject: 'Data Deletion Request - GDPR Art. 17',
+      text: `A data deletion request was submitted.\n\nEmail: ${email}\nRecords deleted: ${deletedCount}\nReason: ${req.body.reason || 'Not specified'}\nTimestamp: ${new Date().toISOString()}\n`
+    });
+  }
+
+  res.render('gdpr-delete-confirmation', {
+    title: 'Deletion Requested',
+    email,
+    deletedCount
+  });
+});
 
 module.exports = router;

@@ -5,6 +5,7 @@ const db = require('../db');
 const { sendMail, emailConfigured } = require('../mailer');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { handleUpload } = require('../upload');
+const auditLogger = require('../auditLogger');
 
 const router = express.Router();
 
@@ -60,7 +61,12 @@ router.post('/items', requireAdmin, async (req, res) => {
     });
   }
   const finalImageUrl = req.file ? `/uploads/${req.file.filename}` : imageUrl;
-  db.createItem({ name, category, description, dimensions, price, priceUnit, stock, imageUrl: finalImageUrl });
+  const item = db.createItem({ name, category, description, dimensions, price, priceUnit, stock, imageUrl: finalImageUrl });
+  auditLogger.logAdminAction('CATALOG_ITEM_CREATED', req.user.email, 'create', {
+    itemId: item.id,
+    itemName: name,
+    category
+  });
   res.redirect('/admin#catalog');
 });
 
@@ -89,11 +95,21 @@ router.post('/items/:id/update', requireAdmin, async (req, res) => {
   const existing = db.getItem(req.params.id);
   const finalImageUrl = req.file ? `/uploads/${req.file.filename}` : imageUrl || (existing ? existing.imageUrl : '');
   db.updateItem(req.params.id, { name, category, description, dimensions, price, priceUnit, stock, imageUrl: finalImageUrl });
+  auditLogger.logAdminAction('CATALOG_ITEM_UPDATED', req.user.email, 'update', {
+    itemId: req.params.id,
+    itemName: name,
+    category
+  });
   res.redirect('/admin#catalog');
 });
 
 router.post('/items/:id/delete', requireAdmin, (req, res) => {
+  const item = db.getItem(req.params.id);
   db.deleteItem(req.params.id);
+  auditLogger.logAdminAction('CATALOG_ITEM_DELETED', req.user.email, 'delete', {
+    itemId: req.params.id,
+    itemName: item ? item.name : 'Unknown'
+  });
   res.redirect('/admin#catalog');
 });
 
@@ -102,6 +118,12 @@ router.post('/items/:id/delete', requireAdmin, (req, res) => {
 router.post('/requests/:id/confirm', requireAdmin, async (req, res) => {
   const request = db.confirmRequest(req.params.id);
   if (request) {
+    auditLogger.logAdminAction('RENTAL_REQUEST_CONFIRMED', req.user.email, 'confirm', {
+      requestId: req.params.id,
+      customerEmail: request.customerEmail,
+      customerName: request.customerName,
+      total: request.total
+    });
     const itemLines = request.items.length
       ? request.items.map((i) => `  - ${i.name} x${i.qty} ($${i.price.toFixed(2)} each = $${(i.price * i.qty).toFixed(2)})`).join('\n')
       : '';
@@ -139,7 +161,12 @@ router.post('/requests/:id/confirm', requireAdmin, async (req, res) => {
 // ---------- Fee settings ----------
 
 router.post('/settings', requireAdmin, (req, res) => {
-  db.updateSettings({ cleaningFee: req.body.cleaningFee, deliveryFee: req.body.deliveryFee });
+  const newSettings = { cleaningFee: req.body.cleaningFee, deliveryFee: req.body.deliveryFee };
+  db.updateSettings(newSettings);
+  auditLogger.logAdminAction('SETTINGS_UPDATED', req.user.email, 'update', {
+    cleaningFee: newSettings.cleaningFee,
+    deliveryFee: newSettings.deliveryFee
+  });
   res.redirect('/admin#settings');
 });
 

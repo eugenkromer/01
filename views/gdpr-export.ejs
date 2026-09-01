@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%- include('partials/head') %>
+</head>
+<body>
+<%- include('partials/header') %>
+
+<section class="hero hero-small">
+  <div class="container">
+    <h1>Data Export Request</h1>
+    <p class="section-lead">GDPR Article 20: Right to Data Portability</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="form-container" style="max-width: 600px; margin: 0 auto;">
+
+<h2>Export Your Personal Data</h2>
+
+<p>Under GDPR Article 20, you have the right to receive your personal data in a portable, machine-readable format. We will provide all data we hold about you within 30 days of your request.</p>
+
+<p><strong>This includes:</strong></p>
+<ul>
+  <li>All rental requests you've submitted</li>
+  <li>Your contact information</li>
+  <li>Event details and dates</li>
+  <li>Items you requested</li>
+  <li>Any messages or notes you provided</li>
+</ul>
+
+<p><strong>Available formats:</strong></p>
+<ul>
+  <li><strong>JSON:</strong> Machine-readable, can be imported into other services</li>
+  <li><strong>CSV:</strong> Spreadsheet format, easy to view in Excel or Google Sheets</li>
+</ul>
+
+<form id="exportForm" method="POST" action="/gdpr/export" style="background: #f9f9f9; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+
+  <div class="form-group">
+    <label for="email">Your Email Address</label>
+    <input type="email" id="email" name="email" required placeholder="your@email.com" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+    <small>Enter the email associated with your rental request(s)</small>
+  </div>
+
+  <div class="form-group">
+    <label for="format">Export Format</label>
+    <select id="format" name="format" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+      <option value="">-- Select a format --</option>
+      <option value="json">JSON (Machine-readable)</option>
+      <option value="csv">CSV (Spreadsheet)</option>
+    </select>
+  </div>
+
+  <div class="form-group" style="background: #fffacd; padding: 1rem; border-left: 4px solid #ffd700; border-radius: 4px; margin: 1rem 0;">
+    <label style="display: flex; align-items: start; gap: 0.5rem;">
+      <input type="checkbox" id="confirm" name="confirm" required style="margin-top: 0.25rem;">
+      <span>I confirm that this is my email address and I'm requesting my personal data</span>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; border-radius: 4px; background: #2c5aa0; color: white;">
+      Download My Data
+    </button>
+  </div>
+
+  <p style="font-size: 0.9rem; color: #666; text-align: center; margin-top: 1rem;">
+    Your data will be prepared and downloaded to your computer. No email will be sent.
+  </p>
+
+</form>
+
+<div style="background: #f0f8ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #2c5aa0; margin-top: 2rem;">
+  <h3 style="margin-top: 0;">Questions?</h3>
+  <p>If you experience any issues with the export, or if you'd prefer we send your data via email, please contact us:</p>
+  <ul>
+    <li><strong>Email:</strong> <a href="mailto:[EMAIL ADDRESS]">[EMAIL ADDRESS]</a></li>
+    <li><strong>Phone:</strong> [PHONE NUMBER]</li>
+  </ul>
+  <p style="font-size: 0.9rem; color: #666; margin-bottom: 0;">We will respond to all GDPR requests within 30 days.</p>
+</div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+.form-container input, .form-container select, .form-container button {
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form-group small {
+  display: block;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+</style>
+
+<%- include('partials/footer') %>
+</body>
+</html>
