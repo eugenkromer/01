@@ -5,6 +5,7 @@ const session = require('express-session');
 const db = require('./db');
 const content = require('./content');
 const format = require('./format');
+const navigation = require('./navigation');
 const { emailConfigured } = require('./mailer');
 const { attachUser } = require('./middleware/auth');
 
@@ -67,6 +68,7 @@ app.use((req, res, next) => {
   res.locals.f = format;
   res.locals.emailConfigured = emailConfigured;
   res.locals.demoMode = demoMode;
+  res.locals.nav = navigation;
   res.locals.currentPath = req.path;
   next();
 });

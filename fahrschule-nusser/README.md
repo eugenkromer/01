@@ -461,6 +461,12 @@ Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen
   Sitzungs-Cookie nach der Anmeldung – dafür braucht es kein Einwilligungsbanner.
 - **Barrierearm:** Sprungmarke zum Inhalt, sichtbare Fokusrahmen, beschriftete
   Formularfelder, ausreichende Farbkontraste.
+- **Fürs Handy gebaut, nicht nur verkleinert.** Fahrschüler öffnen ihren Bereich fast
+  immer am Telefon. Dort ersetzt eine feste Leiste am unteren Rand die Seitenleiste:
+  mit dem Daumen erreichbar, und alle Bereiche sind auf einen Blick sichtbar statt
+  hinter seitlichem Wischen versteckt. Was nicht in die vier Reiter passt, sammelt
+  „Mehr“. Beide Darstellungen stammen aus derselben Datei ([`src/navigation.js`](src/navigation.js)),
+  können also nicht auseinanderlaufen.
 
 ### Aufbau
 
@@ -473,6 +479,7 @@ fahrschule-nusser/
 │   ├── db.js          Datenhaltung in JSON-Dateien
 │   ├── progress.js    Rechnet den Ausbildungsstand in Prozentwerte um
 │   ├── format.js      Datums- und Währungsformate
+│   ├── navigation.js  Portalnavigation je Rolle (Seitenleiste und Handy-Reiter)
 │   ├── mailer.js      E-Mail-Versand (Resend, SMTP oder Protokoll)
 │   ├── middleware/    Anmeldung und Zugriffsschutz
 │   └── routes/        site (öffentlich), auth, portal, instructor, admin

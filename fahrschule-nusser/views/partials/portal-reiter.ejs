@@ -1,0 +1,29 @@
+<%
+  // Leiste am unteren Bildschirmrand - nur auf dem Handy sichtbar.
+  // Dort ist sie mit dem Daumen erreichbar und zeigt auf einen Blick,
+  // was es überhaupt gibt; die seitlich scrollende Liste davor hat die
+  // hinteren Punkte schlicht versteckt.
+  const reiter = nav.reiter(currentUser);
+  const weitere = nav.weitere(currentUser);
+  const mehrAktiv = currentPath === '/portal/mehr'
+    || weitere.some(function (p) { return nav.istAktiv(p, currentPath); });
+%>
+<nav class="portal-reiter" aria-label="Bereiche">
+  <% reiter.forEach(function (punkt) { %>
+    <a href="<%= punkt.href %>" class="<%= nav.istAktiv(punkt, currentPath) ? 'aktiv' : '' %>">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="<%= nav.symbole[punkt.symbol] %>" />
+      </svg>
+      <span><%= punkt.kurz %></span>
+    </a>
+  <% }); %>
+
+  <% if (weitere.length > 0) { %>
+    <a href="/portal/mehr" class="<%= mehrAktiv ? 'aktiv' : '' %>">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="<%= nav.symbole.mehr %>" />
+      </svg>
+      <span>Mehr</span>
+    </a>
+  <% } %>
+</nav>

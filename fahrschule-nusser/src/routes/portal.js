@@ -5,6 +5,7 @@ const express = require('express');
 const db = require('../db');
 const content = require('../content');
 const progress = require('../progress');
+const navigation = require('../navigation');
 const { requireLogin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -112,6 +113,16 @@ router.get('/dokumente', (req, res) => {
   res.render('portal/dokumente', basis(req, 'Unterlagen', {
     dokumente: db.getDocumentsForStudent(req.user.id),
   }));
+});
+
+// ---------- Mehr (Sammelseite der Leiste auf dem Handy) ----------
+
+router.get('/mehr', (req, res) => {
+  const weitere = navigation.weitere(req.user);
+  // Gibt es nichts zu sammeln, ist die Seite überflüssig.
+  if (weitere.length === 0) return res.redirect('/portal');
+
+  res.render('portal/mehr', basis(req, 'Mehr', { weitere }));
 });
 
 // ---------- Rechnungen ----------

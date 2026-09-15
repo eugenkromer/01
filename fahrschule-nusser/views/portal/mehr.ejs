@@ -1,0 +1,43 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Mehr</h1>
+        <p>Die übrigen Bereiche deines Zugangs.</p>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <div class="mehr-liste">
+        <% weitere.forEach(function (punkt) { %>
+          <a class="mehr-eintrag" href="<%= punkt.href %>">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="<%= nav.symbole[punkt.symbol] %>" />
+            </svg>
+            <span><%= punkt.label %></span>
+            <span class="pfeil" aria-hidden="true">›</span>
+          </a>
+        <% }); %>
+
+        <a class="mehr-eintrag" href="/">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="<%= nav.symbole.haus %>" />
+          </svg>
+          <span>Zur Website</span>
+          <span class="pfeil" aria-hidden="true">›</span>
+        </a>
+      </div>
+
+      <form method="post" action="/portal/abmelden" class="abstand-oben">
+        <button type="submit" class="btn btn-hell btn-voll">Abmelden</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

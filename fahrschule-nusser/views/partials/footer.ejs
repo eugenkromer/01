@@ -49,6 +49,10 @@
   </div>
 </footer>
 
+<% if (typeof portal !== 'undefined' && portal && currentUser) { %>
+  <%- include('portal-reiter') %>
+<% } %>
+
 <script src="/js/site.js"></script>
 <script src="/js/todo.js"></script>
 </body>
