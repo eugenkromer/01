@@ -6,6 +6,7 @@ const express = require('express');
 const db = require('../db');
 const content = require('../content');
 const progress = require('../progress');
+const { sendMail } = require('../mailer');
 const { requireInstructor } = require('../middleware/auth');
 
 const router = express.Router();
@@ -77,34 +78,118 @@ router.get('/', (req, res) => {
 
 // ---------- Theorietermine: Anwesenheit abhaken ----------
 
-router.get('/theorie', (req, res) => {
-  const termine = db.getPastTheorySessions().map((t) => {
-    const anwesend = db.getAttendanceForSession(t.id).length;
-    return {
-      ...t,
-      ortName: ortName(t.locationId),
-      angemeldet: db.getBookingsForSession(t.id).length,
-      anwesend,
-      // Solange niemand eingetragen ist, wurde die Liste noch nicht geführt
-      erfasst: anwesend > 0,
-    };
-  });
+// Die Standorte, für die der angemeldete Nutzer zuständig ist
+function meineStandorte(user) {
+  const ids = db.managedLocationIds(user);
+  return content.locations.filter((o) => ids.includes(o.id));
+}
 
-  res.render('instructor/theorie', basis('Anwesenheit', {
-    termine,
-    kommende: db.getUpcomingTheorySessions().slice(0, 3).map((t) => ({
-      ...t,
-      ortName: ortName(t.locationId),
-    })),
+// Ergänzt einen Termin um Anzeigewerte und die Frage, ob der angemeldete
+// Nutzer ihn bearbeiten darf.
+function terminAufbereiten(termin, user) {
+  const anwesend = db.getAttendanceForSession(termin.id).length;
+  return {
+    ...termin,
+    ortName: ortName(termin.locationId),
+    angemeldet: db.getBookingsForSession(termin.id).length,
+    anwesend,
+    erfasst: anwesend > 0,
+    meiner: db.canManageLocation(user, termin.locationId),
+  };
+}
+
+router.get('/theorie', (req, res) => {
+  const standorte = meineStandorte(req.user);
+
+  res.render('instructor/theorie', basis('Theorietermine', {
+    vergangene: db.getPastTheorySessions().map((t) => terminAufbereiten(t, req.user)),
+    kommende: db.getUpcomingTheorySessions().map((t) => terminAufbereiten(t, req.user)),
+    standorte,
+    bearbeiten: null,
     hinweis: req.query.hinweis || null,
     fehler: req.query.fehler || null,
   }));
+});
+
+router.get('/theorie/:id/bearbeiten', (req, res) => {
+  const termin = db.getTheorySession(req.params.id);
+  if (!termin) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Diesen Termin gibt es nicht mehr.');
+  }
+  if (!db.canManageLocation(req.user, termin.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Diesen Termin verwaltet ein anderer Standort.');
+  }
+
+  res.render('instructor/theorie', basis('Termin ändern', {
+    vergangene: db.getPastTheorySessions().map((t) => terminAufbereiten(t, req.user)),
+    kommende: db.getUpcomingTheorySessions().map((t) => terminAufbereiten(t, req.user)),
+    standorte: meineStandorte(req.user),
+    bearbeiten: termin,
+    hinweis: null,
+    fehler: null,
+  }));
+});
+
+// Termin anlegen - nur für einen Standort, den man betreut.
+router.post('/theorie', (req, res) => {
+  if (!req.body.startsAt) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Bitte gib Datum und Uhrzeit an.');
+  }
+  if (!db.canManageLocation(req.user, req.body.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Für diesen Standort kannst du keine Termine anlegen.');
+  }
+
+  db.createTheorySession({
+    ...req.body,
+    // Wer den Termin anlegt, steht standardmäßig auch davor
+    instructor: req.body.instructor || `${req.user.firstName} ${req.user.lastName}`,
+  });
+  zurueck(res, '/portal/fahrlehrer/theorie', 'Termin angelegt.');
+});
+
+router.post('/theorie/:id/aendern', (req, res) => {
+  const termin = db.getTheorySession(req.params.id);
+  if (!termin) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Diesen Termin gibt es nicht mehr.');
+  }
+  // Sowohl der bisherige als auch der neue Standort müssen einem gehören,
+  // sonst könnte man Termine in einen fremden Standort verschieben.
+  if (!db.canManageLocation(req.user, termin.locationId)
+      || !db.canManageLocation(req.user, req.body.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Diesen Termin verwaltet ein anderer Standort.');
+  }
+
+  db.updateTheorySession(req.params.id, req.body);
+  zurueck(res, '/portal/fahrlehrer/theorie', 'Termin gespeichert.');
+});
+
+router.post('/theorie/:id/loeschen', (req, res) => {
+  const termin = db.getTheorySession(req.params.id);
+  if (!termin) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Diesen Termin gibt es nicht mehr.');
+  }
+  if (!db.canManageLocation(req.user, termin.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Diesen Termin verwaltet ein anderer Standort.');
+  }
+
+  db.deleteTheorySession(req.params.id);
+  zurueck(res, '/portal/fahrlehrer/theorie',
+    'Termin gelöscht. Anmeldungen und Anwesenheitsliste sind damit ebenfalls weg.');
 });
 
 router.get('/theorie/:id', (req, res) => {
   const termin = db.getTheorySession(req.params.id);
   if (!termin) {
     return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Diesen Termin gibt es nicht mehr.');
+  }
+
+  if (!db.canManageLocation(req.user, termin.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Die Anwesenheit für diesen Termin führt ein anderer Standort.');
   }
 
   const angemeldet = new Set(db.getBookingsForSession(termin.id).map((b) => b.studentId));
@@ -146,6 +231,12 @@ router.get('/theorie/:id', (req, res) => {
 });
 
 router.post('/theorie/:id', (req, res) => {
+  const termin = db.getTheorySession(req.params.id);
+  if (termin && !db.canManageLocation(req.user, termin.locationId)) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null,
+      'Die Anwesenheit für diesen Termin führt ein anderer Standort.');
+  }
+
   const anwesend = [].concat(req.body.anwesend || []);
   const ergebnis = db.setAttendance(req.params.id, anwesend, req.user.id);
 
@@ -153,10 +244,73 @@ router.post('/theorie/:id', (req, res) => {
     return zurueck(res, '/portal/fahrlehrer/theorie', null, ergebnis.error);
   }
 
-  const termin = db.getTheorySession(req.params.id);
   const lektion = termin && termin.lessonNo ? ` Lektion ${termin.lessonNo} zählt jetzt für sie.` : '';
   zurueck(res, '/portal/fahrlehrer/theorie',
     `Anwesenheit gespeichert: ${ergebnis.anzahl} ${ergebnis.anzahl === 1 ? 'Person war' : 'Personen waren'} da.${lektion}`);
+});
+
+// ---------- Fahrschüler aufnehmen ----------
+
+router.get('/aufnehmen', (req, res) => {
+  const standorte = meineStandorte(req.user);
+
+  res.render('instructor/aufnehmen', basis('Fahrschüler aufnehmen', {
+    standorte,
+    // Offene Online-Anmeldungen, die zu den eigenen Standorten passen -
+    // von dort lässt sich eine Aufnahme mit einem Klick übernehmen.
+    anfragen: db.getInquiries().filter(
+      (a) => a.type === 'anmeldung'
+        && a.status === 'neu'
+        && (!a.locationId || db.canManageLocation(req.user, a.locationId))
+    ).map((a) => ({ ...a, ortName: ortName(a.locationId) })),
+    werte: {},
+    fehler: null,
+  }));
+});
+
+router.post('/aufnehmen', async (req, res, next) => {
+  try {
+    const standorte = meineStandorte(req.user);
+    const werte = req.body;
+
+    const zurueckMitFehler = (text) =>
+      res.status(400).render('instructor/aufnehmen', basis('Fahrschüler aufnehmen', {
+        standorte,
+        anfragen: [],
+        werte,
+        fehler: text,
+      }));
+
+    if (!String(werte.firstName || '').trim() || !String(werte.lastName || '').trim()) {
+      return zurueckMitFehler('Bitte trage Vor- und Nachnamen ein.');
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(werte.email || '').trim())) {
+      return zurueckMitFehler('Bitte trage eine gültige E-Mail-Adresse ein.');
+    }
+    // Aufgenommen wird an einem Standort, den man selbst betreut.
+    if (!db.canManageLocation(req.user, werte.locationId)) {
+      return zurueckMitFehler('Bitte wähle einen Standort aus, den du betreust.');
+    }
+
+    const student = db.createStudent({
+      ...werte,
+      // Wer aufnimmt, ist zunächst auch Stammfahrlehrer
+      instructorId: werte.instructorId || req.user.id,
+    });
+
+    if (!student) {
+      return zurueckMitFehler('Mit dieser E-Mail-Adresse ist bereits ein Zugang angelegt.');
+    }
+
+    // Kam die Aufnahme aus einer Online-Anmeldung, ist die damit erledigt.
+    if (werte.inquiryId) db.markInquiryHandled(werte.inquiryId);
+
+    await willkommensMail(student);
+    zurueck(res, '/portal/fahrlehrer/fahrschueler/' + student.id,
+      'Fahrschüler aufgenommen – die Begrüßungsmail ist unterwegs.');
+  } catch (err) {
+    next(err);
+  }
 });
 
 // ---------- Ein Fahrschüler: Fahrstunden eintragen ----------
@@ -239,5 +393,32 @@ router.post('/fahrstunde/:id/loeschen', (req, res) => {
   }
   zurueck(res, ziel, 'Fahrstunde gelöscht.');
 });
+
+async function willkommensMail(student) {
+  const link = `${process.env.BASE_URL || 'http://localhost:3000'}/portal/login`;
+  await sendMail({
+    to: student.email,
+    subject: `Dein Zugang zum Portal der ${content.business.name}`,
+    text: [
+      `Hallo ${student.firstName},`,
+      '',
+      'wir haben dir deinen persönlichen Bereich eingerichtet. Dort siehst du jederzeit:',
+      '',
+      '- alle kommenden Theorietermine und kannst dich anmelden',
+      '- welche Pflichtlektionen du schon besucht hast',
+      '- wie viele Fahrstunden und Sonderfahrten dir noch fehlen',
+      '- deine Rechnungen und die Unterlagen, die wir für dich hinterlegt haben',
+      '',
+      `So kommst du rein: ${link}`,
+      '',
+      `Gib dort einfach diese E-Mail-Adresse ein (${student.email}) – du bekommst dann`,
+      'einen Anmeldelink zugeschickt. Ein Passwort brauchst du nicht.',
+      '',
+      'Viel Erfolg bei der Ausbildung!',
+      content.business.name,
+      content.business.phone,
+    ].join('\n'),
+  });
+}
 
 module.exports = router;

@@ -534,3 +534,30 @@ td form { display: inline; }
 @media print {
   .anwesenheit-zeile { break-inside: avoid; }
 }
+
+/* ---------- Standorte eines Fahrlehrers auswählen ---------- */
+
+.standort-auswahl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 9px;
+}
+.standort-option {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 11px 14px;
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  font-size: .93rem;
+}
+.standort-option:hover { border-color: var(--blau-600); }
+.standort-option input { margin: 0; margin-top: 3px; width: 17px; height: 17px; flex-shrink: 0; }
+.standort-option small { display: block; color: var(--text-mute); font-size: .82rem; }
+.standort-option:has(input:checked) {
+  border-color: var(--blau-600);
+  background: var(--blau-50);
+  font-weight: 600;
+}

@@ -7,37 +7,175 @@
   <div class="portal-inhalt">
     <div class="portal-kopf">
       <div>
-        <h1>Anwesenheit</h1>
-        <p>Nach dem Unterricht die Liste durchgehen und abhaken, wer da war.</p>
+        <h1>Theorietermine</h1>
+        <p>Festlegen, wann welches Thema dran ist – und nach dem Unterricht abhaken, wer da war.</p>
       </div>
     </div>
 
     <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
     <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
 
-    <div class="portal-block">
-      <h2>Vergangene Termine</h2>
-      <p class="block-info">Die Lektion des Termins zählt für alle, die du abhakst.</p>
+    <% if (standorte.length === 0) { %>
+      <div class="meldung meldung-warnung">
+        <p><strong>Dir ist noch kein Standort zugewiesen.</strong> Du kannst die Termine
+          aller Standorte einsehen, aber selbst keine anlegen. Das Büro weist dir unter
+          „Fahrlehrer“ einen Standort zu.</p>
+      </div>
+    <% } else { %>
 
-      <% if (termine.length === 0) { %>
+      <!-- Termin anlegen oder ändern -->
+      <div class="portal-block">
+        <h2><%= bearbeiten ? 'Termin ändern' : 'Neuen Termin festlegen' %></h2>
+        <p class="block-info">
+          <% if (standorte.length === 1) { %>
+            Für deinen Standort <strong><%= standorte[0].name %></strong>.
+          <% } else { %>
+            Für die Standorte, die du betreust.
+          <% } %>
+        </p>
+
+        <form class="formular" method="post"
+              action="<%= bearbeiten ? '/portal/fahrlehrer/theorie/' + bearbeiten.id + '/aendern' : '/portal/fahrlehrer/theorie' %>">
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label class="feld-pflicht" for="startsAt">Beginn</label>
+              <input type="datetime-local" id="startsAt" name="startsAt" required
+                     value="<%= bearbeiten ? f.toInputValue(bearbeiten.startsAt) : '' %>">
+            </div>
+            <div class="feld">
+              <label for="endsAt">Ende</label>
+              <input type="datetime-local" id="endsAt" name="endsAt"
+                     value="<%= bearbeiten && bearbeiten.endsAt ? f.toInputValue(bearbeiten.endsAt) : '' %>">
+            </div>
+          </div>
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label class="feld-pflicht" for="locationId">Standort</label>
+              <select id="locationId" name="locationId" required>
+                <% standorte.forEach(function (ort) { %>
+                  <option value="<%= ort.id %>"
+                    <%= bearbeiten && bearbeiten.locationId === ort.id ? 'selected' : '' %>>
+                    <%= ort.name %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="feld">
+              <label for="lessonNo">Welches Thema?</label>
+              <select id="lessonNo" name="lessonNo">
+                <option value="">Kein Pflichtthema</option>
+                <% content.theoryLessons.forEach(function (lektion) { %>
+                  <option value="<%= lektion.no %>"
+                    <%= bearbeiten && bearbeiten.lessonNo === lektion.no ? 'selected' : '' %>>
+                    <%= lektion.no %> – <%= lektion.title %>
+                  </option>
+                <% }); %>
+              </select>
+              <span class="hinweis">Diese Lektion zählt für alle, die du später abhakst.</span>
+            </div>
+          </div>
+
+          <div class="feld">
+            <label for="topic">Beschreibung</label>
+            <input type="text" id="topic" name="topic"
+                   placeholder="z. B. Vorfahrt und Verkehrsregelungen"
+                   value="<%= bearbeiten ? (bearbeiten.topic || '') : '' %>">
+          </div>
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label for="instructor">Wer hält den Unterricht?</label>
+              <input type="text" id="instructor" name="instructor"
+                     value="<%= bearbeiten ? (bearbeiten.instructor || '') : (currentUser.firstName + ' ' + currentUser.lastName) %>">
+            </div>
+            <div class="feld">
+              <label for="capacity">Plätze</label>
+              <input type="number" id="capacity" name="capacity" min="0" step="1"
+                     value="<%= bearbeiten ? bearbeiten.capacity : 0 %>">
+              <span class="hinweis">0 bedeutet: keine Begrenzung.</span>
+            </div>
+          </div>
+
+          <div class="reihe">
+            <button class="btn btn-primaer" type="submit">
+              <%= bearbeiten ? 'Änderungen speichern' : 'Termin festlegen' %>
+            </button>
+            <% if (bearbeiten) { %>
+              <a class="btn btn-hell" href="/portal/fahrlehrer/theorie">Abbrechen</a>
+            <% } %>
+          </div>
+        </form>
+      </div>
+    <% } %>
+
+    <!-- Kommende Termine -->
+    <div class="portal-block">
+      <h2>Kommende Termine</h2>
+      <% if (kommende.length === 0) { %>
         <div class="leer">
-          <div class="symbol" aria-hidden="true">📋</div>
-          <p>Es hat noch kein Theorieunterricht stattgefunden.</p>
+          <div class="symbol" aria-hidden="true">📅</div>
+          <p>Es ist noch kein Termin festgelegt.</p>
         </div>
       <% } else { %>
-        <% termine.forEach(function (t) { %>
+        <% kommende.forEach(function (t) { %>
           <div class="termin">
             <div class="termin-datum">
               <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
               <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
             </div>
+            <div class="termin-info">
+              <h3>
+                <%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %>
+                <% if (!t.meiner) { %><span class="marker grau">anderer Standort</span><% } %>
+              </h3>
+              <div class="meta">
+                <%= f.formatDate(t.startsAt) %>, <%= f.formatTime(t.startsAt) %>
+                <% if (t.ortName) { %> · <%= t.ortName %><% } %>
+                · <%= t.angemeldet %> angemeldet<% if (t.capacity > 0) { %> von <%= t.capacity %><% } %>
+              </div>
+            </div>
+            <div class="termin-aktion">
+              <% if (t.meiner) { %>
+                <div class="reihe">
+                  <a class="btn btn-hell btn-klein"
+                     href="/portal/fahrlehrer/theorie/<%= t.id %>/bearbeiten">Ändern</a>
+                  <form method="post" action="/portal/fahrlehrer/theorie/<%= t.id %>/loeschen"
+                        onsubmit="return confirm('Diesen Termin wirklich löschen? Anmeldungen gehen dabei verloren.')">
+                    <button class="btn btn-gefahr btn-klein" type="submit">Löschen</button>
+                  </form>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
 
+    <!-- Gehaltene Termine: Anwesenheit -->
+    <div class="portal-block">
+      <h2>Gehaltene Termine</h2>
+      <p class="block-info">Die Lektion des Termins zählt für alle, die du abhakst.</p>
+
+      <% if (vergangene.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📋</div>
+          <p>Es hat noch kein Theorieunterricht stattgefunden.</p>
+        </div>
+      <% } else { %>
+        <% vergangene.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
             <div class="termin-info">
               <h3>
                 <%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %>
                 <% if (t.erfasst) { %>
                   <span class="marker gruen"><%= t.anwesend %> anwesend</span>
-                <% } else { %>
+                <% } else if (t.meiner) { %>
                   <span class="marker">noch offen</span>
                 <% } %>
               </h3>
@@ -47,39 +185,20 @@
                 · <%= t.angemeldet %> angemeldet
               </div>
             </div>
-
             <div class="termin-aktion">
-              <a class="btn <%= t.erfasst ? 'btn-hell' : 'btn-primaer' %> btn-klein"
-                 href="/portal/fahrlehrer/theorie/<%= t.id %>">
-                <%= t.erfasst ? 'Liste ändern' : 'Liste führen' %>
-              </a>
+              <% if (t.meiner) { %>
+                <a class="btn <%= t.erfasst ? 'btn-hell' : 'btn-primaer' %> btn-klein"
+                   href="/portal/fahrlehrer/theorie/<%= t.id %>">
+                  <%= t.erfasst ? 'Liste ändern' : 'Liste führen' %>
+                </a>
+              <% } else { %>
+                <span class="marker grau">anderer Standort</span>
+              <% } %>
             </div>
           </div>
         <% }); %>
       <% } %>
     </div>
-
-    <% if (kommende.length > 0) { %>
-      <div class="portal-block">
-        <h2>Kommende Termine</h2>
-        <p class="block-info">Die Liste lässt sich führen, sobald der Unterricht stattgefunden hat.</p>
-        <% kommende.forEach(function (t) { %>
-          <div class="termin">
-            <div class="termin-datum">
-              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
-              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
-            </div>
-            <div class="termin-info">
-              <h3><%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %></h3>
-              <div class="meta">
-                <%= f.formatDate(t.startsAt) %>, <%= f.formatTime(t.startsAt) %>
-                <% if (t.ortName) { %> · <%= t.ortName %><% } %>
-              </div>
-            </div>
-          </div>
-        <% }); %>
-      </div>
-    <% } %>
   </div>
 </main>
 

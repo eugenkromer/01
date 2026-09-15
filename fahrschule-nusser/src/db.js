@@ -164,6 +164,30 @@ function deleteStudent(id) {
   saveAttendance(getAttendance().filter((a) => a.studentId !== id));
 }
 
+// Nimmt einen einzelnen Wert oder eine Liste entgegen und lässt nur
+// Standorte durch, die es auch wirklich gibt.
+function normalizeLocationIds(value) {
+  if (value === undefined || value === null) return [];
+  const liste = Array.isArray(value) ? value : [value];
+  const bekannt = new Set(content.locations.map((o) => o.id));
+  return [...new Set(liste.map(String).filter((id) => bekannt.has(id)))];
+}
+
+// Welche Standorte darf dieser Nutzer verwalten? Die Fahrschule alle,
+// ein Fahrlehrer die ihm zugewiesenen, alle anderen keine.
+function managedLocationIds(user) {
+  if (!user) return [];
+  if (user.role === 'admin') return content.locations.map((o) => o.id);
+  if (user.role === 'instructor') return normalizeLocationIds(user.locationIds);
+  return [];
+}
+
+function canManageLocation(user, locationId) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  return managedLocationIds(user).includes(String(locationId));
+}
+
 function getInstructors() {
   return getUsers()
     .filter((u) => u.role === 'instructor')
@@ -182,6 +206,9 @@ function createInstructor(data) {
     lastName: String(data.lastName || '').trim(),
     phone: String(data.phone || '').trim(),
     classes: String(data.classes || '').trim(), // Ausbildungsklassen, z. B. "B, BE, A"
+    // Standorte, die dieser Fahrlehrer betreut. Für sie darf er
+    // Theorietermine festlegen und Fahrschüler aufnehmen.
+    locationIds: normalizeLocationIds(data.locationIds),
     createdAt: new Date().toISOString(),
   };
   users.push(instructor);
@@ -197,6 +224,7 @@ function updateInstructor(id, data) {
   if (data.lastName !== undefined) instructor.lastName = String(data.lastName).trim();
   if (data.phone !== undefined) instructor.phone = String(data.phone).trim();
   if (data.classes !== undefined) instructor.classes = String(data.classes).trim();
+  if (data.locationIds !== undefined) instructor.locationIds = normalizeLocationIds(data.locationIds);
   if (data.email !== undefined) {
     const email = normalizeEmail(data.email);
     if (email && !users.some((u) => u.email === email && u.id !== id)) instructor.email = email;
@@ -766,6 +794,8 @@ function markLoginTokenUsed(tokenValue) {
 module.exports = {
   ensureSeedAdmin,
   getInstructors,
+  managedLocationIds,
+  canManageLocation,
   createInstructor,
   updateInstructor,
   deleteInstructor,

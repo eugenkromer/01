@@ -1,0 +1,138 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Fahrschüler aufnehmen</h1>
+        <p>Nach dem Anmeldegespräch hier eintragen – der Zugang zum Portal geht sofort raus.</p>
+      </div>
+    </div>
+
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <% if (standorte.length === 0) { %>
+      <div class="meldung meldung-warnung">
+        <p><strong>Dir ist noch kein Standort zugewiesen.</strong> Deshalb kannst du niemanden
+          aufnehmen. Das Büro weist dir unter „Fahrlehrer“ einen Standort zu.</p>
+      </div>
+    <% } else { %>
+
+      <% if (anfragen.length > 0) { %>
+        <div class="portal-block">
+          <h2>Offene Online-Anmeldungen</h2>
+          <p class="block-info">Diese Anfragen passen zu deinem Standort. Übernimm die Angaben
+            mit einem Klick ins Formular darunter.</p>
+
+          <% anfragen.forEach(function (a) { %>
+            <div class="termin">
+              <div class="termin-info">
+                <h3><%= a.firstName %> <%= a.lastName %></h3>
+                <div class="meta">
+                  Klasse <%= a.licenseClass %> · <%= a.email %>
+                  <% if (a.phone) { %> · <%= a.phone %><% } %>
+                  <% if (a.ortName) { %> · <%= a.ortName %><% } %>
+                  · eingegangen <%= f.formatDateShort(a.createdAt) %>
+                </div>
+              </div>
+              <div class="termin-aktion">
+                <button class="btn btn-hell btn-klein" type="button"
+                        data-uebernehmen='<%- JSON.stringify({
+                          id: a.id, firstName: a.firstName, lastName: a.lastName,
+                          email: a.email, phone: a.phone, licenseClass: a.licenseClass,
+                          locationId: a.locationId
+                        }) %>'>
+                  Übernehmen
+                </button>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <div class="portal-block">
+        <h2>Angaben zum Fahrschüler</h2>
+
+        <form class="formular" method="post" action="/portal/fahrlehrer/aufnehmen" id="aufnahme">
+          <input type="hidden" name="inquiryId" id="inquiryId" value="">
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label class="feld-pflicht" for="firstName">Vorname</label>
+              <input type="text" id="firstName" name="firstName" required
+                     value="<%= werte.firstName || '' %>">
+            </div>
+            <div class="feld">
+              <label class="feld-pflicht" for="lastName">Nachname</label>
+              <input type="text" id="lastName" name="lastName" required
+                     value="<%= werte.lastName || '' %>">
+            </div>
+          </div>
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label class="feld-pflicht" for="email">E-Mail</label>
+              <input type="email" id="email" name="email" required value="<%= werte.email || '' %>">
+              <span class="hinweis">Damit meldet sich der Fahrschüler im Portal an.</span>
+            </div>
+            <div class="feld">
+              <label for="phone">Telefon</label>
+              <input type="tel" id="phone" name="phone" value="<%= werte.phone || '' %>">
+            </div>
+          </div>
+
+          <div class="feld-reihe">
+            <div class="feld">
+              <label for="licenseClass">Führerscheinklasse</label>
+              <select id="licenseClass" name="licenseClass">
+                <% content.licenseOptions.forEach(function (opt) { %>
+                  <option value="<%= opt.value %>" <%= werte.licenseClass === opt.value ? 'selected' : '' %>>
+                    <%= opt.label %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="feld">
+              <label class="feld-pflicht" for="locationId">Standort</label>
+              <select id="locationId" name="locationId" required>
+                <% standorte.forEach(function (ort) { %>
+                  <option value="<%= ort.id %>" <%= werte.locationId === ort.id ? 'selected' : '' %>>
+                    <%= ort.name %>
+                  </option>
+                <% }); %>
+              </select>
+              <span class="hinweis">Nur Standorte, die du betreust.</span>
+            </div>
+          </div>
+
+          <div class="meldung meldung-hinweis">
+            <p>Du wirst als Fahrlehrer eingetragen. Das Büro kann das später ändern,
+              und andere Fahrlehrer können trotzdem Fahrstunden eintragen.</p>
+          </div>
+
+          <button class="btn btn-primaer" type="submit">Aufnehmen und Zugang verschicken</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  // Angaben aus einer Online-Anmeldung ins Formular übernehmen
+  document.querySelectorAll('[data-uebernehmen]').forEach(function (knopf) {
+    knopf.addEventListener('click', function () {
+      const daten = JSON.parse(knopf.dataset.uebernehmen);
+      for (const [feld, wert] of Object.entries(daten)) {
+        const eingabe = document.getElementById(feld === 'id' ? 'inquiryId' : feld);
+        if (eingabe && wert) eingabe.value = wert;
+      }
+      document.getElementById('aufnahme').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('firstName').focus();
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

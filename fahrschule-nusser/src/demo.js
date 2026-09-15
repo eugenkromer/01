@@ -113,7 +113,7 @@ function anlegen() {
   const vergangeneTermine = [
     { tag: 2, lessonNo: 1, topic: 'Persönliche Voraussetzungen, Risikofaktoren', ort: 'borchener-strasse' },
     { tag: 4, lessonNo: 2, topic: 'Rechtliche Rahmenbedingungen',                ort: 'borchener-strasse' },
-    { tag: 1, lessonNo: 3, topic: 'Straßenverkehrssystem und seine Nutzung',     ort: 'borchener-strasse' },
+    { tag: 1, lessonNo: 3, topic: 'Straßenverkehrssystem und seine Nutzung',     ort: 'elsen' },
   ].map((t) =>
     db.createTheorySession({
       ...vergangenerTermin(t.tag, 18),
@@ -126,9 +126,13 @@ function anlegen() {
   );
 
   // ---------- Fahrlehrer ----------
+  // Je Standort zwei Fahrlehrer - sie verwalten ihn selbst: Termine
+  // festlegen, Fahrschüler aufnehmen, Anwesenheit führen.
   const fahrlehrerDaten = [
-    { firstName: 'Mathias', lastName: 'Nusser',   email: 'mathias.nusser@beispiel.de',  phone: '05251 74752', classes: 'B, BE, B96, A' },
-    { firstName: 'Andrea',  lastName: 'Hartmann', email: 'andrea.hartmann@beispiel.de', phone: '05251 74753', classes: 'B, BF17' },
+    { firstName: 'Mathias', lastName: 'Nusser',   email: 'mathias.nusser@beispiel.de',  phone: '05251 74752', classes: 'B, BE, B96, A', locationIds: ['borchener-strasse'] },
+    { firstName: 'Andrea',  lastName: 'Hartmann', email: 'andrea.hartmann@beispiel.de', phone: '05251 74753', classes: 'B, BF17',       locationIds: ['borchener-strasse'] },
+    { firstName: 'Tobias',  lastName: 'Kramer',   email: 'tobias.kramer@beispiel.de',   phone: '05251 74754', classes: 'B, A1, A2, A',  locationIds: ['elsen'] },
+    { firstName: 'Sandra',  lastName: 'Lohmann',  email: 'sandra.lohmann@beispiel.de',  phone: '05251 74755', classes: 'B, BF17, L',    locationIds: ['elsen'] },
   ];
   const fahrlehrer = [];
   for (const daten of fahrlehrerDaten) {
@@ -343,7 +347,11 @@ function anlegen() {
   console.log('Zugänge für die Vorführung:');
   console.log(`  Fahrschule (Verwaltung):  ${adminEmail}`);
   for (const fl of fahrlehrer) {
-    console.log(`  Fahrlehrer:               ${fl.email}`);
+    const orte = (fl.locationIds || [])
+      .map((id) => (content.locations.find((o) => o.id === id) || {}).name)
+      .filter(Boolean)
+      .join(', ');
+    console.log(`  Fahrlehrer:               ${fl.email}${orte ? '  (' + orte + ')' : ''}`);
   }
   for (const p of angelegtePersonen) {
     console.log(`  Fahrschüler:              ${p.email}`);
