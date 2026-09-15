@@ -9,7 +9,13 @@ const crypto = require('crypto');
 
 const content = require('./content');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+// Wohin die JSON-Dateien geschrieben werden. Im Betrieb zeigt DATA_DIR auf
+// einen dauerhaften Speicher (bei Render z. B. eine angehängte "Disk"),
+// sonst würden die Daten bei jeder neuen Veröffentlichung verloren gehen.
+// Ohne die Variable wird wie bisher der Ordner data/ im Projekt benutzt.
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, '..', 'data');
 
 function filePath(name) {
   return path.join(DATA_DIR, `${name}.json`);

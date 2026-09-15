@@ -134,6 +134,82 @@ Funktioniert auf einem eigenen Server oder VPS. In `.env` `SMTP_HOST`, `SMTP_POR
 `SMTP_USER`, `SMTP_PASS` und `SMTP_FROM` eintragen. Sind beide Wege konfiguriert,
 wird Resend benutzt.
 
+## Die Seite veröffentlichen
+
+Die Anwendung braucht einen laufenden Node.js-Prozess – ein Webspace, auf den man
+nur Dateien hochlädt, reicht nicht aus.
+
+### Das Wichtigste zuerst: die Daten müssen dauerhaft liegen
+
+Fahrschüler, Theorietermine, Anmeldungen und Anfragen liegen als JSON-Dateien im
+Ordner `data/`. Auf den meisten Hosting-Plattformen ist die Festplatte des Containers
+**flüchtig**: Bei jeder neuen Veröffentlichung wird sie auf den Auslieferungszustand
+zurückgesetzt – alle inzwischen angelegten Fahrschüler und Termine wären weg.
+
+Deshalb gibt es die Umgebungsvariable `DATA_DIR`. Sie zeigt auf einen dauerhaften
+Speicher außerhalb des Projektordners:
+
+```
+DATA_DIR=/var/data
+```
+
+Ohne die Variable wird wie bisher `data/` im Projekt benutzt – das ist für den
+Betrieb auf dem eigenen Rechner richtig, im Livebetrieb aber nur dann, wenn der
+Ordner auf einem dauerhaften Laufwerk liegt.
+
+### Weg A: Render – am schnellsten eingerichtet
+
+1. Bei [render.com](https://render.com) anmelden und das GitHub-Repository verbinden
+2. „New" → „Blueprint" wählen. Render liest die Datei [`render.yaml`](render.yaml)
+   und legt den Dienst samt dauerhafter Festplatte an
+3. Unter „Environment" noch eintragen:
+   - `BASE_URL` – die echte Adresse, z. B. `https://www.fahrschule-nusser.de`
+   - `SEED_ADMIN_EMAIL` – die E-Mail-Adresse des ersten Verwaltungszugangs
+   - `RESEND_API_KEY` und `RESEND_FROM` – für den E-Mail-Versand (siehe oben)
+4. Eigene Domain unter „Settings" → „Custom Domain" hinterlegen und die angezeigten
+   DNS-Einträge beim Domain-Anbieter eintragen. Das HTTPS-Zertifikat richtet Render
+   selbst ein.
+
+**Der kostenlose Tarif reicht hier nicht:** Er bietet keine dauerhafte Festplatte, und
+der Dienst schläft nach Leerlauf ein, sodass der erste Besucher lange wartet. Für den
+echten Betrieb ist der „Starter"-Tarif plus Festplatte nötig (zusammen rund 8 US-Dollar
+im Monat). Als Region ist in `render.yaml` Frankfurt eingestellt, damit die Daten in
+der EU bleiben.
+
+### Weg B: eigener kleiner Server – günstiger und datenschutzfreundlicher
+
+Ein kleiner Server bei einem deutschen Anbieter (etwa Hetzner Cloud, ab knapp 4 Euro
+im Monat) hat drei Vorteile: Die Daten liegen in Deutschland, der Vertrag zur
+Auftragsverarbeitung ist auf Deutsch und unkompliziert, und ausgehende SMTP-Verbindungen
+sind nicht gesperrt – es geht also auch ohne Resend.
+
+Dafür muss der Server selbst gepflegt werden. Grober Ablauf:
+
+1. Node.js installieren, Repository klonen, `npm install --omit=dev` ausführen
+2. `.env` mit den echten Werten anlegen
+3. Die Anwendung als Systemdienst einrichten, damit sie nach einem Neustart
+   automatisch wieder läuft (`systemd`)
+4. Einen Webserver davorsetzen (Caddy oder nginx), der HTTPS übernimmt – Caddy holt
+   das Zertifikat automatisch
+5. Eine tägliche Sicherung des Ordners `data/` einrichten
+
+### Vor dem Livegang prüfen
+
+- [ ] `BASE_URL` zeigt auf die echte Domain – sonst führen die Anmeldelinks in den
+      E-Mails ins Leere
+- [ ] `SESSION_SECRET` ist eine lange Zufallszeichenkette, nicht der Beispielwert
+- [ ] `NODE_ENV=production` ist gesetzt, damit das Sitzungs-Cookie nur über HTTPS geht
+- [ ] `DATA_DIR` zeigt auf dauerhaften Speicher
+- [ ] E-Mail-Versand ist eingerichtet und wurde einmal echt getestet
+      (Anmeldelink anfordern und die Mail wirklich empfangen)
+- [ ] Eine regelmäßige Sicherung des Datenordners läuft
+- [ ] Impressum und Datenschutzerklärung sind vollständig
+- [ ] Mit dem Hosting-Anbieter und dem E-Mail-Dienstleister ist jeweils ein Vertrag
+      zur Auftragsverarbeitung geschlossen und in der Datenschutzerklärung genannt
+
+Der letzte Punkt ist kein Formalkram: Im Portal stehen Namen, Kontaktdaten und
+Ausbildungsstände von Fahrschülern, von denen viele minderjährig sind.
+
 ## Was noch fehlt
 
 Diese Punkte müssen vor dem Livegang von der Fahrschule geklärt und in

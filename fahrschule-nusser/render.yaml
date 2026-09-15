@@ -1,0 +1,50 @@
+# Bauplan für eine Veröffentlichung bei Render (render.com).
+#
+# Damit lässt sich der Dienst in einem Rutsch anlegen: bei Render unter
+# "New" -> "Blueprint" dieses Repository auswählen. Render liest diese
+# Datei und legt alles Weitere selbst an.
+#
+# Wichtig: Der Tarif muss "starter" oder höher sein. Im kostenlosen Tarif
+# gibt es keine dauerhafte Festplatte ("Disk") - ohne die wären bei jeder
+# neuen Veröffentlichung alle Fahrschüler, Termine und Anfragen weg.
+
+services:
+  - type: web
+    name: fahrschule-nusser
+    runtime: node
+    # Server in Frankfurt: die Daten bleiben damit in der EU, was die
+    # datenschutzrechtliche Seite deutlich einfacher macht.
+    region: frankfurt
+    plan: starter
+    # Die Anwendung liegt in einem Unterordner dieses Repositorys.
+    rootDir: fahrschule-nusser
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+
+    # Dauerhafte Festplatte für die JSON-Dateien. Ohne sie setzt Render
+    # den Datenbestand bei jeder Veröffentlichung zurück.
+    disk:
+      name: daten
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Verweist auf die dauerhafte Festplatte von oben
+      - key: DATA_DIR
+        value: /var/data
+      # Wird von Render einmalig erzeugt und bleibt dann bestehen
+      - key: SESSION_SECRET
+        generateValue: true
+      # Diese Werte werden in der Oberfläche von Render eingetragen,
+      # damit sie nicht im Repository stehen:
+      - key: BASE_URL
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false

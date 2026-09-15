@@ -17,7 +17,10 @@ const path = require('path');
 const dns = require('dns').promises;
 const nodemailer = require('nodemailer');
 
-const OUTBOX_LOG = path.join(__dirname, '..', 'data', 'outbox.log');
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, '..', 'data');
+const OUTBOX_LOG = path.join(DATA_DIR, 'outbox.log');
 
 const resendConfigured = Boolean(process.env.RESEND_API_KEY);
 const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
