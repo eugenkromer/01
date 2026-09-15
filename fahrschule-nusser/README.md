@@ -184,29 +184,46 @@ Damit ändern sich zwei Dinge:
 
 ### Vorführung im Netz
 
-Soll die Fahrschule selbst hineinschauen können, ohne dass etwas installiert wird,
-reicht für eine reine Vorführung der **kostenlose Tarif** bei Render – dass die Daten
-bei jeder Veröffentlichung zurückgesetzt werden, ist hier ja gerade kein Problem.
-Vorgehen wie unter „Die Seite veröffentlichen“, aber:
+Soll die Fahrschule selbst hineinschauen, ohne dass bei ihr etwas installiert wird,
+läuft die Vorführung bei [Render](https://render.com) – **kostenlos**. Dass der
+Datenbestand bei jedem Start zurückgesetzt wird, ist bei einer Vorführung ja gerade
+erwünscht.
 
-- in `render.yaml` `plan: starter` auf `plan: free` ändern und den Block `disk:`
-  sowie die Variable `DATA_DIR` entfernen
-- unter „Environment“ zusätzlich `DEMO_MODE` auf `true` setzen
-- `BASE_URL` auf die Adresse setzen, die Render vergibt (endet auf `.onrender.com`)
+Hochladen musst du nichts: Der Code liegt bereits auf GitHub, Render holt ihn sich
+von dort.
+
+1. Bei [render.com](https://render.com) mit dem GitHub-Konto anmelden
+2. „New“ → „Blueprint“, dieses Repository auswählen
+3. **Als Branch `claude/fahrschulenusser-modernize-hhz1r9` angeben.** Das ist wichtig:
+   Der Standard-Branch dieses Repositorys gehört zu einem anderen Projekt – ohne die
+   Angabe würde Render das Falsche bauen.
+4. Render liest die Datei [`render.yaml`](../render.yaml) im Wurzelverzeichnis und
+   richtet alles ein. Die Vorführung ist dort schon fertig eingestellt: kostenloser
+   Tarif, Vorführmodus an, Beispieldaten bei jedem Start.
+5. Nach dem ersten Bauen vergibt Render eine Adresse, die auf `.onrender.com` endet.
+   Diese unter „Environment“ als `BASE_URL` eintragen und einmal neu veröffentlichen.
+
+Danach ist die Vorführung unter dieser Adresse erreichbar – der Link lässt sich
+einfach weitergeben.
 
 Zwei Eigenheiten des kostenlosen Tarifs: Der Dienst schläft nach etwa 15 Minuten
-Leerlauf ein, der erste Aufruf danach dauert knapp eine Minute. Und weil die Daten bei
-jedem Neustart zurückgesetzt werden, sind auch die Beispieldaten weg – deshalb
-`npm run demo` im Startbefehl mit erledigen lassen:
+Leerlauf ein, der erste Aufruf danach dauert knapp eine Minute. Und bei jedem Start
+werden die Beispieldaten neu angelegt – was in einer Vorführung eingetragen wurde,
+ist danach wieder weg.
 
-```
-startCommand: npm run demo && npm start
-```
+### Vom Vorführ- in den echten Betrieb
 
-Sobald aus der Vorführung Ernst wird: `DEMO_MODE` entfernen, auf den bezahlten Tarif
-mit Festplatte wechseln, `DATA_DIR` setzen und die Beispieldaten mit
-`npm run demo -- reset` löschen – oder besser gleich mit einem leeren Datenbestand neu
-beginnen.
+In `render.yaml` ist an jeder betroffenen Stelle vermerkt, was zu ändern ist. Kurz
+gefasst:
+
+| Was | Vorführung | Echter Betrieb |
+| --- | --- | --- |
+| `plan` | `free` | `starter` |
+| `startCommand` | `npm run demo -- reset && npm start` | `npm start` |
+| `DEMO_MODE` | `true` | Variable löschen |
+| `disk` und `DATA_DIR` | auskommentiert | einkommentieren |
+
+Dazu den E-Mail-Versand einrichten (siehe oben) und die Beispieldaten löschen.
 
 ## Die Seite veröffentlichen
 
@@ -234,8 +251,10 @@ Ordner auf einem dauerhaften Laufwerk liegt.
 ### Weg A: Render – am schnellsten eingerichtet
 
 1. Bei [render.com](https://render.com) anmelden und das GitHub-Repository verbinden
-2. „New" → „Blueprint" wählen. Render liest die Datei [`render.yaml`](render.yaml)
-   und legt den Dienst samt dauerhafter Festplatte an
+2. „New" → „Blueprint" wählen und als Branch den Zweig mit dieser Anwendung angeben.
+   Render liest die Datei [`render.yaml`](../render.yaml) im Wurzelverzeichnis des
+   Repositorys – dort stehen auch die Stellen, die für den echten Betrieb von der
+   Vorführung umgestellt werden müssen
 3. Unter „Environment" noch eintragen:
    - `BASE_URL` – die echte Adresse, z. B. `https://www.fahrschule-nusser.de`
    - `SEED_ADMIN_EMAIL` – die E-Mail-Adresse des ersten Verwaltungszugangs

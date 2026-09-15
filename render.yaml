@@ -1,0 +1,81 @@
+# Bauplan für eine Veröffentlichung bei Render (render.com).
+#
+# Diese Datei muss im Wurzelverzeichnis des Repositorys liegen - dort und
+# nur dort sucht Render danach.
+#
+# So wie sie hier steht, richtet sie eine VORFÜHRUNG ein: kostenloser
+# Tarif, Beispieldaten bei jedem Start, Vorführmodus an. Weiter unten
+# steht bei jedem betroffenen Punkt, was für den echten Betrieb zu ändern
+# ist.
+#
+# Einrichten: bei Render "New" -> "Blueprint", dieses Repository wählen
+# und als Branch  claude/fahrschulenusser-modernize-hhz1r9  angeben.
+# (Der Standard-Branch dieses Repositorys gehört zu einem anderen
+# Projekt - ohne die Angabe würde Render das Falsche bauen.)
+
+services:
+  - type: web
+    name: fahrschule-nusser-demo
+    runtime: node
+
+    # Server in Frankfurt: die Daten bleiben damit in der EU, was die
+    # datenschutzrechtliche Seite deutlich einfacher macht.
+    region: frankfurt
+
+    # ECHTER BETRIEB: auf "starter" ändern. Der kostenlose Tarif schläft
+    # nach etwa 15 Minuten Leerlauf ein und bietet keine dauerhafte
+    # Festplatte.
+    plan: free
+
+    # Die Anwendung liegt in einem Unterordner dieses Repositorys.
+    rootDir: fahrschule-nusser
+    buildCommand: npm install
+
+    # Legt vor jedem Start frische Beispieldaten an. Nötig, weil der
+    # kostenlose Tarif die Festplatte bei jedem Start zurücksetzt.
+    # ECHTER BETRIEB: auf  npm start  ändern, sonst würden bei jedem
+    # Neustart alle echten Fahrschüler durch Beispieldaten ersetzt.
+    startCommand: npm run demo -- reset && npm start
+
+    healthCheckPath: /
+
+    # ECHTER BETRIEB: diesen Block einkommentieren. Ohne dauerhafte
+    # Festplatte setzt Render den Datenbestand bei jeder Veröffentlichung
+    # zurück - alle Fahrschüler, Termine und Anfragen wären weg.
+    # disk:
+    #   name: daten
+    #   mountPath: /var/data
+    #   sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Vorführmodus: Auf der Anmeldeseite stehen alle Zugänge zum
+      # Anklicken, sodass das Portal auch ohne eingerichteten
+      # E-Mail-Versand betreten werden kann.
+      # ECHTER BETRIEB: diese Variable ersatzlos löschen. Solange sie auf
+      # "true" steht, kommt jeder Besucher in jedes Konto - auch in die
+      # Verwaltung.
+      - key: DEMO_MODE
+        value: true
+
+      # ECHTER BETRIEB: einkommentieren, zusammen mit dem disk-Block oben.
+      # - key: DATA_DIR
+      #   value: /var/data
+
+      # Wird von Render einmalig erzeugt und bleibt dann bestehen
+      - key: SESSION_SECRET
+        generateValue: true
+
+      # Diese Werte werden in der Oberfläche von Render eingetragen,
+      # damit sie nicht im Repository stehen. Für eine reine Vorführung
+      # genügt BASE_URL - die übrigen betreffen den E-Mail-Versand.
+      - key: BASE_URL
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
