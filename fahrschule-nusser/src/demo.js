@@ -125,6 +125,22 @@ function anlegen() {
     })
   );
 
+  // ---------- Unterricht am heutigen Tag ----------
+  // Ohne einen Termin für heute bliebe der Block "Heute" im
+  // Fahrlehrer-Bereich leer - und genau dort wird zu Unterrichtsbeginn
+  // die Anwesenheit abgehakt. Je ein Termin pro besetztem Standort.
+  function heuteUm(stunde, minute = 0, dauerMinuten = 150) {
+    const beginn = new Date();
+    beginn.setHours(stunde, minute, 0, 0);
+    const ende = new Date(beginn.getTime() + dauerMinuten * 60 * 1000);
+    return { startsAt: formatiere(beginn), endsAt: formatiere(ende) };
+  }
+
+  const heutigeTermine = [
+    { ...heuteUm(18, 0),  locationId: 'borchener-strasse', lessonNo: 9,  topic: 'Technische Bedingungen und Umweltbewusstsein', instructor: 'A. Hartmann', capacity: 18 },
+    { ...heuteUm(18, 30), locationId: 'elsen',             lessonNo: 10, topic: 'Fahren mit Solokraftfahrzeugen und Zügen',     instructor: 'T. Kramer',   capacity: 12 },
+  ].map((t) => db.createTheorySession(t));
+
   // ---------- Fahrlehrer ----------
   // Je Standort zwei Fahrlehrer - sie verwalten ihn selbst: Termine
   // festlegen, Fahrschüler aufnehmen, Anwesenheit führen.
@@ -367,7 +383,7 @@ function anlegen() {
 
   console.log('');
   console.log('Beispieldaten angelegt:');
-  console.log(`  ${angelegteTermine.length} kommende und ${vergangeneTermine.length} gehaltene Theorietermine`);
+  console.log(`  ${heutigeTermine.length} Theorietermine heute, ${angelegteTermine.length} später, ${vergangeneTermine.length} früher`);
   console.log(`  ${anzahlAnwesenheit} Anwesenheitseinträge (eine Liste noch offen)`);
   console.log(`  ${fahrlehrer.length} Fahrlehrer`);
   console.log(`  ${angelegtePersonen.length} Fahrschüler`);

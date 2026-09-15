@@ -308,8 +308,9 @@ Damit ändern sich zwei Dinge:
    in einen Portalzugang umwandeln, danach ihren Ausbildungsstand pflegen
 5. **Teilnehmerliste** eines Termins öffnen und ausdrucken
 6. **Als Fahrlehrer anmelden** (Andrea Hartmann betreut den Hauptsitz, Tobias Kramer
-   den Standort Elsen): unter „Theorietermine" einen neuen Termin festlegen und sehen,
-   dass die Termine des anderen Standorts zwar sichtbar, aber nicht änderbar sind
+   den Standort Elsen): unter „Theorietermine" steht oben der Block **Heute** mit dem
+   Unterricht des Tages – für den eigenen Standort mit Knopf zum Abhaken, für den
+   anderen nur zur Ansicht. Darunter einen neuen Termin festlegen
 7. Denselben Weg für die **Anwesenheit**: einen gehaltenen Termin öffnen und abhaken,
    wer da war – danach im Portal des Fahrschülers nachsehen, wie die Lektion erscheint
 8. Unter „Aufnehmen" einen neuen Fahrschüler anlegen, wahlweise aus einer offenen
