@@ -48,6 +48,15 @@
             </a>
           <% }); %>
 
+          <% if (zugaenge.fahrlehrer.length > 0) { %>
+            <div class="demo-zugaenge-titel" style="margin-top: 16px">Als Fahrlehrer</div>
+            <% zugaenge.fahrlehrer.forEach(function (u) { %>
+              <a class="btn btn-hell btn-voll" href="/portal/demo-login/<%= u.id %>">
+                <%= u.firstName %> <%= u.lastName %><% if (u.classes) { %> · <%= u.classes %><% } %>
+              </a>
+            <% }); %>
+          <% } %>
+
           <% if (zugaenge.fahrschueler.length > 0) { %>
             <div class="demo-zugaenge-titel" style="margin-top: 16px">Als Fahrschüler</div>
             <% zugaenge.fahrschueler.forEach(function (u) { %>

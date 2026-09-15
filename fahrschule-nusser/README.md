@@ -248,9 +248,9 @@ DEMO_MODE=true npm start
 
 Damit ändern sich zwei Dinge:
 
-- Auf der Anmeldeseite stehen **alle Zugänge zum Anklicken** – als Fahrschule oder als
-  einer der Fahrschüler. Ohne das käme niemand ins Portal, denn der Anmeldelink wird
-  sonst per E-Mail verschickt.
+- Auf der Anmeldeseite stehen **alle Zugänge zum Anklicken**, nach Rolle gruppiert:
+  die Fahrschule, die Fahrlehrer und die Fahrschüler. Ohne das käme niemand ins Portal,
+  denn der Anmeldelink wird sonst per E-Mail verschickt.
 - Oben auf jeder Seite läuft ein Hinweisband, das klarstellt, dass es sich um eine
   Vorführung mit erfundenen Daten handelt.
 

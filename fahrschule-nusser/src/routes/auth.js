@@ -17,11 +17,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Nur im Vorführmodus: alle Konten, die zum Anklicken angeboten werden.
 function demoZugaenge() {
   const alle = db.getUsers();
+  const nachName = (a, b) => a.lastName.localeCompare(b.lastName, 'de');
   return {
     fahrschule: alle.filter((u) => u.role === 'admin'),
-    fahrschueler: alle
-      .filter((u) => u.role === 'student')
-      .sort((a, b) => a.lastName.localeCompare(b.lastName, 'de')),
+    fahrlehrer: alle.filter((u) => u.role === 'instructor').sort(nachName),
+    fahrschueler: alle.filter((u) => u.role === 'student').sort(nachName),
   };
 }
 
