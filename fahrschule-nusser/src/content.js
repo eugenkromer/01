@@ -25,6 +25,22 @@ const business = {
   intro:
     'Seit über 40 Jahren begleiten wir Fahrschülerinnen und Fahrschüler in Paderborn und Umgebung sicher zum Führerschein – mit erfahrenen Fahrlehrern, modernen Fahrzeugen und Unterricht an fünf Standorten.',
 
+  // Logo der Fahrschule. Die Bilddatei nach public/img/ legen und hier den
+  // Pfad eintragen, z. B. '/img/logo.png' oder '/img/logo.svg'.
+  // Bleibt der Wert leer, zeigt die Seite ersatzweise ein Kästchen mit dem
+  // Anfangsbuchstaben - so wie jetzt.
+  logo: '', // TODO: Logo der alten Seite hier eintragen
+  // Fassung für dunkle Hintergründe (Fußzeile), z. B. das Logo in Weiß.
+  // Bleibt der Wert leer, wird das normale Logo dort auf ein helles
+  // Plättchen gesetzt, damit es in jedem Fall lesbar bleibt.
+  logoHell: '', // optional
+  // Auf true setzen, wenn neben dem Logo zusätzlich der Name stehen soll.
+  // Trägt das Logo den Schriftzug schon selbst, bleibt es bei false.
+  logoMitText: false,
+  // Quadratisches Symbol für den Browser-Tab (mindestens 180 x 180 Pixel).
+  // Leer lassen, dann wird ein Kästchen mit dem Anfangsbuchstaben benutzt.
+  favicon: '', // TODO: optional
+
   phone: '05251 74752',
   // In dieser Schreibweise landet die Nummer im „anrufen“-Link
   phoneLink: '+49525174752',

@@ -93,6 +93,23 @@ Die Datei ist in Abschnitte gegliedert:
 | `specialDrives` | Vorgeschriebene Sonderfahrten und ihre Anzahl |
 | `legal` | Angaben für Impressum und Datenschutzerklärung |
 
+**Logo:** Die Bilddatei nach `public/img/` legen und in `content.js` unter
+`business.logo` eintragen, z. B. `logo: '/img/logo.png'`. PNG mit durchsichtigem
+Hintergrund oder SVG funktioniert am besten; die Höhe passt die Seite selbst an.
+Solange nichts eingetragen ist, zeigt die Seite ersatzweise ein Kästchen mit dem
+Anfangsbuchstaben.
+
+Drei Punkte dazu:
+
+- Trägt das Logo den Schriftzug „Fahrschule Nusser" bereits selbst, bleibt
+  `logoMitText` auf `false` – sonst stünde der Name doppelt da. Ist das Logo nur ein
+  Bildzeichen, `logoMitText: true` setzen.
+- In der Fußzeile steht das Logo auf dunklem Grund. Gibt es eine helle Fassung, diese
+  unter `logoHell` eintragen. Ohne sie wird das normale Logo dort auf ein helles
+  Plättchen gesetzt, damit es in jedem Fall lesbar bleibt.
+- Für den Browser-Tab kann unter `favicon` ein quadratisches Bild ab 180 × 180 Pixeln
+  hinterlegt werden.
+
 **Fotos** gehören nach `public/img/` (Teamfotos zum Beispiel nach `public/img/team/`)
 und werden in `content.js` mit ihrem Pfad eingetragen, etwa `photo: '/img/team/nusser.jpg'`.
 

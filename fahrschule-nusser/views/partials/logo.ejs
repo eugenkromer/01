@@ -1,0 +1,28 @@
+<%
+  // Das Logo an einer Stelle. Ist in src/content.js unter business.logo eine
+  // Bilddatei hinterlegt, wird sie angezeigt - sonst als Ersatz das Kästchen
+  // mit dem Anfangsbuchstaben.
+  const logoUntertitel = typeof untertitel !== 'undefined' ? untertitel : content.business.claim;
+  // Auf dunklem Grund (Fußzeile) die helle Fassung nehmen, falls es eine
+  // gibt. Sonst bekommt das normale Logo ein helles Plättchen als
+  // Hintergrund - das ist mit jedem Logo lesbar, egal welche Farben es hat.
+  const aufDunkel = typeof dunkel !== 'undefined' && dunkel;
+  const logoDatei = aufDunkel && content.business.logoHell
+    ? content.business.logoHell
+    : content.business.logo;
+  const brauchtPlaettchen = aufDunkel && !content.business.logoHell;
+%>
+<a class="logo" href="<%= typeof ziel !== 'undefined' ? ziel : '/' %>">
+  <% if (content.business.logo) { %>
+    <img class="logo-bild <%= brauchtPlaettchen ? 'auf-plaettchen' : '' %>"
+         src="<%= logoDatei %>" alt="<%= content.business.name %>">
+  <% } else { %>
+    <span class="logo-mark" aria-hidden="true"><%= content.business.name.charAt(0) %></span>
+  <% } %>
+  <% if (!content.business.logo || content.business.logoMitText) { %>
+    <span>
+      <%= content.business.name %>
+      <small><%= logoUntertitel %></small>
+    </span>
+  <% } %>
+</a>

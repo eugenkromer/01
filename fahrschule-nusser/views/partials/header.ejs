@@ -2,13 +2,7 @@
 <%- include('demo-hinweis') %>
 <header class="kopf">
   <div class="wrap kopf-inner">
-    <a class="logo" href="/">
-      <span class="logo-mark" aria-hidden="true">N</span>
-      <span>
-        <%= content.business.name %>
-        <small><%= content.business.claim %></small>
-      </span>
-    </a>
+    <%- include('logo') %>
 
     <button class="nav-toggle" type="button" aria-expanded="false"
             aria-controls="hauptnavigation" aria-label="Menü öffnen und schließen">

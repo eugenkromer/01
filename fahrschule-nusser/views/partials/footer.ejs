@@ -2,13 +2,7 @@
   <div class="wrap">
     <div class="fuss-grid">
       <div>
-        <div class="logo">
-          <span class="logo-mark" aria-hidden="true">N</span>
-          <span>
-            <%= content.business.name %>
-            <small><%= content.business.claim %></small>
-          </span>
-        </div>
+        <%- include('logo', { dunkel: true }) %>
         <p><%= content.business.owner %><br>
           <%= content.locations[0].street %><br>
           <%= content.locations[0].zip %> <%= content.locations[0].city %></p>

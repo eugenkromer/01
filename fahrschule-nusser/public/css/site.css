@@ -872,3 +872,29 @@ tbody tr:hover { background: var(--blau-50); }
   color: var(--text-mute);
 }
 .demo-zugaenge .btn { justify-content: flex-start; font-size: .94rem; }
+
+/* ---------- Logo als Bilddatei ---------- */
+
+/* Gilt, sobald in src/content.js unter business.logo eine Datei hinterlegt
+   ist. Die Höhe ist begrenzt, die Breite ergibt sich daraus - so passt
+   jedes Seitenverhältnis in die Kopfzeile, ohne sie auseinanderzuziehen. */
+.logo-bild {
+  height: 46px;
+  width: auto;
+  max-width: 230px;
+  object-fit: contain;
+}
+@media (max-width: 480px) {
+  .logo-bild { height: 38px; max-width: 170px; }
+}
+
+/* In der Fußzeile steht das Logo auf dunklem Grund. Ist unter
+   business.logoHell keine helle Fassung hinterlegt, bekommt das normale
+   Logo ein helles Plättchen - damit ist es mit jedem Logo lesbar, egal
+   welche Farben es mitbringt. */
+.logo-bild.auf-plaettchen {
+  background: #fff;
+  padding: 7px 11px;
+  border-radius: 9px;
+  box-sizing: content-box;
+}

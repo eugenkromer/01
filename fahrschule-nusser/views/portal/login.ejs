@@ -2,13 +2,7 @@
 
 <div class="login-seite">
   <div class="login-karte">
-    <a class="logo" href="/">
-      <span class="logo-mark" aria-hidden="true">N</span>
-      <span>
-        <%= content.business.name %>
-        <small>Fahrschüler-Portal</small>
-      </span>
-    </a>
+    <%- include('../partials/logo', { untertitel: 'Fahrschüler-Portal' }) %>
 
     <% if (gesendet) { %>
       <h1>Schau in dein Postfach</h1>
