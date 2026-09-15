@@ -289,9 +289,16 @@ label.lektion:hover { border-color: var(--blau-600); }
   border-radius: var(--radius-lg);
   padding: clamp(28px, 5vw, 44px);
   width: 100%;
-  max-width: 440px;
+  /* min() statt 440px: place-items:center im Elternteil würde der Karte
+     sonst ihre Inhaltsbreite geben - und die langen Schaltflächen der
+     Vorführung ragen damit über den Bildschirmrand hinaus. */
+  max-width: min(440px, 100%);
   box-shadow: var(--schatten-lg);
 }
+/* Die Zugänge der Vorführung können lange Beschriftungen haben */
+.demo-zugaenge .btn { min-width: 0; }
+.demo-zugaenge .btn,
+.login-karte .logo { overflow-wrap: anywhere; }
 .login-karte .logo { margin-bottom: 24px; }
 .login-karte h1 { font-size: 1.55rem; margin-bottom: .3em; }
 .login-karte .lead { font-size: .97rem; margin-bottom: 26px; }
@@ -768,4 +775,161 @@ td form { display: inline; }
   .kennzahl { padding: 11px 6px; }
   .kennzahl .wert { font-size: 1.1rem; }
   .kennzahl .bez { font-size: .67rem; }
+}
+
+/* ---------- Offene Anmeldungen beim Aufnehmen ---------- */
+
+.anfrage-zeile {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--linie);
+}
+.anfrage-zeile:last-of-type { border-bottom: none; }
+.anfrage-zeile:first-of-type { padding-top: 0; }
+
+.anfrage-kopf {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.anfrage-kopf h3 { margin: 0; font-size: 1.02rem; }
+
+/* Beschriftung und Wert als Paare - so bleibt eine lange E-Mail-Adresse
+   lesbar, statt in einer schmalen Spalte buchstabenweise umzubrechen. */
+.anfrage-daten {
+  margin: 0 0 14px;
+  display: grid;
+  gap: 6px;
+  font-size: .9rem;
+}
+.anfrage-daten > div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 10px;
+}
+.anfrage-daten dt { color: var(--text-mute); }
+.anfrage-daten dd { margin: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+  .anfrage-daten > div { grid-template-columns: 104px minmax(0, 1fr); gap: 8px; }
+  .anfrage-daten { font-size: .86rem; }
+  .anfrage-zeile > .btn { width: 100%; justify-content: center; }
+}
+
+/* ---------- Absicherungen gegen seitliches Scrollen ---------- */
+
+/* Flex- und Grid-Kinder wachsen sonst am längsten Wort über ihre Spalte
+   hinaus, statt umzubrechen. */
+.lektion, .anwesenheit-zeile, .art-option, .standort-option,
+.termin-info, .dokument-info, .mehr-eintrag {
+  min-width: 0;
+}
+.lektion .titel, .anwesenheit-name, .art-option span,
+.standort-option span, .mehr-eintrag span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Sollte irgendwo eine Terminzeile ohne Datumskästchen stehen, darf die
+   schmale Datumsspalte nicht trotzdem Platz beanspruchen. */
+@media (max-width: 600px) {
+  .termin:not(:has(.termin-datum)) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Die Rechnungstabelle auf dem Handy: kleinere Schrift und enge Zellen
+   statt einer Tabelle, die über den Rand hinausragt. */
+@media (max-width: 600px) {
+  .rechnung-blatt { padding: 20px 16px; }
+  .rechnung-tabelle { font-size: .82rem; }
+  .rechnung-tabelle th,
+  .rechnung-tabelle td { padding: 8px 4px; }
+  .rechnung-tabelle th:first-child,
+  .rechnung-tabelle td:first-child { padding-left: 0; }
+  .rechnung-tabelle th:last-child,
+  .rechnung-tabelle td:last-child { padding-right: 0; }
+  .rechnung-titel { font-size: 1.3rem; }
+  .rechnung-kopf { margin-bottom: 26px; }
+}
+
+/* Rechnungspositionen: die festen Spaltenbreiten passen nur am Rechner. */
+@media (max-width: 700px) {
+  .position-zeile { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* ---------- Fußzeile im Portal auf dem Handy ---------- */
+
+@media (max-width: 900px) {
+  /* Im eingeloggten Bereich braucht niemand die Linkspalten der
+     Website - sie verlängern jede Portalseite um rund 1000 Pixel.
+     Übrig bleibt die Zeile mit den Pflichtangaben. */
+  .portal-body .fuss-grid { display: none; }
+  .portal-body .fuss { padding: 22px 0 18px; }
+  .portal-body .fuss-unten {
+    border-top: none;
+    padding-top: 0;
+    justify-content: center;
+    gap: 18px;
+    font-size: .82rem;
+  }
+}
+
+/* ====================================================================
+   Grundregel gegen seitliches Scrollen
+   --------------------------------------------------------------------
+   Grid- und Flex-Elemente haben von Haus aus min-width: auto. Sie
+   schrumpfen damit nie unter die Inhaltsbreite ihrer Kinder - ein
+   Eingabefeld (rund 20 Zeichen breit) oder eine breite Tabelle blähen
+   so die ganze Seite auf, statt umzubrechen oder zu scrollen.
+   Deshalb überall dort min-width: 0, wo ein Container Inhalte trägt,
+   die breiter werden können.
+   ==================================================================== */
+
+.portal-layout > *,
+.portal-inhalt,
+.portal-inhalt > *,
+.portal-block,
+.portal-block > *,
+.formular,
+.formular > *,
+.feld-reihe,
+.feld-reihe > *,
+.kennzahlen > *,
+.raster > *,
+.stapel > * {
+  min-width: 0;
+}
+
+/* Breite Tabellen scrollen in ihrem eigenen Rahmen - dafür muss der
+   Rahmen selbst schmaler werden dürfen als die Tabelle darin. */
+.tabelle-rahmen {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* ---------- Letzte Feinheiten für sehr schmale Geräte ---------- */
+
+@media (max-width: 400px) {
+  /* Schaltflächen dürfen nicht umbrechen (.btn setzt white-space: nowrap),
+     damit sie in Zeilen nicht zerfallen. Auf einem 320 Pixel breiten
+     Display ist "Anlegen und Zugang verschicken" damit aber breiter als
+     der Bildschirm - dort ist Umbruch das kleinere Übel. */
+  .portal-inhalt .btn,
+  .login-karte .btn {
+    white-space: normal;
+    min-width: 0;
+  }
+
+  /* Dasselbe in der unteren Leiste: "Rechnungen" ist breiter als ein
+     Fünftel von 320 Pixeln. */
+  .portal-reiter a { min-width: 0; }
+
+  /* Die Rechnungstabelle hat vier Spalten mit festen Begriffen. Unter
+     400 Pixeln braucht sie kleinere Schrift und weniger Rand, sonst
+     ragt sie aus dem Blatt. */
+  .rechnung-blatt { padding: 18px 12px; }
+  .rechnung-tabelle { font-size: .76rem; }
+  .rechnung-tabelle th { font-size: .68rem; }
+  .rechnung-tabelle th,
+  .rechnung-tabelle td { padding: 7px 3px; }
 }

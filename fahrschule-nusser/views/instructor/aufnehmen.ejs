@@ -28,26 +28,27 @@
             mit einem Klick ins Formular darunter.</p>
 
           <% anfragen.forEach(function (a) { %>
-            <div class="termin">
-              <div class="termin-info">
+            <div class="anfrage-zeile">
+              <div class="anfrage-kopf">
                 <h3><%= a.firstName %> <%= a.lastName %></h3>
-                <div class="meta">
-                  Klasse <%= a.licenseClass %> · <%= a.email %>
-                  <% if (a.phone) { %> · <%= a.phone %><% } %>
-                  <% if (a.ortName) { %> · <%= a.ortName %><% } %>
-                  · eingegangen <%= f.formatDateShort(a.createdAt) %>
-                </div>
+                <span class="marker blau">Klasse <%= a.licenseClass %></span>
               </div>
-              <div class="termin-aktion">
-                <button class="btn btn-hell btn-klein" type="button"
-                        data-uebernehmen='<%- JSON.stringify({
-                          id: a.id, firstName: a.firstName, lastName: a.lastName,
-                          email: a.email, phone: a.phone, licenseClass: a.licenseClass,
-                          locationId: a.locationId
-                        }) %>'>
-                  Übernehmen
-                </button>
-              </div>
+
+              <dl class="anfrage-daten">
+                <div><dt>E-Mail</dt><dd><%= a.email %></dd></div>
+                <% if (a.phone) { %><div><dt>Telefon</dt><dd><%= a.phone %></dd></div><% } %>
+                <% if (a.ortName) { %><div><dt>Standort</dt><dd><%= a.ortName %></dd></div><% } %>
+                <div><dt>Eingegangen</dt><dd><%= f.formatDateShort(a.createdAt) %></dd></div>
+              </dl>
+
+              <button class="btn btn-hell btn-klein" type="button"
+                      data-uebernehmen='<%- JSON.stringify({
+                        id: a.id, firstName: a.firstName, lastName: a.lastName,
+                        email: a.email, phone: a.phone, licenseClass: a.licenseClass,
+                        locationId: a.locationId
+                      }) %>'>
+                Angaben übernehmen
+              </button>
             </div>
           <% }); %>
         </div>

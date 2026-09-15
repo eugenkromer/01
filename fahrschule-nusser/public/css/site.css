@@ -224,7 +224,7 @@ section { padding: clamp(48px, 7vw, 88px) 0; }
 /* Schaltflächen am Ende des aufgeklappten Menüs (nur im schmalen Layout) */
 .nav-aktionen { display: none; }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .nav-toggle { display: grid; }
   /* In der Kopfzeile ist neben Logo und Menüknopf kein Platz mehr für die
      Schaltflächen - sie stehen stattdessen unten im aufgeklappten Menü. */
@@ -683,7 +683,12 @@ section { padding: clamp(48px, 7vw, 88px) 0; }
   gap: 19px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
-@media (max-width: 620px) { .feld-reihe { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .feld-reihe { grid-template-columns: minmax(0, 1fr); } }
+
+/* Eingabefelder bringen eine eigene Mindestbreite mit (rund 20 Zeichen).
+   Ohne min-width: 0 sprengt sie auf schmalen Displays die Spalte. */
+.feld { min-width: 0; }
+.feld input, .feld select, .feld textarea { min-width: 0; }
 
 .feld { display: grid; gap: 7px; }
 

@@ -461,6 +461,13 @@ Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen
   Sitzungs-Cookie nach der Anmeldung – dafür braucht es kein Einwilligungsbanner.
 - **Barrierearm:** Sprungmarke zum Inhalt, sichtbare Fokusrahmen, beschriftete
   Formularfelder, ausreichende Farbkontraste.
+- **Kein seitliches Scrollen.** Grid- und Flex-Container haben von Haus aus
+  `min-width: auto` und schrumpfen deshalb nie unter die Inhaltsbreite ihrer Kinder:
+  Ein Eingabefeld bringt rund 20 Zeichen Mindestbreite mit, eine Tabelle ihre volle
+  Spaltenbreite – beides bläht sonst die ganze Seite auf, statt umzubrechen oder im
+  eigenen Rahmen zu scrollen. Deshalb steht in `portal.css` eine Grundregel, die
+  `min-width: 0` auf allen inhaltstragenden Containern setzt. Wer neue Ansichten
+  baut, sollte sie dort eintragen.
 - **Fürs Handy gebaut, nicht nur verkleinert.** Fahrschüler öffnen ihren Bereich fast
   immer am Telefon. Dort ersetzt eine feste Leiste am unteren Rand die Seitenleiste:
   mit dem Daumen erreichbar, und alle Bereiche sind auf einen Blick sichtbar statt
