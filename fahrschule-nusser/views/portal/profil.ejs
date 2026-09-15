@@ -1,0 +1,79 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Meine Daten</h1>
+        <p>Hier siehst du, was wir zu dir gespeichert haben.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Kontaktdaten</h2>
+      <p class="block-info">Änderungen hier speichern wir sofort.</p>
+
+      <form class="formular" method="post" action="/portal/profil">
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="firstName">Vorname</label>
+            <input type="text" id="firstName" name="firstName" value="<%= currentUser.firstName || '' %>">
+          </div>
+          <div class="feld">
+            <label for="lastName">Nachname</label>
+            <input type="text" id="lastName" name="lastName" value="<%= currentUser.lastName || '' %>">
+          </div>
+        </div>
+
+        <div class="feld">
+          <label for="phone">Telefon</label>
+          <input type="tel" id="phone" name="phone" value="<%= currentUser.phone || '' %>">
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Speichern</button>
+      </form>
+    </div>
+
+    <div class="portal-block">
+      <h2>Zur Ausbildung</h2>
+      <div class="tabelle-rahmen">
+        <table>
+          <tbody>
+            <tr>
+              <td>E-Mail-Adresse</td>
+              <td><%= currentUser.email %></td>
+            </tr>
+            <tr>
+              <td>Führerscheinklasse</td>
+              <td><%= currentUser.licenseClass %></td>
+            </tr>
+            <tr>
+              <td>Standort</td>
+              <td><%= ortName || 'nicht festgelegt' %></td>
+            </tr>
+            <tr>
+              <td>Angemeldet seit</td>
+              <td><%= f.formatDateShort(currentUser.createdAt) %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="klein mute abstand-oben">An deiner E-Mail-Adresse hängt dein Zugang – sie ändern
+        wir deshalb nur direkt in der Fahrschule. Melde dich dafür einfach bei uns.</p>
+    </div>
+
+    <div class="portal-block">
+      <h2>Deine Rechte</h2>
+      <p class="block-info">Du kannst jederzeit Auskunft über deine gespeicherten Daten verlangen,
+        sie berichtigen oder löschen lassen. Wie das geht, steht in unserer
+        <a href="/datenschutz">Datenschutzerklärung</a>.</p>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

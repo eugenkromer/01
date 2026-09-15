@@ -1,0 +1,171 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Hallo <%= currentUser.firstName || 'und willkommen' %>!</h1>
+        <p>Das ist dein Stand in der Ausbildung zur Klasse <%= currentUser.licenseClass %>.</p>
+      </div>
+      <a class="btn btn-primaer btn-klein" href="/portal/theorie">Theorietermin buchen</a>
+    </div>
+
+    <!-- Kennzahlen -->
+    <div class="kennzahlen">
+      <div class="kennzahl">
+        <span class="wert"><%= stand.theorie.ist %> / <%= stand.theorie.soll %></span>
+        <span class="bez">Theorielektionen besucht</span>
+      </div>
+      <div class="kennzahl akzent">
+        <span class="wert"><%= stand.fahrstunden %></span>
+        <span class="bez">Übungsstunden gefahren</span>
+      </div>
+      <div class="kennzahl <%= stand.sonderGesamt.fertig ? 'gruen' : '' %>">
+        <span class="wert"><%= stand.sonderGesamt.ist %> / <%= stand.sonderGesamt.soll %></span>
+        <span class="bez">Sonderfahrten absolviert</span>
+      </div>
+    </div>
+
+    <!-- Fortschritt -->
+    <div class="portal-block">
+      <h2>Dein Fortschritt
+        <a class="btn btn-hell btn-klein" href="/portal/fortschritt">Details ansehen</a>
+      </h2>
+      <p class="block-info">So weit bist du auf dem Weg zum Führerschein.</p>
+
+      <div class="fortschritt">
+        <div class="fortschritt-kopf">
+          <span class="bez">Theorieunterricht</span>
+          <span class="zahl"><%= stand.theorie.ist %> von <%= stand.theorie.soll %> Lektionen</span>
+        </div>
+        <div class="balken <%= stand.theorie.fertig ? 'fertig' : '' %>">
+          <span style="width: <%= stand.theorie.prozent %>%"></span>
+        </div>
+      </div>
+
+      <div class="fortschritt">
+        <div class="fortschritt-kopf">
+          <span class="bez">Sonderfahrten</span>
+          <span class="zahl"><%= stand.sonderGesamt.ist %> von <%= stand.sonderGesamt.soll %> Fahrten</span>
+        </div>
+        <div class="balken akzent <%= stand.sonderGesamt.fertig ? 'fertig' : '' %>">
+          <span style="width: <%= stand.sonderGesamt.prozent %>%"></span>
+        </div>
+      </div>
+
+      <div class="reihe abstand-oben">
+        <span class="marker <%= pruefungsMarker(stand.theoriePruefung) %>">
+          Theorieprüfung: <%= stand.theoriePruefung %>
+        </span>
+        <span class="marker <%= pruefungsMarker(stand.praxisPruefung) %>">
+          Praktische Prüfung: <%= stand.praxisPruefung %>
+        </span>
+      </div>
+
+      <% if (stand.notiz) { %>
+        <div class="meldung meldung-hinweis abstand-oben">
+          <p><strong>Notiz deines Fahrlehrers:</strong> <%= stand.notiz %></p>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Meine Termine -->
+    <div class="portal-block">
+      <h2>Deine nächsten Termine</h2>
+      <% if (naechsteTermine.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📅</div>
+          <p>Du bist aktuell für keinen Theorietermin angemeldet.</p>
+          <a class="btn btn-dunkel btn-klein abstand-oben" href="/portal/theorie">Termine ansehen</a>
+        </div>
+      <% } else { %>
+        <% naechsteTermine.forEach(function (termin) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(termin.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(termin.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+            <div class="termin-info">
+              <h3><%= termin.lessonNo ? 'Lektion ' + termin.lessonNo + ': ' : '' %><%= termin.topic %></h3>
+              <div class="meta">
+                <%= f.formatTime(termin.startsAt) %><% if (termin.ortName) { %> · <%= termin.ortName %><% } %>
+              </div>
+            </div>
+            <div class="termin-aktion"><span class="marker gruen">angemeldet</span></div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Freie Termine -->
+    <% if (offeneTermine.length > 0) { %>
+      <div class="portal-block">
+        <h2>Freie Theorietermine
+          <a class="btn btn-hell btn-klein" href="/portal/theorie">Alle ansehen</a>
+        </h2>
+        <% offeneTermine.forEach(function (termin) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(termin.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(termin.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+            <div class="termin-info">
+              <h3><%= termin.lessonNo ? 'Lektion ' + termin.lessonNo + ': ' : '' %><%= termin.topic %></h3>
+              <div class="meta">
+                <%= f.formatTime(termin.startsAt) %><% if (termin.ortName) { %> · <%= termin.ortName %><% } %>
+              </div>
+            </div>
+            <div class="termin-aktion">
+              <form method="post" action="/portal/theorie/<%= termin.id %>/anmelden">
+                <button class="btn btn-primaer btn-klein" type="submit">Anmelden</button>
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <!-- Mitteilungen und Unterlagen -->
+    <div class="raster raster-2">
+      <div class="portal-block" style="margin-bottom: 0">
+        <h2>Mitteilungen</h2>
+        <% if (mitteilungen.length === 0) { %>
+          <div class="leer"><p>Keine neuen Mitteilungen.</p></div>
+        <% } else { %>
+          <% mitteilungen.forEach(function (m) { %>
+            <div class="mitteilung">
+              <h3><%= m.title %></h3>
+              <div class="datum"><%= f.formatDateShort(m.createdAt) %></div>
+              <p><%= m.body %></p>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+
+      <div class="portal-block" style="margin-bottom: 0">
+        <h2>Unterlagen
+          <a class="btn btn-hell btn-klein" href="/portal/dokumente">Alle</a>
+        </h2>
+        <% if (dokumente.length === 0) { %>
+          <div class="leer"><p>Noch keine Unterlagen hinterlegt.</p></div>
+        <% } else { %>
+          <% dokumente.forEach(function (d) { %>
+            <div class="dokument">
+              <div class="dokument-symbol" aria-hidden="true">📄</div>
+              <div class="dokument-info">
+                <h3><%= d.title %></h3>
+                <% if (d.description) { %><p><%= d.description %></p><% } %>
+              </div>
+              <a class="btn btn-hell btn-klein" href="<%= d.url %>" target="_blank" rel="noopener">Öffnen</a>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

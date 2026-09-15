@@ -1,0 +1,57 @@
+<%- include('../partials/head') %>
+
+<div class="login-seite">
+  <div class="login-karte">
+    <a class="logo" href="/">
+      <span class="logo-mark" aria-hidden="true">N</span>
+      <span>
+        <%= content.business.name %>
+        <small>Fahrschüler-Portal</small>
+      </span>
+    </a>
+
+    <% if (gesendet) { %>
+      <h1>Schau in dein Postfach</h1>
+      <p class="lead">Wenn deine E-Mail-Adresse bei uns hinterlegt ist, haben wir dir gerade einen
+        Anmeldelink geschickt. Ein Klick darauf – und du bist drin. Der Link gilt 30 Minuten.</p>
+
+      <% if (!emailConfigured) { %>
+        <div class="meldung meldung-warnung">
+          <p><strong>Hinweis für die Fahrschule:</strong> Es ist noch kein E-Mail-Versand
+            eingerichtet. Der Anmeldelink wurde deshalb nicht verschickt, sondern steht in der
+            Serverkonsole und in <code>data/outbox.log</code>.</p>
+        </div>
+      <% } %>
+
+      <a class="btn btn-hell btn-voll" href="/portal/login">Neuen Link anfordern</a>
+
+    <% } else { %>
+      <h1>Anmelden</h1>
+      <p class="lead">Gib deine E-Mail-Adresse ein – du bekommst einen Anmeldelink zugeschickt.
+        Ein Passwort brauchst du nicht.</p>
+
+      <% if (fehler) { %>
+        <div class="meldung meldung-fehler"><p><%= fehler %></p></div>
+      <% } %>
+
+      <form class="formular" method="post" action="/portal/login">
+        <div class="feld">
+          <label for="email">E-Mail-Adresse</label>
+          <input type="email" id="email" name="email" required autocomplete="email"
+                 autofocus placeholder="name@beispiel.de">
+        </div>
+        <button class="btn btn-primaer btn-voll" type="submit">Anmeldelink schicken</button>
+      </form>
+
+      <p class="login-zurueck mute klein">
+        Noch kein Zugang? Deinen Zugang richten wir bei der Anmeldung in der Fahrschule ein.<br>
+        <a href="/anmeldung">Hier geht es zur Anmeldung</a>
+      </p>
+    <% } %>
+
+    <p class="login-zurueck"><a href="/">← Zurück zur Website</a></p>
+  </div>
+</div>
+
+</body>
+</html>

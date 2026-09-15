@@ -1,0 +1,54 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap narrow">
+      <div class="meldung meldung-warnung">
+        <p><strong>Noch zu vervollständigen.</strong> Diese Seite ist eine Vorlage. Ein Impressum
+          ist nach § 5 DDG gesetzlich verpflichtend und muss vor dem Livegang mit den echten
+          Angaben der Fahrschule gefüllt werden. Alle Felder stehen in
+          <code>src/content.js</code> unter <code>legal.imprint</code>.</p>
+      </div>
+
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <p>
+        <%= content.legal.imprint.company %><br>
+        Inhaber: <%= content.legal.imprint.owner %><br>
+        <%= content.legal.imprint.street %><br>
+        <%= content.legal.imprint.zip %> <%= content.legal.imprint.city %>
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Telefon: <a href="tel:<%= content.business.phoneLink %>"><%= content.legal.imprint.phone %></a><br>
+        E-Mail: <a href="mailto:<%= content.legal.imprint.email %>"><%= content.legal.imprint.email %></a>
+      </p>
+
+      <h2>Umsatzsteuer-Identifikationsnummer</h2>
+      <p><%= content.legal.imprint.vatId %></p>
+
+      <h2>Berufsbezeichnung und berufsrechtliche Regelungen</h2>
+      <p><%= content.legal.imprint.licenseInfo %></p>
+      <p>Zuständige Aufsichtsbehörde: <%= content.legal.imprint.authority %></p>
+      <p>Es gelten das Fahrlehrergesetz (FahrlG) und die Fahrschüler-Ausbildungsordnung (FahrschAusbO),
+        einsehbar unter <a href="https://www.gesetze-im-internet.de" rel="noopener">gesetze-im-internet.de</a>.</p>
+
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p><%= content.legal.imprint.responsible %></p>
+
+      <h2>Streitschlichtung</h2>
+      <p>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
+        Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+      <h2>Haftung für Links</h2>
+      <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
+        Einfluss haben. Für diese fremden Inhalte kann keine Gewähr übernommen werden.
+        Verantwortlich ist stets der jeweilige Anbieter der verlinkten Seiten.</p>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

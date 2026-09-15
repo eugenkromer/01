@@ -1,0 +1,317 @@
+/* ====================================================================
+   Fahrschüler-Portal und Verwaltungsbereich
+   Baut auf site.css auf und ergänzt nur die Bausteine, die es
+   ausschließlich im eingeloggten Bereich gibt.
+   ==================================================================== */
+
+.portal-body { background: var(--grund); }
+
+.portal-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 32px;
+  max-width: var(--breite);
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .portal-layout { grid-template-columns: 1fr; gap: 20px; padding-top: 20px; }
+}
+
+/* ---------- Seitenleiste ---------- */
+
+.portal-nav {
+  background: #fff;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: 14px;
+  position: sticky;
+  top: 94px;
+}
+@media (max-width: 900px) {
+  .portal-nav { position: static; display: flex; gap: 6px; overflow-x: auto; padding: 10px; }
+}
+
+.portal-nav a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: .96rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.portal-nav a:hover { background: var(--blau-50); color: var(--blau-700); }
+.portal-nav a.aktiv { background: var(--blau-800); color: #fff; font-weight: 600; }
+.portal-nav .trenner {
+  height: 1px;
+  background: var(--linie);
+  margin: 10px 4px;
+}
+@media (max-width: 900px) { .portal-nav .trenner { display: none; } }
+
+.portal-nav-titel {
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-mute);
+  font-weight: 700;
+  padding: 8px 13px 6px;
+}
+@media (max-width: 900px) { .portal-nav-titel { display: none; } }
+
+/* ---------- Inhaltsbereich ---------- */
+
+.portal-inhalt { min-width: 0; }
+
+.portal-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+.portal-kopf h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: .15em; }
+.portal-kopf p { color: var(--text-mute); margin: 0; }
+
+.portal-block {
+  background: #fff;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: 26px;
+  margin-bottom: 22px;
+}
+.portal-block > h2 {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.portal-block > .block-info {
+  color: var(--text-mute);
+  font-size: .93rem;
+  margin-bottom: 20px;
+}
+
+/* ---------- Kennzahlen ---------- */
+
+.kennzahlen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.kennzahl {
+  background: #fff;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.kennzahl .wert {
+  display: block;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--blau-800);
+  line-height: 1.1;
+}
+.kennzahl .bez { font-size: .88rem; color: var(--text-mute); }
+.kennzahl.akzent .wert { color: var(--akzent-dark); }
+.kennzahl.gruen  .wert { color: var(--gruen); }
+
+/* ---------- Fortschrittsbalken ---------- */
+
+.fortschritt { margin-bottom: 20px; }
+.fortschritt:last-child { margin-bottom: 0; }
+
+.fortschritt-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: .94rem;
+}
+.fortschritt-kopf .bez { font-weight: 600; }
+.fortschritt-kopf .zahl { color: var(--text-mute); font-size: .88rem; white-space: nowrap; }
+
+.balken {
+  height: 10px;
+  background: var(--blau-100);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.balken span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blau-600), var(--blau-700));
+  transition: width .4s ease;
+}
+.balken.akzent span { background: linear-gradient(90deg, #f5b04f, var(--akzent)); }
+.balken.fertig span { background: linear-gradient(90deg, #35b27b, var(--gruen)); }
+
+/* ---------- Lektionsraster ---------- */
+
+.lektionen {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+.lektion {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  font-size: .9rem;
+  background: #fff;
+}
+.lektion .nr {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: #eef1f6;
+  color: var(--text-mute);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: .82rem;
+}
+.lektion.erledigt { background: var(--gruen-soft); border-color: #bde3d1; }
+.lektion.erledigt .nr { background: var(--gruen); color: #fff; }
+.lektion.erledigt .titel { color: #14603f; }
+
+/* Im Verwaltungsbereich sind die Lektionen anklickbare Checkboxen */
+label.lektion { cursor: pointer; }
+label.lektion input { margin: 0; width: 17px; height: 17px; flex-shrink: 0; margin-top: 4px; }
+label.lektion:hover { border-color: var(--blau-600); }
+
+/* ---------- Termine ---------- */
+
+.termin {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--linie);
+  flex-wrap: wrap;
+}
+.termin:last-child { border-bottom: none; }
+.termin:first-child { padding-top: 0; }
+
+.termin-datum {
+  flex-shrink: 0;
+  width: 62px;
+  text-align: center;
+  background: var(--blau-50);
+  border: 1px solid var(--blau-100);
+  border-radius: 10px;
+  padding: 8px 4px;
+  line-height: 1.15;
+}
+.termin-datum .tag {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--blau-800);
+}
+.termin-datum .monat {
+  display: block;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-mute);
+  font-weight: 700;
+}
+
+.termin-info { flex: 1; min-width: 190px; }
+.termin-info h3 { font-size: 1rem; margin-bottom: 3px; }
+.termin-info .meta { font-size: .88rem; color: var(--text-mute); }
+.termin-aktion { flex-shrink: 0; }
+
+/* ---------- Dokumente ---------- */
+
+.dokument {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--linie);
+}
+.dokument:last-child { border-bottom: none; }
+.dokument-symbol {
+  flex-shrink: 0;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--blau-50);
+  color: var(--blau-700);
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+}
+.dokument-info { flex: 1; min-width: 0; }
+.dokument-info h3 { font-size: .98rem; margin-bottom: 2px; }
+.dokument-info p { font-size: .87rem; color: var(--text-mute); margin: 0; }
+
+/* ---------- Mitteilungen ---------- */
+
+.mitteilung {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--linie);
+}
+.mitteilung:last-child { border-bottom: none; }
+.mitteilung:first-child { padding-top: 0; }
+.mitteilung h3 { font-size: 1rem; margin-bottom: 3px; }
+.mitteilung .datum { font-size: .82rem; color: var(--text-mute); }
+.mitteilung p { font-size: .94rem; color: var(--text-mute); margin: 6px 0 0; white-space: pre-line; }
+
+/* ---------- Anmeldeseite ---------- */
+
+.login-seite {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+  background: linear-gradient(150deg, var(--blau-900), var(--blau-700));
+}
+.login-karte {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: clamp(28px, 5vw, 44px);
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--schatten-lg);
+}
+.login-karte .logo { margin-bottom: 24px; }
+.login-karte h1 { font-size: 1.55rem; margin-bottom: .3em; }
+.login-karte .lead { font-size: .97rem; margin-bottom: 26px; }
+.login-zurueck {
+  text-align: center;
+  margin-top: 22px;
+  font-size: .9rem;
+}
+
+/* ---------- Leerer Zustand ---------- */
+
+.leer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-mute);
+}
+.leer .symbol { font-size: 2.2rem; margin-bottom: 10px; opacity: .55; }
+.leer p { margin-bottom: 0; font-size: .95rem; }
+
+/* ---------- Kompakte Aktionsleiste in Tabellen ---------- */
+
+td .reihe { gap: 7px; flex-wrap: nowrap; }
+td form { display: inline; }

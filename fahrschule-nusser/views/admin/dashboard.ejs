@@ -1,0 +1,130 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Verwaltung</h1>
+        <p>Der Überblick über alles, was gerade ansteht.</p>
+      </div>
+      <a class="btn btn-primaer btn-klein" href="/portal/verwaltung/fahrschueler/neu">Fahrschüler anlegen</a>
+    </div>
+
+    <% if (!emailConfigured) { %>
+      <div class="meldung meldung-warnung">
+        <p><strong>Es ist noch kein E-Mail-Versand eingerichtet.</strong> Anmeldelinks und
+          Benachrichtigungen werden deshalb nicht verschickt, sondern nur in der Serverkonsole
+          und in <code>data/outbox.log</code> protokolliert. Wie der Versand eingerichtet wird,
+          steht in der README.</p>
+      </div>
+    <% } %>
+
+    <div class="kennzahlen">
+      <div class="kennzahl <%= offeneAnfragen.length > 0 ? 'akzent' : '' %>">
+        <span class="wert"><%= offeneAnfragen.length %></span>
+        <span class="bez">Neue Anfragen</span>
+      </div>
+      <div class="kennzahl">
+        <span class="wert"><%= anzahlStudenten %></span>
+        <span class="bez">Fahrschüler im Portal</span>
+      </div>
+      <div class="kennzahl">
+        <span class="wert"><%= anzahlTermine %></span>
+        <span class="bez">Kommende Theorietermine</span>
+      </div>
+      <div class="kennzahl gruen">
+        <span class="wert"><%= kurzVorPruefung.length %></span>
+        <span class="bez">Bereit für die Prüfung</span>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <h2>Neue Anfragen
+        <a class="btn btn-hell btn-klein" href="/portal/verwaltung/anfragen">Alle ansehen</a>
+      </h2>
+      <% if (offeneAnfragen.length === 0) { %>
+        <div class="leer"><p>Alles abgearbeitet – keine offenen Anfragen.</p></div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Eingang</th><th>Name</th><th>Art</th><th>Klasse</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% offeneAnfragen.slice(0, 5).forEach(function (a) { %>
+                <tr>
+                  <td class="nowrap"><%= f.formatDateShort(a.createdAt) %></td>
+                  <td><%= a.firstName %> <%= a.lastName %></td>
+                  <td>
+                    <span class="marker <%= a.type === 'anmeldung' ? 'gruen' : 'blau' %>">
+                      <%= a.type === 'anmeldung' ? 'Anmeldung' : 'Kontakt' %>
+                    </span>
+                  </td>
+                  <td><%= a.licenseClass || '–' %></td>
+                  <td><a class="btn btn-hell btn-klein" href="/portal/verwaltung/anfragen">Öffnen</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="portal-block">
+      <h2>Nächste Theorietermine
+        <a class="btn btn-hell btn-klein" href="/portal/verwaltung/theorie">Verwalten</a>
+      </h2>
+      <% if (naechsteTermine.length === 0) { %>
+        <div class="leer">
+          <p>Es sind keine Termine eingetragen.</p>
+          <a class="btn btn-dunkel btn-klein abstand-oben" href="/portal/verwaltung/theorie">Termin anlegen</a>
+        </div>
+      <% } else { %>
+        <% naechsteTermine.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+            <div class="termin-info">
+              <h3><%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %></h3>
+              <div class="meta">
+                <%= f.formatTime(t.startsAt) %><% if (t.ortName) { %> · <%= t.ortName %><% } %>
+                · <%= t.belegt %> angemeldet<% if (t.capacity > 0) { %> von <%= t.capacity %> Plätzen<% } %>
+              </div>
+            </div>
+            <div class="termin-aktion">
+              <a class="btn btn-hell btn-klein" href="/portal/verwaltung/theorie/<%= t.id %>/teilnehmer">Teilnehmer</a>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <% if (kurzVorPruefung.length > 0) { %>
+      <div class="portal-block">
+        <h2>Bereit für die praktische Prüfung</h2>
+        <p class="block-info">Diese Fahrschüler haben alle Pflichtlektionen und Sonderfahrten
+          abgeschlossen.</p>
+        <div class="tabelle-rahmen">
+          <table>
+            <tbody>
+              <% kurzVorPruefung.forEach(function (s) { %>
+                <tr>
+                  <td><%= s.firstName %> <%= s.lastName %></td>
+                  <td><%= s.licenseClass %></td>
+                  <td><a class="btn btn-hell btn-klein" href="/portal/verwaltung/fahrschueler/<%= s.id %>">Öffnen</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

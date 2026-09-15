@@ -1,0 +1,101 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <div class="raster raster-2">
+
+        <div>
+          <% if (fehler) { %>
+            <div class="meldung meldung-fehler"><p><%= fehler %></p></div>
+          <% } %>
+
+          <div class="karte">
+            <h2>Schreib uns</h2>
+            <p class="lead">Wir melden uns in der Regel noch am selben Werktag zurück.</p>
+
+            <form class="formular abstand-oben" method="post" action="/kontakt">
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label class="feld-pflicht" for="firstName">Vorname</label>
+                  <input type="text" id="firstName" name="firstName" required
+                         autocomplete="given-name" value="<%= werte.firstName || '' %>">
+                </div>
+                <div class="feld">
+                  <label class="feld-pflicht" for="lastName">Nachname</label>
+                  <input type="text" id="lastName" name="lastName" required
+                         autocomplete="family-name" value="<%= werte.lastName || '' %>">
+                </div>
+              </div>
+
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label class="feld-pflicht" for="email">E-Mail</label>
+                  <input type="email" id="email" name="email" required
+                         autocomplete="email" value="<%= werte.email || '' %>">
+                </div>
+                <div class="feld">
+                  <label for="phone">Telefon</label>
+                  <input type="tel" id="phone" name="phone"
+                         autocomplete="tel" value="<%= werte.phone || '' %>">
+                </div>
+              </div>
+
+              <div class="feld">
+                <label class="feld-pflicht" for="message">Deine Nachricht</label>
+                <textarea id="message" name="message" required
+                          placeholder="Worum geht es?"><%= werte.message || '' %></textarea>
+              </div>
+
+              <label class="checkbox-zeile">
+                <input type="checkbox" name="datenschutz" required>
+                <span>Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> gelesen und bin
+                  damit einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage
+                  gespeichert werden.</span>
+              </label>
+
+              <button class="btn btn-primaer" type="submit">Nachricht senden</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="stapel">
+          <div class="karte">
+            <h3>Direkt erreichen</h3>
+            <div class="standort-zeile">
+              <span class="bez">Telefon</span>
+              <span><a href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a></span>
+            </div>
+            <div class="standort-zeile">
+              <span class="bez">E-Mail</span>
+              <span><a href="mailto:<%= content.business.email %>"><%= content.business.email %></a></span>
+            </div>
+            <div class="standort-zeile">
+              <span class="bez">Adresse</span>
+              <span><%= content.locations[0].street %><br><%= content.locations[0].zip %> <%= content.locations[0].city %></span>
+            </div>
+            <% if (content.locations[0].office) { %>
+              <div class="standort-zeile">
+                <span class="bez">Büro</span>
+                <span><%= content.locations[0].office %></span>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="karte">
+            <h3>Lieber gleich anmelden?</h3>
+            <p>Wenn du schon weißt, welchen Führerschein du machen möchtest, kannst du dich
+              direkt online anmelden.</p>
+            <a class="btn btn-dunkel btn-voll abstand-oben" href="/anmeldung">Zur Online-Anmeldung</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

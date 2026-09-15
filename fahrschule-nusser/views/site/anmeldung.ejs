@@ -1,0 +1,131 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <div class="raster raster-2">
+
+        <div>
+          <% if (fehler) { %>
+            <div class="meldung meldung-fehler"><p><%= fehler %></p></div>
+          <% } %>
+
+          <div class="karte">
+            <h2>Deine Anmeldung</h2>
+            <p class="lead">Fülle das Formular aus – wir melden uns bei dir und besprechen alles
+              Weitere. Verbindlich wird die Anmeldung erst mit deiner Unterschrift bei uns
+              im Büro.</p>
+
+            <form class="formular abstand-oben" method="post" action="/anmeldung">
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label class="feld-pflicht" for="firstName">Vorname</label>
+                  <input type="text" id="firstName" name="firstName" required
+                         autocomplete="given-name" value="<%= werte.firstName || '' %>">
+                </div>
+                <div class="feld">
+                  <label class="feld-pflicht" for="lastName">Nachname</label>
+                  <input type="text" id="lastName" name="lastName" required
+                         autocomplete="family-name" value="<%= werte.lastName || '' %>">
+                </div>
+              </div>
+
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label class="feld-pflicht" for="email">E-Mail</label>
+                  <input type="email" id="email" name="email" required
+                         autocomplete="email" value="<%= werte.email || '' %>">
+                  <span class="hinweis">Mit dieser Adresse meldest du dich später im Portal an.</span>
+                </div>
+                <div class="feld">
+                  <label class="feld-pflicht" for="phone">Telefon</label>
+                  <input type="tel" id="phone" name="phone" required
+                         autocomplete="tel" value="<%= werte.phone || '' %>">
+                </div>
+              </div>
+
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label for="birthDate">Geburtsdatum</label>
+                  <input type="date" id="birthDate" name="birthDate" value="<%= werte.birthDate || '' %>">
+                </div>
+                <div class="feld">
+                  <label class="feld-pflicht" for="licenseClass">Führerscheinklasse</label>
+                  <select id="licenseClass" name="licenseClass" required>
+                    <option value="">Bitte wählen</option>
+                    <% content.licenseOptions.forEach(function (opt) { %>
+                      <option value="<%= opt.value %>" <%= werte.licenseClass === opt.value ? 'selected' : '' %>>
+                        <%= opt.label %>
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="feld">
+                <label for="locationId">Wunschstandort für den Theorieunterricht</label>
+                <select id="locationId" name="locationId">
+                  <option value="">Ist mir egal / noch offen</option>
+                  <% content.locations.forEach(function (ort) { %>
+                    <option value="<%= ort.id %>" <%= werte.locationId === ort.id ? 'selected' : '' %>>
+                      <%= ort.name %> – <%= ort.street %>
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <div class="feld">
+                <label for="message">Möchtest du uns noch etwas mitteilen?</label>
+                <textarea id="message" name="message"
+                          placeholder="Zum Beispiel: Ich habe schon einen Führerschein der Klasse B und möchte erweitern."><%= werte.message || '' %></textarea>
+              </div>
+
+              <label class="checkbox-zeile">
+                <input type="checkbox" name="datenschutz" required>
+                <span>Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> gelesen und bin
+                  damit einverstanden, dass meine Angaben zur Bearbeitung meiner Anmeldung
+                  gespeichert werden.</span>
+              </label>
+
+              <button class="btn btn-primaer" type="submit">Anmeldung absenden</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="stapel">
+          <div class="karte">
+            <h3>Was danach passiert</h3>
+            <ul class="liste-haken">
+              <li><span class="haken" aria-hidden="true">1</span>
+                <span>Wir melden uns telefonisch oder per E-Mail bei dir.</span></li>
+              <li><span class="haken" aria-hidden="true">2</span>
+                <span>Du kommst zum Anmeldegespräch ins Büro und bringst deine Unterlagen mit.</span></li>
+              <li><span class="haken" aria-hidden="true">3</span>
+                <span>Wir richten dir deinen Zugang zum Fahrschüler-Portal ein.</span></li>
+              <li><span class="haken" aria-hidden="true">4</span>
+                <span>Du besuchst deinen ersten Theorieunterricht.</span></li>
+            </ul>
+          </div>
+
+          <div class="karte">
+            <h3>Das bringst du mit</h3>
+            <ul class="liste-haken">
+              <li><span class="haken" aria-hidden="true">✓</span> <span>Personalausweis</span></li>
+              <li><span class="haken" aria-hidden="true">✓</span> <span>Biometrisches Passfoto</span></li>
+              <li><span class="haken" aria-hidden="true">✓</span> <span>Sehtestbescheinigung</span></li>
+              <li><span class="haken" aria-hidden="true">✓</span> <span>Nachweis Erste-Hilfe-Kurs</span></li>
+            </ul>
+            <p class="klein mute abstand-oben">Fehlt dir noch etwas? Kein Problem – das kannst du
+              auch nachreichen.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

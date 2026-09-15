@@ -1,0 +1,105 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Mein Fortschritt</h1>
+        <p>Alles, was für deine Ausbildung zur Klasse <%= currentUser.licenseClass %> zählt.</p>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <h2>Theorieunterricht</h2>
+      <p class="block-info">
+        <% if (stand.theorie.fertig) { %>
+          Alle Pflichtlektionen besucht – sehr gut!
+        <% } else { %>
+          Dir fehlen noch <%= stand.theorie.soll - stand.theorie.ist %> Lektionen.
+        <% } %>
+      </p>
+
+      <div class="fortschritt">
+        <div class="fortschritt-kopf">
+          <span class="bez">Besuchte Lektionen</span>
+          <span class="zahl"><%= stand.theorie.ist %> von <%= stand.theorie.soll %></span>
+        </div>
+        <div class="balken <%= stand.theorie.fertig ? 'fertig' : '' %>">
+          <span style="width: <%= stand.theorie.prozent %>%"></span>
+        </div>
+      </div>
+
+      <div class="lektionen abstand-oben">
+        <% content.theoryLessons.forEach(function (lektion) { %>
+          <div class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
+            <span class="nr"><%= lektion.no %></span>
+            <span class="titel"><%= lektion.title %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <h2>Praxis</h2>
+      <p class="block-info">Übungsstunden sind nicht vorgeschrieben – Sonderfahrten schon.</p>
+
+      <div class="kennzahlen">
+        <div class="kennzahl akzent">
+          <span class="wert"><%= stand.fahrstunden %></span>
+          <span class="bez">Übungsstunden</span>
+        </div>
+        <div class="kennzahl <%= stand.sonderGesamt.fertig ? 'gruen' : '' %>">
+          <span class="wert"><%= stand.sonderGesamt.ist %> / <%= stand.sonderGesamt.soll %></span>
+          <span class="bez">Sonderfahrten</span>
+        </div>
+      </div>
+
+      <% stand.sonderfahrten.forEach(function (fahrt) { %>
+        <div class="fortschritt">
+          <div class="fortschritt-kopf">
+            <span class="bez"><%= fahrt.label %></span>
+            <span class="zahl">
+              <%= fahrt.ist %> von <%= fahrt.required %>
+              <% if (fahrt.offen > 0) { %>· noch <%= fahrt.offen %> offen<% } %>
+            </span>
+          </div>
+          <div class="balken akzent <%= fahrt.fertig ? 'fertig' : '' %>">
+            <span style="width: <%= fahrt.prozent %>%"></span>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="portal-block">
+      <h2>Prüfungen</h2>
+      <div class="tabelle-rahmen">
+        <table>
+          <tbody>
+            <tr>
+              <td>Theoretische Prüfung</td>
+              <td><span class="marker <%= pruefungsMarker(stand.theoriePruefung) %>"><%= stand.theoriePruefung %></span></td>
+            </tr>
+            <tr>
+              <td>Praktische Prüfung</td>
+              <td><span class="marker <%= pruefungsMarker(stand.praxisPruefung) %>"><%= stand.praxisPruefung %></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (stand.notiz) { %>
+        <div class="meldung meldung-hinweis abstand-oben">
+          <p><strong>Notiz deines Fahrlehrers:</strong> <%= stand.notiz %></p>
+        </div>
+      <% } %>
+
+      <p class="klein mute abstand-oben">Die Angaben pflegt deine Fahrschule. Stimmt etwas nicht?
+        Sag deinem Fahrlehrer Bescheid oder <a href="/kontakt">melde dich bei uns</a>.</p>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

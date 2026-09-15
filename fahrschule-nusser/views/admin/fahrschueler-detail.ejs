@@ -1,0 +1,228 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <div class="brotkrumen" style="color: var(--text-mute); margin-bottom: 8px">
+          <a href="/portal/verwaltung/fahrschueler" style="color: var(--blau-600)">Fahrschüler</a>
+          <span aria-hidden="true">›</span> <%= student.firstName %> <%= student.lastName %>
+        </div>
+        <h1><%= student.firstName %> <%= student.lastName %></h1>
+        <p>Klasse <%= student.licenseClass %><% if (ortName) { %> · <%= ortName %><% } %>
+          · angemeldet seit <%= f.formatDateShort(student.createdAt) %></p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="kennzahlen">
+      <div class="kennzahl">
+        <span class="wert"><%= stand.theorie.ist %> / <%= stand.theorie.soll %></span>
+        <span class="bez">Theorielektionen</span>
+      </div>
+      <div class="kennzahl akzent">
+        <span class="wert"><%= stand.fahrstunden %></span>
+        <span class="bez">Übungsstunden</span>
+      </div>
+      <div class="kennzahl <%= stand.sonderGesamt.fertig ? 'gruen' : '' %>">
+        <span class="wert"><%= stand.sonderGesamt.ist %> / <%= stand.sonderGesamt.soll %></span>
+        <span class="bez">Sonderfahrten</span>
+      </div>
+    </div>
+
+    <!-- Ausbildungsstand pflegen -->
+    <div class="portal-block">
+      <h2>Ausbildungsstand pflegen</h2>
+      <p class="block-info">Was du hier einträgst, sieht der Fahrschüler sofort in seinem Portal.</p>
+
+      <form class="formular" method="post" action="/portal/verwaltung/fahrschueler/<%= student.id %>/fortschritt">
+
+        <div class="feld">
+          <span class="feld-titel">Besuchte Theorielektionen</span>
+          <div class="lektionen">
+            <% content.theoryLessons.forEach(function (lektion) { %>
+              <label class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
+                <input type="checkbox" name="theoryDone" value="<%= lektion.no %>"
+                       <%= stand.theorie.besucht.includes(lektion.no) ? 'checked' : '' %>>
+                <span class="nr"><%= lektion.no %></span>
+                <span class="titel"><%= lektion.title %></span>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="drivingLessons">Übungsstunden</label>
+            <input type="number" id="drivingLessons" name="drivingLessons" min="0" step="1"
+                   value="<%= stand.fahrstunden %>">
+          </div>
+        </div>
+
+        <div class="feld">
+          <span class="feld-titel">Sonderfahrten</span>
+          <div class="feld-reihe">
+            <% stand.sonderfahrten.forEach(function (fahrt) { %>
+              <div class="feld">
+                <label for="special_<%= fahrt.id %>"><%= fahrt.label %>
+                  <span class="mute klein">(<%= fahrt.required %> vorgeschrieben)</span>
+                </label>
+                <input type="number" id="special_<%= fahrt.id %>" name="special_<%= fahrt.id %>"
+                       min="0" step="1" value="<%= fahrt.ist %>">
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="theoryExam">Theoretische Prüfung</label>
+            <select id="theoryExam" name="theoryExam">
+              <% ['offen', 'angemeldet', 'bestanden'].forEach(function (status) { %>
+                <option value="<%= status %>" <%= stand.theoriePruefung === status ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="feld">
+            <label for="practicalExam">Praktische Prüfung</label>
+            <select id="practicalExam" name="practicalExam">
+              <% ['offen', 'angemeldet', 'bestanden'].forEach(function (status) { %>
+                <option value="<%= status %>" <%= stand.praxisPruefung === status ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="feld">
+          <label for="note">Notiz für den Fahrschüler</label>
+          <textarea id="note" name="note" style="min-height: 90px"
+                    placeholder="Zum Beispiel: Noch zwei Übungsstunden, dann melden wir dich zur Prüfung an."><%= stand.notiz %></textarea>
+          <span class="hinweis">Diese Notiz ist im Portal des Fahrschülers sichtbar.</span>
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Ausbildungsstand speichern</button>
+      </form>
+    </div>
+
+    <!-- Stammdaten -->
+    <div class="portal-block">
+      <h2>Stammdaten</h2>
+      <form class="formular" method="post" action="/portal/verwaltung/fahrschueler/<%= student.id %>/stammdaten">
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="firstName">Vorname</label>
+            <input type="text" id="firstName" name="firstName" value="<%= student.firstName %>">
+          </div>
+          <div class="feld">
+            <label for="lastName">Nachname</label>
+            <input type="text" id="lastName" name="lastName" value="<%= student.lastName %>">
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" name="email" value="<%= student.email %>">
+            <span class="hinweis">Achtung: Daran hängt der Portalzugang.</span>
+          </div>
+          <div class="feld">
+            <label for="phone">Telefon</label>
+            <input type="tel" id="phone" name="phone" value="<%= student.phone || '' %>">
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="licenseClass">Führerscheinklasse</label>
+            <select id="licenseClass" name="licenseClass">
+              <% content.licenseOptions.forEach(function (opt) { %>
+                <option value="<%= opt.value %>" <%= student.licenseClass === opt.value ? 'selected' : '' %>>
+                  <%= opt.label %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="feld">
+            <label for="locationId">Standort</label>
+            <select id="locationId" name="locationId">
+              <option value="">Nicht festgelegt</option>
+              <% content.locations.forEach(function (ort) { %>
+                <option value="<%= ort.id %>" <%= student.locationId === ort.id ? 'selected' : '' %>>
+                  <%= ort.name %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-dunkel" type="submit">Stammdaten speichern</button>
+      </form>
+    </div>
+
+    <!-- Gebuchte Termine -->
+    <div class="portal-block">
+      <h2>Angemeldete Theorietermine</h2>
+      <% if (termine.length === 0) { %>
+        <div class="leer"><p>Für keinen Termin angemeldet.</p></div>
+      <% } else { %>
+        <% termine.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+            <div class="termin-info">
+              <h3><%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %></h3>
+              <div class="meta">
+                <%= f.formatDateTime(t.startsAt) %><% if (t.ortName) { %> · <%= t.ortName %><% } %>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Persönliche Unterlagen -->
+    <div class="portal-block">
+      <h2>Persönliche Unterlagen
+        <a class="btn btn-hell btn-klein" href="/portal/verwaltung/dokumente">Verwalten</a>
+      </h2>
+      <% if (dokumente.length === 0) { %>
+        <div class="leer"><p>Keine persönlichen Unterlagen hinterlegt.</p></div>
+      <% } else { %>
+        <% dokumente.forEach(function (d) { %>
+          <div class="dokument">
+            <div class="dokument-symbol" aria-hidden="true">📄</div>
+            <div class="dokument-info">
+              <h3><%= d.title %></h3>
+              <% if (d.description) { %><p><%= d.description %></p><% } %>
+            </div>
+            <a class="btn btn-hell btn-klein" href="<%= d.url %>" target="_blank" rel="noopener">Öffnen</a>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Zugang entfernen -->
+    <div class="portal-block">
+      <h2>Zugang entfernen</h2>
+      <p class="block-info">Löscht den Portalzugang samt Ausbildungsstand und Terminanmeldungen.
+        Das lässt sich nicht rückgängig machen.</p>
+      <form method="post" action="/portal/verwaltung/fahrschueler/<%= student.id %>/loeschen"
+            onsubmit="return confirm('<%= student.firstName %> <%= student.lastName %> wirklich löschen? Der Ausbildungsstand geht dabei verloren.')">
+        <button class="btn btn-gefahr" type="submit">Fahrschüler löschen</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

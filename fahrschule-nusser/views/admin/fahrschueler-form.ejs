@@ -1,0 +1,82 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Fahrschüler anlegen</h1>
+        <p>Nach dem Speichern bekommt die Person automatisch eine Begrüßungsmail mit dem
+          Zugang zum Portal.</p>
+      </div>
+    </div>
+
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <form class="formular" method="post" action="/portal/verwaltung/fahrschueler">
+        <div class="feld-reihe">
+          <div class="feld">
+            <label class="feld-pflicht" for="firstName">Vorname</label>
+            <input type="text" id="firstName" name="firstName" required
+                   value="<%= student ? (student.firstName || '') : '' %>">
+          </div>
+          <div class="feld">
+            <label class="feld-pflicht" for="lastName">Nachname</label>
+            <input type="text" id="lastName" name="lastName" required
+                   value="<%= student ? (student.lastName || '') : '' %>">
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label class="feld-pflicht" for="email">E-Mail</label>
+            <input type="email" id="email" name="email" required
+                   value="<%= student ? (student.email || '') : '' %>">
+            <span class="hinweis">Damit meldet sich der Fahrschüler im Portal an.</span>
+          </div>
+          <div class="feld">
+            <label for="phone">Telefon</label>
+            <input type="tel" id="phone" name="phone"
+                   value="<%= student ? (student.phone || '') : '' %>">
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="licenseClass">Führerscheinklasse</label>
+            <select id="licenseClass" name="licenseClass">
+              <% content.licenseOptions.forEach(function (opt) { %>
+                <option value="<%= opt.value %>"
+                  <%= student && student.licenseClass === opt.value ? 'selected' : '' %>>
+                  <%= opt.label %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="feld">
+            <label for="locationId">Standort</label>
+            <select id="locationId" name="locationId">
+              <option value="">Nicht festgelegt</option>
+              <% content.locations.forEach(function (ort) { %>
+                <option value="<%= ort.id %>"
+                  <%= student && student.locationId === ort.id ? 'selected' : '' %>>
+                  <%= ort.name %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="reihe">
+          <button class="btn btn-primaer" type="submit">Anlegen und Zugang verschicken</button>
+          <a class="btn btn-hell" href="/portal/verwaltung/fahrschueler">Abbrechen</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

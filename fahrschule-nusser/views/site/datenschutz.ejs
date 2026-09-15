@@ -1,0 +1,81 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap narrow">
+      <div class="meldung meldung-warnung">
+        <p><strong>Noch zu vervollständigen und zu prüfen.</strong> Dieser Text beschreibt, was
+          diese Website technisch tatsächlich tut – er ist als Ausgangspunkt gedacht, aber
+          keine Rechtsberatung und kein fertiges Dokument. Bitte vor dem Livegang von einer
+          fachkundigen Person prüfen und um alles ergänzen, was die Fahrschule darüber hinaus
+          verarbeitet (etwa Ausbildungsnachweise oder Abrechnung).</p>
+      </div>
+
+      <h2>Verantwortliche Stelle</h2>
+      <p>
+        <%= content.legal.imprint.company %><br>
+        <%= content.legal.imprint.owner %><br>
+        <%= content.legal.imprint.street %>, <%= content.legal.imprint.zip %> <%= content.legal.imprint.city %><br>
+        Telefon: <%= content.legal.imprint.phone %><br>
+        E-Mail: <%= content.legal.imprint.email %>
+      </p>
+      <p>Ansprechpartner für den Datenschutz: <%= content.legal.privacyContact %></p>
+
+      <h2>Was diese Website speichert</h2>
+
+      <h3>Kontakt- und Anmeldeformular</h3>
+      <p>Wenn du uns über das Kontakt- oder das Anmeldeformular schreibst, speichern wir die
+        von dir eingegebenen Angaben (Name, E-Mail-Adresse, Telefonnummer, gegebenenfalls
+        Geburtsdatum, gewünschte Führerscheinklasse und deine Nachricht), um deine Anfrage zu
+        bearbeiten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen)
+        beziehungsweise Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung
+        von Anfragen).</p>
+
+      <h3>Fahrschüler-Portal</h3>
+      <p>Für den Zugang zum Portal verarbeiten wir deine E-Mail-Adresse sowie die zu deiner
+        Ausbildung gehörenden Daten: besuchte Theorielektionen, Anzahl der Fahrstunden und
+        Sonderfahrten, Prüfungsstand sowie deine Anmeldungen zu Theorieterminen. Grundlage ist
+        der Ausbildungsvertrag (Art. 6 Abs. 1 lit. b DSGVO).</p>
+      <p>Die Anmeldung erfolgt ohne Passwort: Du erhältst einen einmaligen Link per E-Mail, der
+        nach 30 Minuten verfällt. Nach der Anmeldung wird ein technisch notwendiges
+        Sitzungs-Cookie gesetzt, das dich für die Dauer deiner Sitzung eingeloggt hält. Dieses
+        Cookie ist für den Betrieb erforderlich und bedarf keiner Einwilligung.</p>
+
+      <h3>Server-Protokolle</h3>
+      <p>Beim Aufruf der Website werden vom Hosting-Anbieter technische Zugriffsdaten
+        protokolliert (unter anderem IP-Adresse, Zeitpunkt, aufgerufene Seite, Browsertyp).
+        Sie dienen dem sicheren Betrieb der Website. Rechtsgrundlage ist Art. 6 Abs. 1
+        lit. f DSGVO.</p>
+
+      <h2>Was diese Website nicht tut</h2>
+      <ul class="liste-haken">
+        <li><span class="haken" aria-hidden="true">✓</span> <span>Kein Tracking, keine Analyse-Werkzeuge, keine Werbe-Cookies</span></li>
+        <li><span class="haken" aria-hidden="true">✓</span> <span>Keine Schriftarten oder Skripte von fremden Servern – alles wird vom eigenen Server geladen</span></li>
+        <li><span class="haken" aria-hidden="true">✓</span> <span>Keine Social-Media-Plugins</span></li>
+      </ul>
+
+      <h2>Empfänger und Auftragsverarbeiter</h2>
+      <p>TODO: Hier gehören der Hosting-Anbieter und der E-Mail-Dienstleister hinein, mit denen
+        jeweils ein Auftragsverarbeitungsvertrag geschlossen werden muss.</p>
+
+      <h2>Speicherdauer</h2>
+      <p>Anfragen über die Formulare bewahren wir so lange auf, wie es zur Bearbeitung nötig ist.
+        Ausbildungsdaten speichern wir für die Dauer der Ausbildung und darüber hinaus, soweit
+        gesetzliche Aufbewahrungsfristen bestehen.</p>
+
+      <h2>Deine Rechte</h2>
+      <p>Du hast das Recht auf Auskunft über die zu dir gespeicherten Daten (Art. 15 DSGVO),
+        auf Berichtigung (Art. 16), auf Löschung (Art. 17), auf Einschränkung der Verarbeitung
+        (Art. 18), auf Datenübertragbarkeit (Art. 20) sowie ein Widerspruchsrecht (Art. 21).
+        Wende dich dafür einfach an die oben genannte Adresse.</p>
+      <p>Außerdem steht dir ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu. Für
+        Nordrhein-Westfalen ist das die Landesbeauftragte für Datenschutz und Informationsfreiheit
+        Nordrhein-Westfalen.</p>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

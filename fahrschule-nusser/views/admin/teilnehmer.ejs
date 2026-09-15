@@ -1,0 +1,66 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <div class="brotkrumen" style="color: var(--text-mute); margin-bottom: 8px">
+          <a href="/portal/verwaltung/theorie" style="color: var(--blau-600)">Theorietermine</a>
+          <span aria-hidden="true">›</span> Teilnehmerliste
+        </div>
+        <h1><%= termin.lessonNo ? 'Lektion ' + termin.lessonNo : 'Theorieunterricht' %></h1>
+        <p><%= f.formatDate(termin.startsAt) %>, <%= f.formatTime(termin.startsAt) %><% if (termin.ortName) { %>
+          · <%= termin.ortName %><% } %></p>
+      </div>
+      <button class="btn btn-hell btn-klein" type="button" onclick="window.print()">Liste drucken</button>
+    </div>
+
+    <div class="portal-block">
+      <h2><%= teilnehmer.length %> <%= teilnehmer.length === 1 ? 'Anmeldung' : 'Anmeldungen' %>
+        <% if (termin.capacity > 0) { %>
+          <span class="marker <%= teilnehmer.length >= termin.capacity ? 'rot' : 'gruen' %>">
+            <%= termin.capacity - teilnehmer.length %> Plätze frei
+          </span>
+        <% } %>
+      </h2>
+
+      <% if (teilnehmer.length === 0) { %>
+        <div class="leer"><p>Für diesen Termin hat sich noch niemand angemeldet.</p></div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Klasse</th><th>Kontakt</th><th>Anwesend</th></tr>
+            </thead>
+            <tbody>
+              <% teilnehmer.forEach(function (t) { %>
+                <tr>
+                  <td>
+                    <a href="/portal/verwaltung/fahrschueler/<%= t.id %>">
+                      <%= t.firstName %> <%= t.lastName %>
+                    </a>
+                  </td>
+                  <td><%= t.licenseClass %></td>
+                  <td class="klein">
+                    <%= t.email %><% if (t.phone) { %><br><%= t.phone %><% } %>
+                  </td>
+                  <td style="width: 90px">
+                    <span style="display: inline-block; width: 22px; height: 22px;
+                                 border: 1.5px solid var(--linie); border-radius: 5px"></span>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <p class="klein mute abstand-oben">Die Anwesenheit hakst du auf dem Ausdruck ab und trägst
+          die besuchte Lektion anschließend beim jeweiligen Fahrschüler ein.</p>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

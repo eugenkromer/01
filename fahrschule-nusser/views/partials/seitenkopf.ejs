@@ -1,0 +1,7 @@
+<div class="seitenkopf">
+  <div class="wrap">
+    <div class="brotkrumen"><a href="/">Startseite</a> <span aria-hidden="true">›</span> <%= title %></div>
+    <h1><%= typeof headline !== 'undefined' ? headline : title %></h1>
+    <% if (typeof subline !== 'undefined' && subline) { %><p><%= subline %></p><% } %>
+  </div>
+</div>

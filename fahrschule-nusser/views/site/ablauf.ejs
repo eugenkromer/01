@@ -1,0 +1,85 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <div class="schritte">
+        <% content.steps.forEach(function (schritt) { %>
+          <div class="schritt">
+            <h3><%= schritt.title %></h3>
+            <p><%= schritt.text %></p>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <section class="hell">
+    <div class="wrap">
+      <div class="raster raster-2">
+        <div class="karte">
+          <h3>Das brauchst du für die Anmeldung</h3>
+          <ul class="liste-haken">
+            <li><span class="haken" aria-hidden="true">✓</span> <span>Gültiger Personalausweis oder Reisepass</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span> <span>Ein biometrisches Passfoto</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span> <span>Sehtestbescheinigung vom Optiker</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span> <span>Nachweis über den Erste-Hilfe-Kurs</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span> <span>Bei unter 18-Jährigen: Unterschrift der Eltern</span></li>
+          </ul>
+        </div>
+
+        <div class="karte">
+          <h3>Pflichtstunden in der Theorie</h3>
+          <p>Für die Klasse B sind zwölf Doppelstunden Grundstoff und zwei Doppelstunden
+            Zusatzstoff vorgeschrieben. Bei einer Erweiterung sind es weniger.</p>
+          <h3 class="abstand-oben">Vorgeschriebene Sonderfahrten</h3>
+          <ul class="liste-haken">
+            <% content.specialDrives.forEach(function (fahrt) { %>
+              <li><span class="haken" aria-hidden="true">✓</span>
+                <span><strong><%= fahrt.required %></strong> <%= fahrt.label %></span></li>
+            <% }); %>
+          </ul>
+          <p class="klein mute abstand-oben">Dazu kommen so viele Übungsstunden, wie du brauchst –
+            das ist individuell und gesetzlich nicht festgelegt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap narrow">
+      <div class="abschnitt-kopf">
+        <span class="ueberschrift-marke">Theoriestoff</span>
+        <h2>Diese Lektionen erwarten dich</h2>
+        <p class="lead">Im Fahrschüler-Portal hakst du ab, was du schon besucht hast – und siehst
+          sofort, was dir noch fehlt.</p>
+      </div>
+
+      <div class="lektionen">
+        <% content.theoryLessons.forEach(function (lektion) { %>
+          <div class="lektion">
+            <span class="nr"><%= lektion.no %></span>
+            <span class="titel"><%= lektion.title %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <section class="hell">
+    <div class="wrap">
+      <div class="cta">
+        <h2>Fang einfach an</h2>
+        <p>Die Anmeldung dauert keine fünf Minuten. Alles Weitere besprechen wir in Ruhe mit dir.</p>
+        <div class="cta-aktionen">
+          <a class="btn btn-primaer" href="/anmeldung">Online anmelden</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

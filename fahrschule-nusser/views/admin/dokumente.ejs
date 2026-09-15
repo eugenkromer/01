@@ -1,0 +1,91 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Unterlagen</h1>
+        <p>Formulare und Merkblätter für alle – oder gezielt für eine Person.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Neue Unterlage hinterlegen</h2>
+
+      <form class="formular" method="post" action="/portal/verwaltung/dokumente">
+        <div class="feld">
+          <label class="feld-pflicht" for="title">Titel</label>
+          <input type="text" id="title" name="title" required
+                 placeholder="z. B. Merkblatt zur Theorieprüfung">
+        </div>
+
+        <div class="feld">
+          <label for="description">Kurze Beschreibung</label>
+          <input type="text" id="description" name="description"
+                 placeholder="Worum geht es in dem Dokument?">
+        </div>
+
+        <div class="feld">
+          <label class="feld-pflicht" for="url">Adresse (Link)</label>
+          <input type="text" id="url" name="url" required
+                 placeholder="https://… oder /uploads/merkblatt.pdf">
+          <span class="hinweis">Entweder ein Link auf eine Seite, oder eine Datei, die im Ordner
+            <code>public/uploads/</code> liegt – dann hier <code>/uploads/dateiname.pdf</code> eintragen.</span>
+        </div>
+
+        <div class="feld">
+          <label for="studentId">Sichtbar für</label>
+          <select id="studentId" name="studentId">
+            <option value="">Alle Fahrschüler</option>
+            <% studenten.forEach(function (s) { %>
+              <option value="<%= s.id %>"><%= s.firstName %> <%= s.lastName %> (<%= s.email %>)</option>
+            <% }); %>
+          </select>
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Unterlage hinterlegen</button>
+      </form>
+    </div>
+
+    <div class="portal-block">
+      <h2>Hinterlegte Unterlagen</h2>
+      <% if (dokumente.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📄</div>
+          <p>Es sind noch keine Unterlagen hinterlegt.</p>
+        </div>
+      <% } else { %>
+        <% dokumente.forEach(function (d) { %>
+          <div class="dokument">
+            <div class="dokument-symbol" aria-hidden="true">📄</div>
+            <div class="dokument-info">
+              <h3><%= d.title %>
+                <% if (d.student) { %>
+                  <span class="marker blau">nur für <%= d.student.firstName %> <%= d.student.lastName %></span>
+                <% } else { %>
+                  <span class="marker gruen">alle</span>
+                <% } %>
+              </h3>
+              <% if (d.description) { %><p><%= d.description %></p><% } %>
+            </div>
+            <div class="reihe">
+              <a class="btn btn-hell btn-klein" href="<%= d.url %>" target="_blank" rel="noopener">Öffnen</a>
+              <form method="post" action="/portal/verwaltung/dokumente/<%= d.id %>/loeschen"
+                    onsubmit="return confirm('Diese Unterlage wirklich entfernen?')">
+                <button class="btn btn-gefahr btn-klein" type="submit">Entfernen</button>
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

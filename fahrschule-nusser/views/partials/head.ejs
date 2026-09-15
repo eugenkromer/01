@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= title %> | <%= content.business.name %></title>
+  <meta name="description" content="<%= typeof description !== 'undefined' ? description : content.business.intro.slice(0, 155) %>">
+  <meta name="theme-color" content="#12294c">
+  <meta property="og:title" content="<%= title %> | <%= content.business.name %>">
+  <meta property="og:description" content="<%= typeof description !== 'undefined' ? description : content.business.intro.slice(0, 155) %>">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_DE">
+  <link rel="stylesheet" href="/css/site.css">
+  <% if (typeof portal !== 'undefined' && portal) { %><link rel="stylesheet" href="/css/portal.css"><% } %>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231b3c6e'/><text x='50' y='71' font-size='58' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>N</text></svg>">
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">

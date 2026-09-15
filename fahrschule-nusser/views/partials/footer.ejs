@@ -1,0 +1,61 @@
+<footer class="fuss">
+  <div class="wrap">
+    <div class="fuss-grid">
+      <div>
+        <div class="logo">
+          <span class="logo-mark" aria-hidden="true">N</span>
+          <span>
+            <%= content.business.name %>
+            <small><%= content.business.claim %></small>
+          </span>
+        </div>
+        <p><%= content.business.owner %><br>
+          <%= content.locations[0].street %><br>
+          <%= content.locations[0].zip %> <%= content.locations[0].city %></p>
+      </div>
+
+      <div>
+        <h4>Führerschein</h4>
+        <ul>
+          <% content.licenseGroups.forEach(function (gruppe) { %>
+            <li><a href="/fuehrerschein#<%= gruppe.id %>"><%= gruppe.title %></a></li>
+          <% }); %>
+          <li><a href="/ablauf">Ablauf und Kosten</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Fahrschule</h4>
+        <ul>
+          <li><a href="/standorte">Standorte</a></li>
+          <li><a href="/team">Unser Team</a></li>
+          <li><a href="/faq">Häufige Fragen</a></li>
+          <li><a href="/portal/login">Fahrschüler-Portal</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Kontakt</h4>
+        <ul>
+          <li><a href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a></li>
+          <li><a href="mailto:<%= content.business.email %>"><%= content.business.email %></a></li>
+          <li><a href="/kontakt">Kontaktformular</a></li>
+          <li><a href="/anmeldung">Online anmelden</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fuss-unten">
+      <span>&copy; <%= new Date().getFullYear() %> <%= content.business.name %></span>
+      <span class="reihe">
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/site.js"></script>
+<script src="/js/todo.js"></script>
+</body>
+</html>

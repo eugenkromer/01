@@ -1,0 +1,229 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+
+  <!-- ---------- Hero ---------- -->
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <span class="badge-zeile">
+            <span class="punkt" aria-hidden="true"></span>
+            Anmeldung jederzeit möglich
+          </span>
+          <h1>Sicher zum <em>Führerschein</em> – in Paderborn und Umgebung</h1>
+          <p class="hero-text"><%= content.business.intro %></p>
+          <div class="hero-aktionen">
+            <a class="btn btn-primaer" href="/anmeldung">Jetzt online anmelden</a>
+            <a class="btn btn-rand" href="tel:<%= content.business.phoneLink %>">
+              <%= content.business.phone %> anrufen
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-karte">
+          <h2>In 3 Schritten losfahren</h2>
+          <p class="lead">Du musst dich nicht vorher entscheiden – wir beraten dich kostenlos.</p>
+          <ul class="hero-karte-liste">
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span><strong>Anmelden</strong> – online in fünf Minuten oder bei uns im Büro</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span><strong>Theorie besuchen</strong> – an fünf Standorten, du wählst den Termin</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span><strong>Fahren lernen</strong> – im eigenen Tempo, mit festem Fahrlehrer</span></li>
+          </ul>
+          <a class="btn btn-dunkel btn-voll" href="/ablauf">So läuft die Ausbildung ab</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Zahlen ---------- -->
+  <div class="fakten">
+    <div class="wrap">
+      <div class="fakten-grid">
+        <% content.business.facts.forEach(function (fakt) { %>
+          <div class="fakt">
+            <span class="wert"><%= fakt.value %></span>
+            <span class="bez"><%= fakt.label %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Führerscheinklassen ---------- -->
+  <section>
+    <div class="wrap">
+      <div class="abschnitt-kopf zentriert">
+        <span class="ueberschrift-marke">Unser Angebot</span>
+        <h2>Welchen Führerschein möchtest du machen?</h2>
+        <p class="lead">Wir bilden in allen Auto- und Motorradklassen aus – vom Roller über den
+          Pkw bis zum schweren Anhänger.</p>
+      </div>
+
+      <div class="raster">
+        <% content.licenseGroups.forEach(function (gruppe) { %>
+          <a class="karte karte-link" href="/fuehrerschein#<%= gruppe.id %>">
+            <span class="klasse-marke <%= gruppe.id === 'motorrad' ? 'motorrad' : (gruppe.id === 'weitere' ? 'weitere' : '') %>">
+              <%= gruppe.classes.map(function (k) { return k.code; }).slice(0, 2).join(' · ') %>
+            </span>
+            <h3><%= gruppe.title %></h3>
+            <p><%= gruppe.intro %></p>
+            <ul class="liste-haken">
+              <% gruppe.classes.slice(0, 3).forEach(function (k) { %>
+                <li><span class="haken" aria-hidden="true">✓</span> <span><%= k.code %> – <%= k.name %></span></li>
+              <% }); %>
+            </ul>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Ablauf ---------- -->
+  <section class="hell">
+    <div class="wrap">
+      <div class="abschnitt-kopf zentriert">
+        <span class="ueberschrift-marke">Der Weg zum Schein</span>
+        <h2>So läuft deine Ausbildung ab</h2>
+        <p class="lead">Kein Behördendschungel: Wir sagen dir bei jedem Schritt genau, was als Nächstes dran ist.</p>
+      </div>
+
+      <div class="schritte">
+        <% content.steps.forEach(function (schritt) { %>
+          <div class="schritt">
+            <h3><%= schritt.title %></h3>
+            <p><%= schritt.text %></p>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Standorte ---------- -->
+  <section>
+    <div class="wrap">
+      <div class="abschnitt-kopf">
+        <span class="ueberschrift-marke">Standorte</span>
+        <h2>Theorieunterricht ganz in deiner Nähe</h2>
+        <p class="lead">Du bist nicht an einen Standort gebunden – besuche den Unterricht dort,
+          wo es für dich am besten passt.</p>
+      </div>
+
+      <div class="raster raster-2">
+        <% content.locations.slice(0, 3).forEach(function (ort) { %>
+          <div class="standort <%= ort.main ? 'haupt' : '' %>">
+            <div class="standort-kopf">
+              <h3><%= ort.name %></h3>
+              <% if (ort.main) { %><span class="marker">Hauptsitz</span><% } %>
+            </div>
+            <address><%= ort.street %><br><%= ort.zip %> <%= ort.city %></address>
+            <% if (ort.theory) { %>
+              <div class="standort-zeile">
+                <span class="bez">Theorie</span>
+                <span><%= ort.theory %></span>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="reihe abstand-oben">
+        <a class="btn btn-hell" href="/standorte">Alle <%= content.locations.length %> Standorte ansehen</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Portal-Hinweis ---------- -->
+  <section class="hell">
+    <div class="wrap">
+      <div class="raster raster-2">
+        <div>
+          <span class="ueberschrift-marke">Neu</span>
+          <h2>Dein Fahrschüler-Portal</h2>
+          <p class="lead">Schluss mit Zettelwirtschaft: Nach der Anmeldung bekommst du einen
+            eigenen Bereich, in dem du jederzeit siehst, wo du stehst.</p>
+          <ul class="liste-haken">
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span>Alle Theorietermine auf einen Blick – mit Anmeldung per Klick</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span>Welche Pflichtlektionen du schon besucht hast</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span>Wie viele Fahrstunden und Sonderfahrten dir noch fehlen</span></li>
+            <li><span class="haken" aria-hidden="true">✓</span>
+              <span>Formulare und Unterlagen zum Herunterladen</span></li>
+          </ul>
+          <div class="reihe abstand-oben">
+            <a class="btn btn-dunkel" href="/portal/login">Zum Portal anmelden</a>
+          </div>
+        </div>
+
+        <div class="karte">
+          <h3>Anmeldung ohne Passwort</h3>
+          <p>Du gibst nur deine E-Mail-Adresse ein und bekommst einen Link zugeschickt.
+            Ein Klick darauf – und du bist drin. Kein Passwort, das man vergessen kann.</p>
+          <div class="stapel-eng abstand-oben">
+            <div class="fortschritt">
+              <div class="fortschritt-kopf">
+                <span class="bez">Theorie</span>
+                <span class="zahl">9 von 14 Lektionen</span>
+              </div>
+              <div class="balken"><span style="width: 64%"></span></div>
+            </div>
+            <div class="fortschritt">
+              <div class="fortschritt-kopf">
+                <span class="bez">Sonderfahrten</span>
+                <span class="zahl">7 von 12</span>
+              </div>
+              <div class="balken akzent"><span style="width: 58%"></span></div>
+            </div>
+          </div>
+          <p class="klein mute abstand-oben">Beispielansicht</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Häufige Fragen ---------- -->
+  <section>
+    <div class="wrap narrow">
+      <div class="abschnitt-kopf zentriert">
+        <span class="ueberschrift-marke">Gut zu wissen</span>
+        <h2>Häufige Fragen</h2>
+      </div>
+
+      <div class="faq-liste">
+        <% content.faq.slice(0, 4).forEach(function (eintrag) { %>
+          <details class="faq-eintrag">
+            <summary><%= eintrag.q %></summary>
+            <div class="faq-text"><%= eintrag.a %></div>
+          </details>
+        <% }); %>
+      </div>
+
+      <div class="reihe abstand-oben" style="justify-content: center">
+        <a class="btn btn-hell" href="/faq">Alle Fragen und Antworten</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Abschluss ---------- -->
+  <section>
+    <div class="wrap">
+      <div class="cta">
+        <h2>Bereit für die erste Fahrstunde?</h2>
+        <p>Melde dich online an oder ruf uns einfach an – wir beraten dich unverbindlich,
+          welche Klasse zu dir passt und was auf dich zukommt.</p>
+        <div class="cta-aktionen">
+          <a class="btn btn-primaer" href="/anmeldung">Online anmelden</a>
+          <a class="btn btn-rand" href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('../partials/footer') %>

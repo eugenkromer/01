@@ -1,0 +1,44 @@
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+<header class="kopf">
+  <div class="wrap kopf-inner">
+    <a class="logo" href="/">
+      <span class="logo-mark" aria-hidden="true">N</span>
+      <span>
+        <%= content.business.name %>
+        <small><%= content.business.claim %></small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false"
+            aria-controls="hauptnavigation" aria-label="Menü öffnen und schließen">
+      <span></span>
+    </button>
+
+    <nav class="nav" id="hauptnavigation" aria-label="Hauptnavigation">
+      <a href="/fuehrerschein" class="<%= currentPath.startsWith('/fuehrerschein') ? 'aktiv' : '' %>">Führerschein</a>
+      <a href="/ablauf" class="<%= currentPath === '/ablauf' ? 'aktiv' : '' %>">Ablauf</a>
+      <a href="/standorte" class="<%= currentPath === '/standorte' ? 'aktiv' : '' %>">Standorte</a>
+      <a href="/team" class="<%= currentPath === '/team' ? 'aktiv' : '' %>">Team</a>
+      <a href="/faq" class="<%= currentPath === '/faq' ? 'aktiv' : '' %>">Fragen</a>
+      <a href="/kontakt" class="<%= currentPath === '/kontakt' ? 'aktiv' : '' %>">Kontakt</a>
+
+      <div class="nav-aktionen">
+        <% if (currentUser) { %>
+          <a class="btn btn-hell" href="/portal">Mein Bereich</a>
+        <% } else { %>
+          <a class="btn btn-hell" href="/portal/login">Anmelden</a>
+        <% } %>
+        <a class="btn btn-primaer" href="/anmeldung">Jetzt anmelden</a>
+      </div>
+    </nav>
+
+    <div class="kopf-aktionen">
+      <% if (currentUser) { %>
+        <a class="btn btn-hell btn-klein" href="/portal">Mein Bereich</a>
+      <% } else { %>
+        <a class="btn btn-hell btn-klein btn-text" href="/portal/login">Anmelden</a>
+      <% } %>
+      <a class="btn btn-primaer btn-klein" href="/anmeldung">Jetzt anmelden</a>
+    </div>
+  </div>
+</header>

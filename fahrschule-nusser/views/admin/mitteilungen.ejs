@@ -1,0 +1,66 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Mitteilungen</h1>
+        <p>Kurze Nachrichten, die alle Fahrschüler in ihrem Portal sehen.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Neue Mitteilung</h2>
+
+      <form class="formular" method="post" action="/portal/verwaltung/mitteilungen">
+        <div class="feld">
+          <label class="feld-pflicht" for="title">Titel</label>
+          <input type="text" id="title" name="title" required
+                 placeholder="z. B. Unterricht am Donnerstag fällt aus">
+        </div>
+
+        <div class="feld">
+          <label class="feld-pflicht" for="body">Text</label>
+          <textarea id="body" name="body" required
+                    placeholder="Worum geht es?"></textarea>
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Veröffentlichen</button>
+      </form>
+    </div>
+
+    <div class="portal-block">
+      <h2>Veröffentlichte Mitteilungen</h2>
+      <% if (mitteilungen.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📣</div>
+          <p>Es wurde noch nichts veröffentlicht.</p>
+        </div>
+      <% } else { %>
+        <% mitteilungen.forEach(function (m) { %>
+          <div class="mitteilung">
+            <div class="reihe" style="justify-content: space-between; align-items: flex-start">
+              <div>
+                <h3><%= m.title %></h3>
+                <div class="datum"><%= f.formatDateTime(m.createdAt) %></div>
+              </div>
+              <form method="post" action="/portal/verwaltung/mitteilungen/<%= m.id %>/loeschen"
+                    onsubmit="return confirm('Diese Mitteilung wirklich löschen?')">
+                <button class="btn btn-gefahr btn-klein" type="submit">Löschen</button>
+              </form>
+            </div>
+            <p><%= m.body %></p>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

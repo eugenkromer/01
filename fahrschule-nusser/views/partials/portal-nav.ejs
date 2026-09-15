@@ -1,0 +1,24 @@
+<nav class="portal-nav" aria-label="Portalnavigation">
+  <% if (currentUser.role === 'student') { %>
+    <div class="portal-nav-titel">Mein Bereich</div>
+    <a href="/portal" class="<%= currentPath === '/portal' ? 'aktiv' : '' %>">Übersicht</a>
+    <a href="/portal/theorie" class="<%= currentPath.startsWith('/portal/theorie') ? 'aktiv' : '' %>">Theorietermine</a>
+    <a href="/portal/fortschritt" class="<%= currentPath === '/portal/fortschritt' ? 'aktiv' : '' %>">Mein Fortschritt</a>
+    <a href="/portal/dokumente" class="<%= currentPath === '/portal/dokumente' ? 'aktiv' : '' %>">Unterlagen</a>
+    <a href="/portal/profil" class="<%= currentPath === '/portal/profil' ? 'aktiv' : '' %>">Meine Daten</a>
+  <% } else { %>
+    <div class="portal-nav-titel">Verwaltung</div>
+    <a href="/portal/verwaltung" class="<%= currentPath === '/portal/verwaltung' ? 'aktiv' : '' %>">Übersicht</a>
+    <a href="/portal/verwaltung/anfragen" class="<%= currentPath.startsWith('/portal/verwaltung/anfragen') ? 'aktiv' : '' %>">Anfragen</a>
+    <a href="/portal/verwaltung/fahrschueler" class="<%= currentPath.startsWith('/portal/verwaltung/fahrschueler') ? 'aktiv' : '' %>">Fahrschüler</a>
+    <a href="/portal/verwaltung/theorie" class="<%= currentPath.startsWith('/portal/verwaltung/theorie') ? 'aktiv' : '' %>">Theorietermine</a>
+    <a href="/portal/verwaltung/dokumente" class="<%= currentPath === '/portal/verwaltung/dokumente' ? 'aktiv' : '' %>">Unterlagen</a>
+    <a href="/portal/verwaltung/mitteilungen" class="<%= currentPath === '/portal/verwaltung/mitteilungen' ? 'aktiv' : '' %>">Mitteilungen</a>
+  <% } %>
+
+  <div class="trenner"></div>
+  <a href="/">Zur Website</a>
+  <form method="post" action="/portal/abmelden">
+    <button type="submit" class="btn btn-hell btn-klein btn-voll" style="margin-top: 6px">Abmelden</button>
+  </form>
+</nav>

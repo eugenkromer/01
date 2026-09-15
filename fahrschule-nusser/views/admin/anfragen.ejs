@@ -1,0 +1,75 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Anfragen</h1>
+        <p>Online-Anmeldungen und Nachrichten über das Kontaktformular.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <% if (anfragen.length === 0) { %>
+      <div class="portal-block">
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📨</div>
+          <p>Es sind noch keine Anfragen eingegangen.</p>
+        </div>
+      </div>
+    <% } else { %>
+      <% anfragen.forEach(function (a) { %>
+        <div class="portal-block">
+          <h2>
+            <span>
+              <%= a.firstName %> <%= a.lastName %>
+              <span class="marker <%= a.type === 'anmeldung' ? 'gruen' : 'blau' %>">
+                <%= a.type === 'anmeldung' ? 'Anmeldung' : 'Kontakt' %>
+              </span>
+              <% if (a.status === 'bearbeitet') { %><span class="marker grau">bearbeitet</span><% } %>
+            </span>
+          </h2>
+          <p class="block-info">Eingegangen am <%= f.formatDateTime(a.createdAt) %></p>
+
+          <div class="tabelle-rahmen">
+            <table>
+              <tbody>
+                <tr><td>E-Mail</td><td><a href="mailto:<%= a.email %>"><%= a.email %></a></td></tr>
+                <% if (a.phone) { %><tr><td>Telefon</td><td><a href="tel:<%= a.phone %>"><%= a.phone %></a></td></tr><% } %>
+                <% if (a.birthDate) { %><tr><td>Geburtsdatum</td><td><%= f.formatDateShort(a.birthDate) %></td></tr><% } %>
+                <% if (a.licenseClass) { %><tr><td>Klasse</td><td><%= a.licenseClass %></td></tr><% } %>
+                <% if (a.ortName) { %><tr><td>Wunschstandort</td><td><%= a.ortName %></td></tr><% } %>
+                <% if (a.message) { %><tr><td>Nachricht</td><td><%= a.message %></td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="reihe abstand-oben">
+            <% if (a.type === 'anmeldung') { %>
+              <form method="post" action="/portal/verwaltung/anfragen/<%= a.id %>/uebernehmen">
+                <button class="btn btn-primaer btn-klein" type="submit">Als Fahrschüler anlegen</button>
+              </form>
+            <% } %>
+            <% if (a.status === 'neu') { %>
+              <form method="post" action="/portal/verwaltung/anfragen/<%= a.id %>/erledigt">
+                <button class="btn btn-hell btn-klein" type="submit">Als bearbeitet markieren</button>
+              </form>
+            <% } %>
+            <a class="btn btn-hell btn-klein" href="mailto:<%= a.email %>">Antworten</a>
+            <form method="post" action="/portal/verwaltung/anfragen/<%= a.id %>/loeschen"
+                  onsubmit="return confirm('Diese Anfrage wirklich löschen?')">
+              <button class="btn btn-gefahr btn-klein" type="submit">Löschen</button>
+            </form>
+          </div>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,39 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Unterlagen</h1>
+        <p>Formulare, Merkblätter und Dokumente, die für dich hinterlegt sind.</p>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <% if (dokumente.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📄</div>
+          <p>Für dich sind noch keine Unterlagen hinterlegt.</p>
+        </div>
+      <% } else { %>
+        <% dokumente.forEach(function (d) { %>
+          <div class="dokument">
+            <div class="dokument-symbol" aria-hidden="true">📄</div>
+            <div class="dokument-info">
+              <h3><%= d.title %>
+                <% if (d.studentId) { %><span class="marker blau">nur für dich</span><% } %>
+              </h3>
+              <% if (d.description) { %><p><%= d.description %></p><% } %>
+            </div>
+            <a class="btn btn-hell btn-klein" href="<%= d.url %>" target="_blank" rel="noopener">Öffnen</a>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

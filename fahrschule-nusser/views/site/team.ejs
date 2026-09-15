@@ -1,0 +1,32 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <div class="raster">
+        <% content.team.forEach(function (person) { %>
+          <div class="karte">
+            <% if (person.photo) { %>
+              <img src="<%= person.photo %>" alt="<%= person.name %>"
+                   style="border-radius: 12px; margin-bottom: 16px; aspect-ratio: 4/3; object-fit: cover; width: 100%">
+            <% } else { %>
+              <div style="border-radius: 12px; margin-bottom: 16px; aspect-ratio: 4/3; background: var(--blau-50);
+                          display: grid; place-items: center; color: var(--blau-600); font-size: 2.4rem; font-weight: 800">
+                <%= person.name.replace('TODO: ', '').charAt(0) %>
+              </div>
+            <% } %>
+            <h3><%= person.name %></h3>
+            <div class="marke-alter"><%= person.role %></div>
+            <% if (person.classes) { %><p class="klein mute">Bildet aus: <%= person.classes %></p><% } %>
+            <p><%= person.text %></p>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

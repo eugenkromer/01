@@ -1,0 +1,94 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <% content.licenseGroups.forEach(function (gruppe, gi) { %>
+        <div id="<%= gruppe.id %>" style="scroll-margin-top: 100px; <%= gi > 0 ? 'margin-top: 64px' : '' %>">
+          <div class="abschnitt-kopf">
+            <span class="ueberschrift-marke"><%= gruppe.title %></span>
+            <h2><%= gruppe.title %>-Führerschein</h2>
+            <p class="lead"><%= gruppe.intro %></p>
+          </div>
+
+          <div class="raster">
+            <% gruppe.classes.forEach(function (k) { %>
+              <div class="karte">
+                <span class="klasse-marke <%= gruppe.id === 'motorrad' ? 'motorrad' : (gruppe.id === 'weitere' ? 'weitere' : '') %>"><%= k.code %></span>
+                <div class="marke-alter"><%= k.minAge %></div>
+                <h3><%= k.name %></h3>
+                <p><%= k.summary %></p>
+                <ul class="liste-haken">
+                  <% k.details.forEach(function (d) { %>
+                    <li><span class="haken" aria-hidden="true">✓</span> <span><%= d %></span></li>
+                  <% }); %>
+                </ul>
+                <div class="standort-zeile abstand-oben">
+                  <span class="bez">Preis</span>
+                  <span>
+                    <% if (k.price) { %><strong><%= f.formatEuro(k.price) %></strong>
+                    <% } else { %><span class="mute">auf Anfrage</span><% } %>
+                  </span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </section>
+
+  <section class="hell">
+    <div class="wrap narrow">
+      <div class="abschnitt-kopf">
+        <span class="ueberschrift-marke">Kosten</span>
+        <h2>Was kostet der Führerschein?</h2>
+      </div>
+
+      <% if (content.pricing.published) { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <tbody>
+              <% content.pricing.rows.forEach(function (zeile) { %>
+                <tr>
+                  <td><%= zeile.label %></td>
+                  <td class="nowrap"><%= zeile.value ? f.formatEuro(zeile.value) : 'auf Anfrage' %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <p class="klein mute abstand-oben"><%= content.pricing.note %></p>
+      <% } else { %>
+        <div class="karte">
+          <p>Die Gesamtkosten hängen davon ab, wie viele Fahrstunden du brauchst – und das ist
+            von Mensch zu Mensch sehr unterschiedlich. Statt einer Zahl, die am Ende doch nicht
+            stimmt, nennen wir dir in einem kurzen Gespräch eine ehrliche Einschätzung für
+            deine Situation.</p>
+          <div class="reihe abstand-oben">
+            <a class="btn btn-dunkel" href="/kontakt">Preise anfragen</a>
+            <a class="btn btn-hell" href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta">
+        <h2>Noch unsicher, welche Klasse die richtige ist?</h2>
+        <p>Ruf uns an oder komm vorbei – wir finden gemeinsam heraus, was zu dir passt.</p>
+        <div class="cta-aktionen">
+          <a class="btn btn-primaer" href="/anmeldung">Jetzt anmelden</a>
+          <a class="btn btn-rand" href="/kontakt">Frage stellen</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

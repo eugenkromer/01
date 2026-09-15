@@ -1,0 +1,55 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap">
+      <div class="raster raster-2">
+        <% content.locations.forEach(function (ort) { %>
+          <div class="standort <%= ort.main ? 'haupt' : '' %>">
+            <div class="standort-kopf">
+              <h3><%= ort.name %></h3>
+              <% if (ort.main) { %><span class="marker">Hauptsitz</span><% } %>
+            </div>
+            <address><%= ort.street %><br><%= ort.zip %> <%= ort.city %></address>
+
+            <% if (ort.theory) { %>
+              <div class="standort-zeile">
+                <span class="bez">Theorie</span>
+                <span><%= ort.theory %></span>
+              </div>
+            <% } %>
+            <% if (ort.office) { %>
+              <div class="standort-zeile">
+                <span class="bez">Büro</span>
+                <span><%= ort.office %></span>
+              </div>
+            <% } %>
+            <% if (ort.phone) { %>
+              <div class="standort-zeile">
+                <span class="bez">Telefon</span>
+                <span><a href="tel:<%= content.business.phoneLink %>"><%= ort.phone %></a></span>
+              </div>
+            <% } %>
+            <% if (ort.note) { %>
+              <div class="standort-zeile">
+                <span class="bez">Hinweis</span>
+                <span><%= ort.note %></span>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="meldung meldung-hinweis abstand-oben">
+        <p><strong>Du bist nicht an einen Standort gebunden.</strong> Besuche den Theorieunterricht
+          dort, wo es dir am besten passt – alle Termine findest du nach der Anmeldung
+          in deinem <a href="/portal/login">Fahrschüler-Portal</a>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

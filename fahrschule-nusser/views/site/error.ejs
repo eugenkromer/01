@@ -1,0 +1,19 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <section>
+    <div class="wrap narrow zentriert">
+      <span class="ueberschrift-marke">Fehler</span>
+      <h1>Da ist leider etwas schiefgelaufen</h1>
+      <p class="lead" style="margin: 0 auto 28px">Bitte versuche es in einem Moment noch einmal.
+        Wenn das Problem bleibt, ruf uns einfach an – wir helfen dir weiter.</p>
+      <div class="reihe" style="justify-content: center">
+        <a class="btn btn-primaer" href="/">Zur Startseite</a>
+        <a class="btn btn-hell" href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt">
+  <%- include('../partials/seitenkopf') %>
+
+  <section>
+    <div class="wrap narrow">
+      <div class="faq-liste">
+        <% content.faq.forEach(function (eintrag, i) { %>
+          <details class="faq-eintrag" <%= i === 0 ? 'open' : '' %>>
+            <summary><%= eintrag.q %></summary>
+            <div class="faq-text"><%= eintrag.a %></div>
+          </details>
+        <% }); %>
+      </div>
+
+      <div class="karte abstand-oben">
+        <h3>Deine Frage war nicht dabei?</h3>
+        <p>Schreib uns einfach – wir antworten in der Regel noch am selben Werktag.</p>
+        <div class="reihe abstand-oben">
+          <a class="btn btn-dunkel" href="/kontakt">Frage stellen</a>
+          <a class="btn btn-hell" href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,63 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Fahrschüler</h1>
+        <p><%= studenten.length %> <%= studenten.length === 1 ? 'Zugang' : 'Zugänge' %> im Portal.</p>
+      </div>
+      <a class="btn btn-primaer btn-klein" href="/portal/verwaltung/fahrschueler/neu">Neu anlegen</a>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <% if (studenten.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">👥</div>
+          <p>Es ist noch kein Fahrschüler angelegt.</p>
+          <a class="btn btn-dunkel btn-klein abstand-oben" href="/portal/verwaltung/fahrschueler/neu">Ersten Zugang anlegen</a>
+        </div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Klasse</th><th>Theorie</th><th>Sonderfahrten</th>
+                <th>Prüfung</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% studenten.forEach(function (s) { %>
+                <tr>
+                  <td>
+                    <strong><%= s.firstName %> <%= s.lastName %></strong><br>
+                    <span class="klein mute"><%= s.email %></span>
+                  </td>
+                  <td class="nowrap"><%= s.licenseClass %></td>
+                  <td class="nowrap"><%= s.stand.theorie.ist %> / <%= s.stand.theorie.soll %></td>
+                  <td class="nowrap"><%= s.stand.sonderGesamt.ist %> / <%= s.stand.sonderGesamt.soll %></td>
+                  <td>
+                    <span class="marker <%= pruefungsMarker(s.stand.praxisPruefung) %>">
+                      <%= s.stand.praxisPruefung %>
+                    </span>
+                  </td>
+                  <td>
+                    <a class="btn btn-hell btn-klein" href="/portal/verwaltung/fahrschueler/<%= s.id %>">Öffnen</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

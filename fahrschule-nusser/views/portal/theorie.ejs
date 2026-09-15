@@ -1,0 +1,86 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Theorietermine</h1>
+        <p>Melde dich für die Termine an, die dir passen – Standort frei wählbar.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Kommende Termine</h2>
+      <p class="block-info">
+        Du hast <%= stand.theorie.ist %> von <%= stand.theorie.soll %> Pflichtlektionen besucht.
+      </p>
+
+      <% if (termine.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📅</div>
+          <p>Aktuell sind keine Termine eingetragen. Schau in ein paar Tagen wieder vorbei
+            oder ruf uns an.</p>
+        </div>
+      <% } else { %>
+        <% termine.forEach(function (termin) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(termin.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(termin.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+
+            <div class="termin-info">
+              <h3>
+                <%= termin.lessonNo ? 'Lektion ' + termin.lessonNo + ': ' : '' %><%= termin.topic %>
+                <% if (termin.lessonNo && stand.theorie.besucht.includes(termin.lessonNo)) { %>
+                  <span class="marker gruen">schon besucht</span>
+                <% } %>
+              </h3>
+              <div class="meta">
+                <%= f.formatDate(termin.startsAt) %>, <%= f.formatTime(termin.startsAt) %>
+                <% if (termin.ortName) { %> · <%= termin.ortName %><% } %>
+                <% if (termin.instructor) { %> · <%= termin.instructor %><% } %>
+                <% if (termin.frei !== null) { %> · noch <%= termin.frei %> Plätze frei<% } %>
+              </div>
+            </div>
+
+            <div class="termin-aktion">
+              <% if (termin.angemeldet) { %>
+                <form method="post" action="/portal/theorie/<%= termin.id %>/abmelden">
+                  <button class="btn btn-hell btn-klein" type="submit">Abmelden</button>
+                </form>
+              <% } else if (termin.ausgebucht) { %>
+                <span class="marker rot">ausgebucht</span>
+              <% } else { %>
+                <form method="post" action="/portal/theorie/<%= termin.id %>/anmelden">
+                  <button class="btn btn-primaer btn-klein" type="submit">Anmelden</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <div class="portal-block">
+      <h2>Diese Lektionen brauchst du</h2>
+      <p class="block-info">Grün heißt: schon besucht.</p>
+      <div class="lektionen">
+        <% content.theoryLessons.forEach(function (lektion) { %>
+          <div class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
+            <span class="nr"><%= lektion.no %></span>
+            <span class="titel"><%= lektion.title %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
