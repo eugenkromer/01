@@ -105,7 +105,9 @@ anlegen; die Seiten sagen ihm das und verweisen aufs Büro.
 #### Anwesenheit im Theorieunterricht
 
 Zu Beginn des Unterrichts geht der Fahrlehrer den Termin durch und hakt ab, wer da
-ist. Die Lektion dieses Termins zählt damit für alle Abgehakten – niemand muss sie
+ist. Unter „Theorietermine" steht dafür ganz oben der Block **Heute** – mit den
+Terminen des Tages und dem Knopf zum Abhaken, unabhängig davon, ob der Unterricht
+schon begonnen hat. Auch frühere Termine lassen sich jederzeit nachtragen. Die Lektion dieses Termins zählt damit für alle Abgehakten – niemand muss sie
 bei jedem Fahrschüler einzeln nachtragen.
 
 Auf der Liste stehen **die Fahrschüler des Standorts**, an dem der Unterricht
@@ -464,6 +466,10 @@ Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen
 - **Node.js und Express** mit **EJS** als Vorlagensprache – serverseitig gerendertes
   HTML, das ohne JavaScript im Browser auskommt. Das ist schnell und wird von
   Suchmaschinen gut gelesen.
+- **Zeiten werden als lokale Zeit gespeichert** (`2026-09-16T18:00`), genau so, wie sie
+  im Eingabefeld stehen. Vergleiche müssen deshalb ebenfalls mit lokaler Zeit
+  erfolgen – `db.jetztLokal()` liefert sie im passenden Format. `toISOString()` gibt
+  UTC zurück und lag auf einem deutschen Server zwei Stunden daneben.
 - **Daten in JSON-Dateien** unter `data/` – keine Datenbank nötig. Für eine Fahrschule
   dieser Größe völlig ausreichend; wächst der Bedarf, wird nur `src/db.js` ausgetauscht.
 - **Keine fremden Schriftarten oder Skripte.** Alles wird vom eigenen Server geladen.

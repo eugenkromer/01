@@ -64,7 +64,12 @@ router.get('/', (req, res) => {
   res.render('instructor/dashboard', basis('Meine Fahrschüler', {
     studenten,
     // Vergangene Termine, deren Anwesenheitsliste noch niemand geführt hat
-    offeneListen: db.getPastTheorySessions()
+    // Termine, deren Anwesenheitsliste noch niemand geführt hat - der
+    // heutige zählt dazu, sobald er begonnen hat.
+    offeneListen: [...db.getTodaysTheorySessions(), ...db.getPastTheorySessions()]
+      .filter((t, i, liste) => liste.findIndex((x) => x.id === t.id) === i)
+      .filter((t) => t.startsAt <= db.jetztLokal())
+      .filter((t) => db.canManageLocation(req.user, t.locationId))
       .filter((t) => db.getAttendanceForSession(t.id).length === 0)
       .map((t) => ({ ...t, ortName: ortName(t.locationId) })),
     meineHeute: db.getLessons().filter(
@@ -98,13 +103,30 @@ function terminAufbereiten(termin, user) {
   };
 }
 
-router.get('/theorie', (req, res) => {
-  const standorte = meineStandorte(req.user);
+// Teilt die Termine in heute / später / früher. "Heute" steht oben,
+// weil dort die Anwesenheit geführt wird - auch wenn der Unterricht
+// gerade erst anfängt und noch nicht vorbei ist.
+function termineNachZeit(user) {
+  const heute = db.heuteLokal();
+  const alle = db.getTheorySessions().map((t) => terminAufbereiten(t, user));
 
+  return {
+    heute: alle
+      .filter((t) => String(t.startsAt).slice(0, 10) === heute)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
+    spaeter: alle
+      .filter((t) => String(t.startsAt).slice(0, 10) > heute)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
+    frueher: alle
+      .filter((t) => String(t.startsAt).slice(0, 10) < heute)
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt)),
+  };
+}
+
+router.get('/theorie', (req, res) => {
   res.render('instructor/theorie', basis('Theorietermine', {
-    vergangene: db.getPastTheorySessions().map((t) => terminAufbereiten(t, req.user)),
-    kommende: db.getUpcomingTheorySessions().map((t) => terminAufbereiten(t, req.user)),
-    standorte,
+    ...termineNachZeit(req.user),
+    standorte: meineStandorte(req.user),
     bearbeiten: null,
     hinweis: req.query.hinweis || null,
     fehler: req.query.fehler || null,
@@ -122,8 +144,7 @@ router.get('/theorie/:id/bearbeiten', (req, res) => {
   }
 
   res.render('instructor/theorie', basis('Termin ändern', {
-    vergangene: db.getPastTheorySessions().map((t) => terminAufbereiten(t, req.user)),
-    kommende: db.getUpcomingTheorySessions().map((t) => terminAufbereiten(t, req.user)),
+    ...termineNachZeit(req.user),
     standorte: meineStandorte(req.user),
     bearbeiten: termin,
     hinweis: null,

@@ -15,6 +15,46 @@
     <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
     <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
 
+    <!-- Heute: hier wird die Anwesenheit geführt -->
+    <% if (heute.length > 0) { %>
+      <div class="portal-block heute-block">
+        <h2>Heute</h2>
+        <p class="block-info">Zu Beginn des Unterrichts abhaken, wer da ist.</p>
+
+        <% heute.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum heute">
+              <span class="tag"><%= f.formatTime(t.startsAt).replace(' Uhr', '') %></span>
+              <span class="monat">Uhr</span>
+            </div>
+            <div class="termin-info">
+              <h3>
+                <%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %>
+                <% if (t.erfasst) { %>
+                  <span class="marker gruen"><%= t.anwesend %> anwesend</span>
+                <% } %>
+                <% if (!t.meiner) { %><span class="marker grau">anderer Standort</span><% } %>
+              </h3>
+              <div class="meta">
+                <% if (t.ortName) { %><%= t.ortName %> · <% } %>
+                <%= t.angemeldet %> angemeldet<% if (t.capacity > 0) { %> von <%= t.capacity %><% } %>
+                <% if (t.instructor) { %> · <%= t.instructor %><% } %>
+              </div>
+            </div>
+            <div class="termin-aktion">
+              <% if (t.meiner) { %>
+                <a class="btn <%= t.erfasst ? 'btn-hell' : 'btn-primaer' %> btn-klein"
+                   href="/portal/fahrlehrer/theorie/<%= t.id %>">
+                  <%= t.erfasst ? 'Anwesenheit ändern' : 'Anwesenheit abhaken' %>
+                </a>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+
     <% if (standorte.length === 0) { %>
       <div class="meldung meldung-warnung">
         <p><strong>Dir ist noch kein Standort zugewiesen.</strong> Du kannst die Termine
@@ -112,14 +152,14 @@
 
     <!-- Kommende Termine -->
     <div class="portal-block">
-      <h2>Kommende Termine</h2>
-      <% if (kommende.length === 0) { %>
+      <h2><%= heute.length > 0 ? 'Weitere Termine' : 'Kommende Termine' %></h2>
+      <% if (spaeter.length === 0) { %>
         <div class="leer">
           <div class="symbol" aria-hidden="true">📅</div>
-          <p>Es ist noch kein Termin festgelegt.</p>
+          <p><%= heute.length > 0 ? 'Über heute hinaus ist nichts geplant.' : 'Es ist noch kein Termin festgelegt.' %></p>
         </div>
       <% } else { %>
-        <% kommende.forEach(function (t) { %>
+        <% spaeter.forEach(function (t) { %>
           <div class="termin">
             <div class="termin-datum">
               <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
@@ -153,18 +193,18 @@
       <% } %>
     </div>
 
-    <!-- Gehaltene Termine: Anwesenheit -->
+    <!-- Frühere Termine: Anwesenheit nachtragen -->
     <div class="portal-block">
-      <h2>Gehaltene Termine</h2>
+      <h2>Frühere Termine</h2>
       <p class="block-info">Die Lektion des Termins zählt für alle, die du abhakst.</p>
 
-      <% if (vergangene.length === 0) { %>
+      <% if (frueher.length === 0) { %>
         <div class="leer">
           <div class="symbol" aria-hidden="true">📋</div>
           <p>Es hat noch kein Theorieunterricht stattgefunden.</p>
         </div>
       <% } else { %>
-        <% vergangene.forEach(function (t) { %>
+        <% frueher.forEach(function (t) { %>
           <div class="termin">
             <div class="termin-datum">
               <span class="tag"><%= new Date(t.startsAt).getDate() %></span>

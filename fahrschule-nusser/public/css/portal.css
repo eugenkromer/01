@@ -1048,3 +1048,43 @@ td form { display: inline; }
     font-size: .82rem;
   }
 }
+
+/* ---------- Heutige Termine hervorheben ---------- */
+
+/* Der Block, in dem der Fahrlehrer zu Unterrichtsbeginn abhakt - er
+   soll beim Öffnen der Seite sofort ins Auge fallen. */
+.heute-block {
+  border-color: var(--akzent);
+  border-width: 2px;
+}
+.heute-block > h2::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--akzent);
+  margin-right: 9px;
+  vertical-align: middle;
+}
+
+/* Statt des Datums steht bei heutigen Terminen die Uhrzeit im Kästchen */
+.termin-datum.heute {
+  background: var(--akzent-soft);
+  border-color: #f7ddb8;
+  width: auto;
+  min-width: 62px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.termin-datum.heute .tag {
+  font-size: 1.05rem;
+  color: var(--akzent-dark);
+  white-space: nowrap; /* "22:31" darf nicht zu "22:3 / 1" zerfallen */
+}
+.termin-datum.heute .monat { color: var(--akzent-dark); }
+
+@media (max-width: 600px) {
+  .termin-datum.heute { min-width: 58px; }
+  .termin-datum.heute .tag { font-size: .92rem; }
+}

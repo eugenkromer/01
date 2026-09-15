@@ -266,9 +266,33 @@ function saveTheorySessions(sessions) {
   writeJSON('theory', sessions);
 }
 
+// Termine werden als lokale Zeit gespeichert ("2026-09-16T18:00"), so wie
+// sie im Formularfeld stehen. Für Vergleiche brauchen wir deshalb die
+// aktuelle Zeit im selben Format - toISOString() liefert UTC und lag auf
+// einem deutschen Server zwei Stunden daneben: Ein Unterricht um 18:00
+// galt dort bis 20:00 als "noch nicht begonnen".
+function jetztLokal() {
+  const jetzt = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${jetzt.getFullYear()}-${p(jetzt.getMonth() + 1)}-${p(jetzt.getDate())}`
+    + `T${p(jetzt.getHours())}:${p(jetzt.getMinutes())}`;
+}
+
+// Der heutige Tag als Zeichenkette, z. B. "2026-09-16"
+function heuteLokal() {
+  return jetztLokal().slice(0, 10);
+}
+
 function getUpcomingTheorySessions() {
-  const now = new Date().toISOString();
-  return getTheorySessions().filter((s) => s.startsAt >= now);
+  const jetzt = jetztLokal();
+  return getTheorySessions().filter((s) => s.startsAt >= jetzt);
+}
+
+// Alle Termine des heutigen Tages - unabhängig davon, ob sie schon
+// begonnen haben. Für sie wird die Anwesenheit geführt.
+function getTodaysTheorySessions() {
+  const heute = heuteLokal();
+  return getTheorySessions().filter((s) => String(s.startsAt).slice(0, 10) === heute);
 }
 
 function getTheorySession(id) {
@@ -356,7 +380,7 @@ function isBooked(sessionId, studentId) {
 function bookTheorySession(sessionId, studentId) {
   const session = getTheorySession(sessionId);
   if (!session) return { error: 'Dieser Termin existiert nicht mehr.' };
-  if (session.startsAt < new Date().toISOString()) return { error: 'Dieser Termin liegt bereits in der Vergangenheit.' };
+  if (session.startsAt < jetztLokal()) return { error: 'Dieser Termin liegt bereits in der Vergangenheit.' };
   const bookings = getBookings();
   if (bookings.some((b) => b.sessionId === sessionId && b.studentId === studentId)) {
     return { ok: true }; // schon angemeldet – kein Fehler
@@ -515,9 +539,9 @@ function getAttendedLessons(studentId) {
   return [...new Set(nummern)].sort((a, b) => a - b);
 }
 
-// Termine, die schon stattgefunden haben - für sie wird die Liste geführt.
+// Termine, die schon stattgefunden haben.
 function getPastTheorySessions() {
-  const jetzt = new Date().toISOString();
+  const jetzt = jetztLokal();
   return getTheorySessions()
     .filter((s) => s.startsAt <= jetzt)
     .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
@@ -839,6 +863,9 @@ module.exports = {
   getAttendedLessons,
   setAttendance,
   getPastTheorySessions,
+  getTodaysTheorySessions,
+  jetztLokal,
+  heuteLokal,
   getBookings,
   getBookingsForSession,
   getBookingsForStudent,
