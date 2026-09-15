@@ -1,0 +1,107 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <div class="brotkrumen" style="color: var(--text-mute); margin-bottom: 8px">
+          <a href="/portal/fahrlehrer/theorie" style="color: var(--blau-600)">Anwesenheit</a>
+          <span aria-hidden="true">›</span> Liste
+        </div>
+        <h1><%= termin.lessonNo ? 'Lektion ' + termin.lessonNo : 'Theorieunterricht' %></h1>
+        <p>
+          <% if (termin.topic) { %><%= termin.topic %> · <% } %>
+          <%= f.formatDate(termin.startsAt) %>, <%= f.formatTime(termin.startsAt) %>
+          <% if (termin.ortName) { %> · <%= termin.ortName %><% } %>
+        </p>
+      </div>
+      <button class="btn btn-hell btn-klein" type="button" onclick="window.print()">Drucken</button>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <% if (!termin.lessonNo) { %>
+      <div class="meldung meldung-warnung">
+        <p><strong>Diesem Termin ist keine Pflichtlektion zugeordnet.</strong> Die Anwesenheit
+          wird zwar festgehalten, zählt aber für niemanden als besuchte Lektion. Das Büro
+          kann die Lektion beim Termin nachtragen – danach zählt sie rückwirkend.</p>
+      </div>
+    <% } %>
+
+    <form method="post" action="/portal/fahrlehrer/theorie/<%= termin.id %>">
+      <div class="portal-block">
+        <h2>Wer war da?
+          <span class="klein mute" style="font-weight: 400">
+            <%= anzahlAngemeldet %> angemeldet
+          </span>
+        </h2>
+        <p class="block-info">
+          <% if (erfasst) { %>
+            Die Liste wurde schon geführt. Änderungen wirken sich sofort auf den
+            Theoriestand der Fahrschüler aus.
+          <% } else { %>
+            Die angemeldeten Fahrschüler sind vorausgewählt. Hake ab, wer tatsächlich
+            da war – auch wer sich nicht angemeldet hatte.
+          <% } %>
+        </p>
+
+        <div class="reihe" style="margin-bottom: 16px">
+          <button class="btn btn-hell btn-klein" type="button" data-alle="true">Alle auswählen</button>
+          <button class="btn btn-hell btn-klein" type="button" data-alle="false">Keinen auswählen</button>
+        </div>
+
+        <% if (teilnehmer.length === 0) { %>
+          <div class="leer"><p>Es ist noch kein Fahrschüler angelegt.</p></div>
+        <% } else { %>
+          <div class="anwesenheit-liste">
+            <% teilnehmer.forEach(function (t) { %>
+              <label class="anwesenheit-zeile <%= t.anwesend ? 'da' : '' %>">
+                <input type="checkbox" name="anwesend" value="<%= t.id %>"
+                       <%= t.anwesend ? 'checked' : '' %>>
+                <span class="anwesenheit-name">
+                  <strong><%= t.lastName %>, <%= t.firstName %></strong>
+                  <small>
+                    Klasse <%= t.licenseClass %>
+                    <% if (t.angemeldet) { %> · angemeldet<% } else { %> · nicht angemeldet<% } %>
+                    <% if (t.schonBesucht && termin.lessonNo) { %> · Lektion schon besucht<% } %>
+                  </small>
+                </span>
+              </label>
+            <% }); %>
+          </div>
+        <% } %>
+
+        <div class="reihe abstand-oben">
+          <button class="btn btn-primaer" type="submit">Anwesenheit speichern</button>
+          <a class="btn btn-hell" href="/portal/fahrlehrer/theorie">Abbrechen</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Alle oder keinen auswählen - spart Klicks bei großen Gruppen.
+  document.querySelectorAll('[data-alle]').forEach(function (knopf) {
+    knopf.addEventListener('click', function () {
+      const an = knopf.dataset.alle === 'true';
+      document.querySelectorAll('input[name="anwesend"]').forEach(function (feld) {
+        feld.checked = an;
+        feld.closest('.anwesenheit-zeile').classList.toggle('da', an);
+      });
+    });
+  });
+
+  // Zeile beim Anklicken sofort einfärben
+  document.querySelectorAll('input[name="anwesend"]').forEach(function (feld) {
+    feld.addEventListener('change', function () {
+      feld.closest('.anwesenheit-zeile').classList.toggle('da', feld.checked);
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

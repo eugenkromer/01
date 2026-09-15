@@ -43,12 +43,16 @@
       <form class="formular" method="post" action="/portal/verwaltung/fahrschueler/<%= student.id %>/fortschritt">
 
         <div class="feld">
-          <span class="feld-titel">Besuchte Theorielektionen</span>
+          <span class="feld-titel">Übertrag Theorielektionen</span>
+          <span class="hinweis">Welche Lektionen besucht wurden, ergibt sich normalerweise
+            aus den <a href="/portal/fahrlehrer/theorie">Anwesenheitslisten</a> der
+            Theorietermine. Hier werden nur Lektionen aus der Zeit vor dem Portal
+            nachgetragen – grün hinterlegte zählen bereits.</span>
           <div class="lektionen">
             <% content.theoryLessons.forEach(function (lektion) { %>
               <label class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
                 <input type="checkbox" name="theoryDone" value="<%= lektion.no %>"
-                       <%= stand.theorie.besucht.includes(lektion.no) ? 'checked' : '' %>>
+                       <%= stand.theorie.uebertrag.includes(lektion.no) ? 'checked' : '' %>>
                 <span class="nr"><%= lektion.no %></span>
                 <span class="titel"><%= lektion.title %></span>
               </label>

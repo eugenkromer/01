@@ -24,8 +24,15 @@ function berechne(student) {
     .filter((l) => l.type === art)
     .reduce((summe, l) => summe + (Number(l.units) || 0), 0);
 
+  // Besuchte Lektionen: der Übertrag aus der Zeit vor dem Portal plus
+  // alles, was über die Anwesenheitslisten der Theorietermine erfasst
+  // wurde. Genau wie bei den Fahrstunden trägt niemand das von Hand pro
+  // Person nach.
+  const ausAnwesenheit = student && student.id ? db.getAttendedLessons(student.id) : [];
+  const besucht = [...new Set([...theoryDone, ...ausAnwesenheit])].sort((a, b) => a - b);
+
   const theorieSoll = content.theoryLessons.length;
-  const theorieIst = theoryDone.length;
+  const theorieIst = besucht.length;
 
   const sonderfahrten = content.specialDrives.map((fahrt) => {
     const ist = (Number(uebertragSpecial[fahrt.id]) || 0) + einheiten(fahrt.id);
@@ -48,7 +55,10 @@ function berechne(student) {
       soll: theorieSoll,
       prozent: prozent(theorieIst, theorieSoll),
       fertig: theorieIst >= theorieSoll,
-      besucht: theoryDone,
+      besucht,
+      // Nur der Übertrag - das Büro pflegt ihn, alles andere kommt aus
+      // den Anwesenheitslisten.
+      uebertrag: theoryDone,
     },
     sonderfahrten,
     sonderGesamt: {

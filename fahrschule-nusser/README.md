@@ -36,11 +36,11 @@ selbst pflegt.
 | Eigene Rechnungen einsehen | ✓ | – | – |
 | Fahrstunden eintragen | – | ✓ | ✓ |
 | Alle Fahrschüler sehen | – | ✓ | ✓ |
-| Theorielektionen abhaken | – | ✓ | ✓ |
+| Anwesenheit im Theorieunterricht abhaken | – | ✓ | ✓ |
 | Prüfungsstand setzen | – | ✓ | ✓ |
 | Notiz für den Fahrschüler schreiben | – | ✓ | ✓ |
 | Fahrschüler und Fahrlehrer anlegen | – | – | ✓ |
-| Übertrag alter Fahrstunden | – | – | ✓ |
+| Übertrag alter Fahrstunden und Lektionen | – | – | ✓ |
 | Rechnungen schreiben | – | – | ✓ |
 
 ### Fahrschüler-Portal
@@ -73,13 +73,28 @@ Zwei Regeln schützen vor Durcheinander: Ein Fahrlehrer kann nur die eigenen Ein
 wieder löschen, und eine Fahrstunde, die schon auf einer Rechnung steht, lässt sich
 gar nicht mehr löschen. Sonst würde die Rechnung nicht mehr zu den Stunden passen.
 
-Fahrlehrer pflegen außerdem den Theoriestand: Sie haken ab, welche Pflichtlektionen
-besucht wurden, setzen den Stand der theoretischen und praktischen Prüfung und
-schreiben die Notiz, die der Fahrschüler in seinem Portal sieht. Wer den Unterricht
-hält, soll das nicht erst im Büro melden müssen.
+#### Anwesenheit im Theorieunterricht
 
-Beim Büro bleibt nur der **Übertrag** alter Fahrstunden – eine einmalige Sache beim
-Umstieg, die im laufenden Betrieb niemand mehr anfassen sollte.
+Nach dem Unterricht geht der Fahrlehrer unter „Anwesenheit" den Termin durch und hakt
+ab, wer da war. Die Lektion dieses Termins zählt damit für alle Abgehakten – niemand
+muss sie bei jedem Fahrschüler einzeln nachtragen.
+
+Die angemeldeten Fahrschüler sind vorausgewählt, weil das der häufigste Fall ist. Wer
+spontan dazukommt, steht darunter und wird einfach mit abgehakt; wer trotz Anmeldung
+gefehlt hat, wird abgewählt. Zwei Schaltflächen wählen alle oder keinen aus, und wer
+abgehakt ist, wird grün hinterlegt – das lässt sich auch im Stehen am Handy bedienen.
+
+Die Liste ist jederzeit korrigierbar: Beim Speichern gilt genau, wer angehakt ist.
+Nimmt man jemanden wieder heraus, verliert er die Lektion aus diesem Termin – hat er
+sie in einem anderen Termin besucht, bleibt sie erhalten. Ein kleiner Hinweis in der
+Zeile zeigt, wer die Lektion schon anderswo besucht hat.
+
+Fahrlehrer setzen außerdem beim einzelnen Fahrschüler den Stand der theoretischen und
+praktischen Prüfung und schreiben die Notiz, die er in seinem Portal sieht.
+
+Beim Büro bleibt nur der **Übertrag** aus der Zeit vor dem Portal – alte Fahrstunden
+und Lektionen, eine einmalige Sache beim Umstieg, die im laufenden Betrieb niemand
+mehr anfassen sollte.
 
 Zwei Arten von Notizen, die nicht verwechselt werden sollten: Die Notiz an einer
 einzelnen Fahrstunde sieht nur die Fahrschule. Die Notiz im Block „Theorie und
@@ -92,8 +107,8 @@ Prüfungen“ steht im Portal des Fahrschülers.
 - **Anfragen:** alle Kontaktanfragen und Online-Anmeldungen. Eine Anmeldung lässt sich
   mit einem Klick in einen Portalzugang umwandeln – die Begrüßungsmail geht automatisch raus.
 - **Fahrschüler:** anlegen, Stammdaten pflegen, Stammfahrlehrer zuordnen und den
-  Ausbildungsstand einsehen. Lektionen, Prüfungsstand und Notiz kann das Büro
-  ebenfalls setzen – im laufenden Betrieb macht das aber meist der Fahrlehrer selbst.
+  Ausbildungsstand einsehen. Prüfungsstand und Notiz kann das Büro ebenfalls setzen –
+  im laufenden Betrieb macht das aber meist der Fahrlehrer selbst.
 - **Theorietermine:** Termine anlegen und ändern, Teilnehmerlisten ansehen und ausdrucken.
 - **Fahrlehrer:** anlegen, Angaben pflegen, Zugang entfernen. Beim Anlegen geht die
   Zugangsmail automatisch raus. Wird ein Zugang entfernt, bleiben die eingetragenen
@@ -254,11 +269,11 @@ Damit ändern sich zwei Dinge:
 4. **Als Fahrschule anmelden:** die offene Anmeldung von Sophie Klein mit einem Klick
    in einen Portalzugang umwandeln, danach ihren Ausbildungsstand pflegen
 5. **Teilnehmerliste** eines Termins öffnen und ausdrucken
-6. **Als Fahrlehrer anmelden** (Mathias Nusser oder Andrea Hartmann): einen
-   Fahrschüler öffnen, eine Fahrstunde eintragen, Theorielektionen abhaken und eine
-   Notiz hinterlassen – danach im Portal des Fahrschülers nachsehen, wie sich alles
-   sofort geändert hat
-7. **Als Fahrschule eine Rechnung schreiben:** unter „Rechnungen“ einen Fahrschüler
+6. **Als Fahrlehrer anmelden** (Mathias Nusser oder Andrea Hartmann): unter
+   „Anwesenheit" den Termin ohne geführte Liste öffnen und abhaken, wer da war –
+   danach im Portal des Fahrschülers nachsehen, wie die Lektion dort erscheint
+7. Beim selben Fahrschüler eine Fahrstunde eintragen und eine Notiz hinterlassen
+8. **Als Fahrschule eine Rechnung schreiben:** unter „Rechnungen“ einen Fahrschüler
    wählen; die offenen Fahrstunden stehen schon als Positionen bereit. Danach als
    Fahrschüler die fertige Rechnung ansehen und drucken
 

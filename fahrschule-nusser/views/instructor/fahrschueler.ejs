@@ -153,8 +153,8 @@
     <!-- Theorie und Prüfungen -->
     <div class="portal-block">
       <h2>Theorie und Prüfungen</h2>
-      <p class="block-info">Hake ab, welche Pflichtlektionen besucht wurden, und halte
-        fest, wo die Prüfungen stehen.</p>
+      <p class="block-info">Hier siehst du den Theoriestand und hältst fest, wo die
+        Prüfungen stehen.</p>
 
       <div class="fortschritt">
         <div class="fortschritt-kopf">
@@ -166,22 +166,24 @@
         </div>
       </div>
 
+      <div class="lektionen abstand-oben">
+        <% content.theoryLessons.forEach(function (lektion) { %>
+          <div class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
+            <span class="nr"><%= lektion.no %></span>
+            <span class="titel"><%= lektion.title %></span>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="meldung meldung-hinweis abstand-oben">
+        <p>Besuchte Lektionen ergeben sich aus den
+          <a href="/portal/fahrlehrer/theorie">Anwesenheitslisten</a> der Theorietermine –
+          du hakst dort nach dem Unterricht einmal ab, wer da war, statt es bei jedem
+          einzeln nachzutragen.</p>
+      </div>
+
       <form class="formular abstand-oben" method="post"
             action="/portal/fahrlehrer/fahrschueler/<%= student.id %>/theorie">
-
-        <div class="feld">
-          <span class="feld-titel">Besuchte Lektionen</span>
-          <div class="lektionen">
-            <% content.theoryLessons.forEach(function (lektion) { %>
-              <label class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
-                <input type="checkbox" name="theoryDone" value="<%= lektion.no %>"
-                       <%= stand.theorie.besucht.includes(lektion.no) ? 'checked' : '' %>>
-                <span class="nr"><%= lektion.no %></span>
-                <span class="titel"><%= lektion.title %></span>
-              </label>
-            <% }); %>
-          </div>
-        </div>
 
         <div class="feld-reihe">
           <div class="feld">
@@ -214,7 +216,7 @@
             anders als die Notizen an den einzelnen Fahrstunden.</span>
         </div>
 
-        <button class="btn btn-dunkel" type="submit">Theoriestand speichern</button>
+        <button class="btn btn-dunkel" type="submit">Prüfungsstand und Notiz speichern</button>
       </form>
     </div>
   </div>

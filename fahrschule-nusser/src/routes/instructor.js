@@ -30,6 +30,11 @@ function artName(type) {
   return fahrt ? fahrt.label : type;
 }
 
+function ortName(id) {
+  const ort = content.locations.find((o) => o.id === id);
+  return ort ? ort.name : '';
+}
+
 function instructorName(id) {
   const user = id ? db.getUser(id) : null;
   return user ? `${user.firstName} ${user.lastName}` : 'nicht vermerkt';
@@ -57,6 +62,10 @@ router.get('/', (req, res) => {
 
   res.render('instructor/dashboard', basis('Meine Fahrschüler', {
     studenten,
+    // Vergangene Termine, deren Anwesenheitsliste noch niemand geführt hat
+    offeneListen: db.getPastTheorySessions()
+      .filter((t) => db.getAttendanceForSession(t.id).length === 0)
+      .map((t) => ({ ...t, ortName: ortName(t.locationId) })),
     meineHeute: db.getLessons().filter(
       (l) => l.instructorId === req.user.id && l.date === new Date().toISOString().slice(0, 10)
     ).length,
@@ -64,6 +73,90 @@ router.get('/', (req, res) => {
     hinweis: req.query.hinweis || null,
     fehler: req.query.fehler || null,
   }));
+});
+
+// ---------- Theorietermine: Anwesenheit abhaken ----------
+
+router.get('/theorie', (req, res) => {
+  const termine = db.getPastTheorySessions().map((t) => {
+    const anwesend = db.getAttendanceForSession(t.id).length;
+    return {
+      ...t,
+      ortName: ortName(t.locationId),
+      angemeldet: db.getBookingsForSession(t.id).length,
+      anwesend,
+      // Solange niemand eingetragen ist, wurde die Liste noch nicht geführt
+      erfasst: anwesend > 0,
+    };
+  });
+
+  res.render('instructor/theorie', basis('Anwesenheit', {
+    termine,
+    kommende: db.getUpcomingTheorySessions().slice(0, 3).map((t) => ({
+      ...t,
+      ortName: ortName(t.locationId),
+    })),
+    hinweis: req.query.hinweis || null,
+    fehler: req.query.fehler || null,
+  }));
+});
+
+router.get('/theorie/:id', (req, res) => {
+  const termin = db.getTheorySession(req.params.id);
+  if (!termin) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, 'Diesen Termin gibt es nicht mehr.');
+  }
+
+  const angemeldet = new Set(db.getBookingsForSession(termin.id).map((b) => b.studentId));
+  const anwesend = new Set(db.getAttendanceForSession(termin.id).map((a) => a.studentId));
+  // Wurde die Liste noch nie geführt, sind die Angemeldeten vorausgewählt -
+  // das ist der häufigste Fall und spart Klicks.
+  const erfasst = anwesend.size > 0;
+
+  const teilnehmer = db.getStudents().map((s) => {
+    // Hat der Fahrschüler diese Lektion schon woanders besucht? Die
+    // Einträge dieses Termins zählen dabei nicht mit - sonst stünde der
+    // Hinweis bei jedem, den man gerade abgehakt hat.
+    const anderswo = db.getAttendanceForStudent(s.id)
+      .filter((a) => a.sessionId !== termin.id)
+      .map((a) => Number(a.lessonNo));
+    const uebertrag = progress.berechne(s).theorie.uebertrag;
+
+    return {
+      ...s,
+      angemeldet: angemeldet.has(s.id),
+      anwesend: erfasst ? anwesend.has(s.id) : angemeldet.has(s.id),
+      schonBesucht: termin.lessonNo
+        ? anderswo.includes(termin.lessonNo) || uebertrag.includes(termin.lessonNo)
+        : false,
+    };
+  });
+
+  // Angemeldete zuerst, der Rest darunter für spontane Teilnehmer
+  teilnehmer.sort((a, b) => (b.angemeldet ? 1 : 0) - (a.angemeldet ? 1 : 0));
+
+  res.render('instructor/anwesenheit', basis('Anwesenheitsliste', {
+    termin: { ...termin, ortName: ortName(termin.locationId) },
+    teilnehmer,
+    erfasst,
+    anzahlAngemeldet: angemeldet.size,
+    hinweis: req.query.hinweis || null,
+    fehler: req.query.fehler || null,
+  }));
+});
+
+router.post('/theorie/:id', (req, res) => {
+  const anwesend = [].concat(req.body.anwesend || []);
+  const ergebnis = db.setAttendance(req.params.id, anwesend, req.user.id);
+
+  if (ergebnis.error) {
+    return zurueck(res, '/portal/fahrlehrer/theorie', null, ergebnis.error);
+  }
+
+  const termin = db.getTheorySession(req.params.id);
+  const lektion = termin && termin.lessonNo ? ` Lektion ${termin.lessonNo} zählt jetzt für sie.` : '';
+  zurueck(res, '/portal/fahrlehrer/theorie',
+    `Anwesenheit gespeichert: ${ergebnis.anzahl} ${ergebnis.anzahl === 1 ? 'Person war' : 'Personen waren'} da.${lektion}`);
 });
 
 // ---------- Ein Fahrschüler: Fahrstunden eintragen ----------
@@ -117,14 +210,15 @@ router.post('/fahrschueler/:id/theorie', (req, res) => {
     return zurueck(res, '/portal/fahrlehrer', null, 'Dieser Fahrschüler wurde nicht gefunden.');
   }
 
+  // Bewusst ohne theoryDone: welche Lektionen besucht wurden, ergibt sich
+  // aus den Anwesenheitslisten der Termine, nicht aus Einzel-Abhaken.
   db.updateProgress(req.params.id, {
-    theoryDone: req.body.theoryDone || [],
     theoryExam: req.body.theoryExam,
     practicalExam: req.body.practicalExam,
     note: req.body.note,
   });
 
-  zurueck(res, ziel, 'Theoriestand gespeichert.');
+  zurueck(res, ziel, 'Gespeichert.');
 });
 
 router.post('/fahrstunde/:id/loeschen', (req, res) => {

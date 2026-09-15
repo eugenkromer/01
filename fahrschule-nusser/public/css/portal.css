@@ -486,3 +486,51 @@ td form { display: inline; }
   }
   .marker { border: 1px solid currentColor; }
 }
+
+/* ---------- Anwesenheitsliste ---------- */
+
+.anwesenheit-liste {
+  display: grid;
+  gap: 8px;
+}
+
+.anwesenheit-zeile {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 13px 16px;
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.anwesenheit-zeile:hover { border-color: var(--blau-600); }
+
+/* Größere Kästchen: Die Liste wird oft am Handy stehend abgehakt. */
+.anwesenheit-zeile input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--gruen);
+}
+
+.anwesenheit-name { line-height: 1.35; }
+.anwesenheit-name small {
+  display: block;
+  font-size: .83rem;
+  color: var(--text-mute);
+}
+
+/* Wer da war, wird grün hinterlegt - auf einen Blick erkennbar, wen man
+   schon abgehakt hat. */
+.anwesenheit-zeile.da {
+  background: var(--gruen-soft);
+  border-color: #bde3d1;
+}
+.anwesenheit-zeile.da .anwesenheit-name strong { color: #14603f; }
+
+@media print {
+  .anwesenheit-zeile { break-inside: avoid; }
+}

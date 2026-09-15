@@ -161,6 +161,7 @@ function deleteStudent(id) {
   saveDocuments(getDocuments().filter((d) => d.studentId !== id));
   saveLessons(getLessons().filter((l) => l.studentId !== id));
   saveInvoices(getInvoices().filter((r) => r.studentId !== id));
+  saveAttendance(getAttendance().filter((a) => a.studentId !== id));
 }
 
 function getInstructors() {
@@ -276,12 +277,28 @@ function updateTheorySession(id, data) {
   session.instructor = data.instructor !== undefined ? String(data.instructor).trim() : session.instructor;
   session.capacity = Math.max(0, Number(data.capacity) || 0);
   saveTheorySessions(sessions);
+
+  // Wurde die Lektion des Termins geändert, zählt für alle, die da
+  // waren, ab sofort die neue Lektion.
+  const eintraege = getAttendance();
+  let geaendert = false;
+  for (const eintrag of eintraege) {
+    if (eintrag.sessionId === id && eintrag.lessonNo !== session.lessonNo) {
+      eintrag.lessonNo = session.lessonNo;
+      geaendert = true;
+    }
+  }
+  if (geaendert) saveAttendance(eintraege);
+
   return session;
 }
 
 function deleteTheorySession(id) {
   saveTheorySessions(getTheorySessions().filter((s) => s.id !== id));
   saveBookings(getBookings().filter((b) => b.sessionId !== id));
+  // Mit dem Termin verschwindet auch seine Anwesenheitsliste - die
+  // besuchten Lektionen der Fahrschüler ändern sich entsprechend.
+  saveAttendance(getAttendance().filter((a) => a.sessionId !== id));
 }
 
 // ---------- Anmeldungen zu Theorieterminen ----------
@@ -404,6 +421,71 @@ function deleteLesson(id) {
   if (!lesson || lesson.invoiceId) return false; // abgerechnet bleibt bestehen
   saveLessons(getLessons().filter((l) => l.id !== id));
   return true;
+}
+
+// ---------- Anwesenheit im Theorieunterricht ----------
+// Der Fahrlehrer geht nach dem Unterricht die Liste durch und hakt ab,
+// wer da war. Daraus ergibt sich, welche Pflichtlektionen ein
+// Fahrschüler besucht hat - niemand muss das pro Person nachtragen.
+
+function getAttendance() {
+  return readJSON('attendance', []);
+}
+
+function saveAttendance(eintraege) {
+  writeJSON('attendance', eintraege);
+}
+
+function getAttendanceForSession(sessionId) {
+  return getAttendance().filter((a) => a.sessionId === sessionId);
+}
+
+function getAttendanceForStudent(studentId) {
+  return getAttendance().filter((a) => a.studentId === studentId);
+}
+
+// Speichert die Anwesenheitsliste eines Termins neu. Die übergebenen
+// Fahrschüler waren da, alle anderen nicht - eine Korrektur der Liste
+// wirkt sich damit sauber in beide Richtungen aus.
+function setAttendance(sessionId, studentIds, recordedBy) {
+  const session = getTheorySession(sessionId);
+  if (!session) return { error: 'Diesen Termin gibt es nicht mehr.' };
+
+  const gueltig = new Set(getStudents().map((s) => s.id));
+  const anwesend = [...new Set(studentIds || [])].filter((id) => gueltig.has(id));
+
+  const uebrige = getAttendance().filter((a) => a.sessionId !== sessionId);
+  const jetzt = new Date().toISOString();
+
+  for (const studentId of anwesend) {
+    uebrige.push({
+      id: crypto.randomUUID(),
+      sessionId,
+      studentId,
+      lessonNo: session.lessonNo || null,
+      recordedBy: recordedBy || null,
+      recordedAt: jetzt,
+    });
+  }
+
+  saveAttendance(uebrige);
+  return { anzahl: anwesend.length };
+}
+
+// Welche Pflichtlektionen hat ein Fahrschüler laut Anwesenheitslisten besucht?
+function getAttendedLessons(studentId) {
+  const nummern = getAttendanceForStudent(studentId)
+    .map((a) => Number(a.lessonNo))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  return [...new Set(nummern)].sort((a, b) => a - b);
+}
+
+// Termine, die schon stattgefunden haben - für sie wird die Liste geführt.
+function getPastTheorySessions() {
+  const jetzt = new Date().toISOString();
+  return getTheorySessions()
+    .filter((s) => s.startsAt <= jetzt)
+    .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
 }
 
 // ---------- Dokumente (global oder für einen Fahrschüler) ----------
@@ -714,6 +796,12 @@ module.exports = {
   createTheorySession,
   updateTheorySession,
   deleteTheorySession,
+  getAttendance,
+  getAttendanceForSession,
+  getAttendanceForStudent,
+  getAttendedLessons,
+  setAttendance,
+  getPastTheorySessions,
   getBookings,
   getBookingsForSession,
   getBookingsForStudent,

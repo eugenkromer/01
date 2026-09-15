@@ -15,7 +15,12 @@
         <p><%= f.formatDate(termin.startsAt) %>, <%= f.formatTime(termin.startsAt) %><% if (termin.ortName) { %>
           · <%= termin.ortName %><% } %></p>
       </div>
-      <button class="btn btn-hell btn-klein" type="button" onclick="window.print()">Liste drucken</button>
+      <div class="reihe">
+        <a class="btn btn-primaer btn-klein" href="/portal/fahrlehrer/theorie/<%= termin.id %>">
+          Anwesenheit abhaken
+        </a>
+        <button class="btn btn-hell btn-klein" type="button" onclick="window.print()">Liste drucken</button>
+      </div>
     </div>
 
     <div class="portal-block">
@@ -56,8 +61,9 @@
             </tbody>
           </table>
         </div>
-        <p class="klein mute abstand-oben">Die Anwesenheit hakst du auf dem Ausdruck ab und trägst
-          die besuchte Lektion anschließend beim jeweiligen Fahrschüler ein.</p>
+        <p class="klein mute abstand-oben">Diese Liste ist zum Mitnehmen gedacht. Abgehakt wird
+          anschließend unter <a href="/portal/fahrlehrer/theorie/<%= termin.id %>">Anwesenheit</a> –
+          die Lektion des Termins zählt dann automatisch für alle, die da waren.</p>
       <% } %>
     </div>
   </div>

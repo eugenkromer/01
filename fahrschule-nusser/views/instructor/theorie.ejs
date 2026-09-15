@@ -1,0 +1,86 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Anwesenheit</h1>
+        <p>Nach dem Unterricht die Liste durchgehen und abhaken, wer da war.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Vergangene Termine</h2>
+      <p class="block-info">Die Lektion des Termins zählt für alle, die du abhakst.</p>
+
+      <% if (termine.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">📋</div>
+          <p>Es hat noch kein Theorieunterricht stattgefunden.</p>
+        </div>
+      <% } else { %>
+        <% termine.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+
+            <div class="termin-info">
+              <h3>
+                <%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %>
+                <% if (t.erfasst) { %>
+                  <span class="marker gruen"><%= t.anwesend %> anwesend</span>
+                <% } else { %>
+                  <span class="marker">noch offen</span>
+                <% } %>
+              </h3>
+              <div class="meta">
+                <%= f.formatDate(t.startsAt) %>, <%= f.formatTime(t.startsAt) %>
+                <% if (t.ortName) { %> · <%= t.ortName %><% } %>
+                · <%= t.angemeldet %> angemeldet
+              </div>
+            </div>
+
+            <div class="termin-aktion">
+              <a class="btn <%= t.erfasst ? 'btn-hell' : 'btn-primaer' %> btn-klein"
+                 href="/portal/fahrlehrer/theorie/<%= t.id %>">
+                <%= t.erfasst ? 'Liste ändern' : 'Liste führen' %>
+              </a>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <% if (kommende.length > 0) { %>
+      <div class="portal-block">
+        <h2>Kommende Termine</h2>
+        <p class="block-info">Die Liste lässt sich führen, sobald der Unterricht stattgefunden hat.</p>
+        <% kommende.forEach(function (t) { %>
+          <div class="termin">
+            <div class="termin-datum">
+              <span class="tag"><%= new Date(t.startsAt).getDate() %></span>
+              <span class="monat"><%= f.formatDate(t.startsAt).split(' ')[2].slice(0, 3) %></span>
+            </div>
+            <div class="termin-info">
+              <h3><%= t.lessonNo ? 'Lektion ' + t.lessonNo + ': ' : '' %><%= t.topic %></h3>
+              <div class="meta">
+                <%= f.formatDate(t.startsAt) %>, <%= f.formatTime(t.startsAt) %>
+                <% if (t.ortName) { %> · <%= t.ortName %><% } %>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

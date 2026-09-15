@@ -47,6 +47,25 @@ function unterrichtstag(n, stunde, minute = 0) {
   return datum;
 }
 
+// Liefert den n-ten Unterrichtstag rückwärts ab gestern.
+function vergangenerUnterrichtstag(n, stunde, minute = 0) {
+  const datum = new Date();
+  datum.setHours(stunde, minute, 0, 0);
+  let gefunden = 0;
+  while (gefunden < n) {
+    datum.setDate(datum.getDate() - 1);
+    const wochentag = datum.getDay();
+    if (wochentag >= 1 && wochentag <= 4) gefunden += 1;
+  }
+  return datum;
+}
+
+function vergangenerTermin(n, stunde, dauerMinuten = 150) {
+  const beginn = vergangenerUnterrichtstag(n, stunde);
+  const ende = new Date(beginn.getTime() + dauerMinuten * 60 * 1000);
+  return { startsAt: formatiere(beginn), endsAt: formatiere(ende) };
+}
+
 function termin(n, stunde, dauerMinuten = 150) {
   const beginn = unterrichtstag(n, stunde);
   const ende = new Date(beginn.getTime() + dauerMinuten * 60 * 1000);
@@ -88,6 +107,24 @@ function anlegen() {
     })
   );
 
+  // ---------- Bereits gehaltene Theorietermine ----------
+  // Zwei davon haben eine geführte Anwesenheitsliste, einer noch nicht -
+  // so lässt sich in der Vorführung beides zeigen.
+  const vergangeneTermine = [
+    { tag: 2, lessonNo: 1, topic: 'Persönliche Voraussetzungen, Risikofaktoren', ort: 'borchener-strasse' },
+    { tag: 4, lessonNo: 2, topic: 'Rechtliche Rahmenbedingungen',                ort: 'borchener-strasse' },
+    { tag: 1, lessonNo: 3, topic: 'Straßenverkehrssystem und seine Nutzung',     ort: 'borchener-strasse' },
+  ].map((t) =>
+    db.createTheorySession({
+      ...vergangenerTermin(t.tag, 18),
+      locationId: t.ort,
+      lessonNo: t.lessonNo,
+      topic: t.topic,
+      instructor: 'M. Nusser',
+      capacity: 18,
+    })
+  );
+
   // ---------- Fahrlehrer ----------
   const fahrlehrerDaten = [
     { firstName: 'Mathias', lastName: 'Nusser',   email: 'mathias.nusser@beispiel.de',  phone: '05251 74752', classes: 'B, BE, B96, A' },
@@ -105,7 +142,7 @@ function anlegen() {
       firstName: 'Lena', lastName: 'Brinkmann', email: 'lena.brinkmann@beispiel.de',
       phone: '0151 2345678', licenseClass: 'B', locationId: 'borchener-strasse',
       fortschritt: {
-        theoryDone: [1, 2, 3, 4, 5, 6, 7, 8, 9], drivingLessons: 18,
+        theoryDone: [4, 5, 6, 7, 8, 9], drivingLessons: 18,
         special: { ueberland: 5, autobahn: 4, nacht: 1 },
         theoryExam: 'bestanden', practicalExam: 'angemeldet',
         note: 'Nur noch zwei Nachtfahrten, dann bist du startklar. Sehr sicher unterwegs!',
@@ -126,7 +163,7 @@ function anlegen() {
       firstName: 'Jonas', lastName: 'Weber', email: 'jonas.weber@beispiel.de',
       phone: '0160 9876543', licenseClass: 'BF17', locationId: 'borchener-strasse',
       fortschritt: {
-        theoryDone: [1, 2, 3, 4], drivingLessons: 6,
+        theoryDone: [4], drivingLessons: 6,
         special: { ueberland: 0, autobahn: 0, nacht: 0 },
         theoryExam: 'angemeldet', practicalExam: 'offen',
         note: 'Denk bitte an die Unterschrift deiner Eltern für die Begleitperson.',
@@ -142,7 +179,7 @@ function anlegen() {
       firstName: 'Merve', lastName: 'Yilmaz', email: 'merve.yilmaz@beispiel.de',
       phone: '0171 5556677', licenseClass: 'A2', locationId: 'elsen',
       fortschritt: {
-        theoryDone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], drivingLessons: 24,
+        theoryDone: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], drivingLessons: 24,
         special: { ueberland: 5, autobahn: 4, nacht: 3 },
         theoryExam: 'bestanden', practicalExam: 'bestanden',
         note: 'Herzlichen Glückwunsch zur bestandenen Prüfung!',
@@ -158,7 +195,7 @@ function anlegen() {
       firstName: 'Paul', lastName: 'Schäfer', email: 'paul.schaefer@beispiel.de',
       phone: '0152 1112233', licenseClass: 'B', locationId: 'kaukenberg',
       fortschritt: {
-        theoryDone: [1, 2], drivingLessons: 0,
+        theoryDone: [], drivingLessons: 0,
         special: { ueberland: 0, autobahn: 0, nacht: 0 },
         theoryExam: 'offen', practicalExam: 'offen',
         note: '',
@@ -199,6 +236,20 @@ function anlegen() {
       anzahlFahrstunden += 1;
     }
     angelegtePersonen.push(student);
+  }
+
+  // ---------- Anwesenheit der gehaltenen Termine ----------
+  // Lena und Merve waren bei beiden dabei, Jonas nur beim ersten.
+  // Der dritte Termin bleibt bewusst ohne Liste.
+  let anzahlAnwesenheit = 0;
+  if (angelegtePersonen.length >= 3 && vergangeneTermine.length >= 2) {
+    const [lena, jonas, merve] = angelegtePersonen;
+    const eintragen = (termin, personen) => {
+      const ergebnis = db.setAttendance(termin.id, personen.map((p) => p.id), fahrlehrer[0] ? fahrlehrer[0].id : null);
+      anzahlAnwesenheit += ergebnis.anzahl || 0;
+    };
+    eintragen(vergangeneTermine[0], [lena, jonas, merve]);
+    eintragen(vergangeneTermine[1], [lena, merve]);
   }
 
   // ---------- Eine bezahlte und eine offene Rechnung ----------
@@ -282,7 +333,8 @@ function anlegen() {
 
   console.log('');
   console.log('Beispieldaten angelegt:');
-  console.log(`  ${angelegteTermine.length} Theorietermine`);
+  console.log(`  ${angelegteTermine.length} kommende und ${vergangeneTermine.length} gehaltene Theorietermine`);
+  console.log(`  ${anzahlAnwesenheit} Anwesenheitseinträge (eine Liste noch offen)`);
   console.log(`  ${fahrlehrer.length} Fahrlehrer`);
   console.log(`  ${angelegtePersonen.length} Fahrschüler`);
   console.log(`  ${anzahlFahrstunden} Fahrstunden, ${anzahlRechnungen} Rechnungen`);

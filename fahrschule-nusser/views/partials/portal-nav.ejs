@@ -11,6 +11,7 @@
   <% } else if (currentUser.role === 'instructor') { %>
     <div class="portal-nav-titel">Fahrlehrer</div>
     <a href="/portal/fahrlehrer" class="<%= currentPath === '/portal/fahrlehrer' ? 'aktiv' : '' %>">Meine Fahrschüler</a>
+    <a href="/portal/fahrlehrer/theorie" class="<%= currentPath.startsWith('/portal/fahrlehrer/theorie') ? 'aktiv' : '' %>">Anwesenheit</a>
     <a href="/portal/profil" class="<%= currentPath === '/portal/profil' ? 'aktiv' : '' %>">Meine Daten</a>
 
   <% } else { %>
@@ -24,7 +25,8 @@
     <a href="/portal/verwaltung/dokumente" class="<%= currentPath === '/portal/verwaltung/dokumente' ? 'aktiv' : '' %>">Unterlagen</a>
     <a href="/portal/verwaltung/mitteilungen" class="<%= currentPath === '/portal/verwaltung/mitteilungen' ? 'aktiv' : '' %>">Mitteilungen</a>
     <div class="trenner"></div>
-    <a href="/portal/fahrlehrer" class="<%= currentPath.startsWith('/portal/fahrlehrer') ? 'aktiv' : '' %>">Fahrstunden eintragen</a>
+    <a href="/portal/fahrlehrer" class="<%= currentPath === '/portal/fahrlehrer' ? 'aktiv' : '' %>">Fahrstunden eintragen</a>
+    <a href="/portal/fahrlehrer/theorie" class="<%= currentPath.startsWith('/portal/fahrlehrer/theorie') ? 'aktiv' : '' %>">Anwesenheit</a>
   <% } %>
 
   <div class="trenner"></div>
