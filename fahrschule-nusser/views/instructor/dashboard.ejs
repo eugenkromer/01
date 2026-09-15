@@ -20,8 +20,8 @@
 
     <div class="portal-block">
       <h2>Fahrschüler</h2>
-      <p class="block-info">Deine eigenen stehen oben – du kannst aber bei allen eintragen,
-        etwa wenn du jemanden vertrittst.</p>
+      <p class="block-info">Namen antippen, um Fahrstunden einzutragen. Deine eigenen stehen
+        oben – du kannst aber bei allen eintragen, etwa wenn du jemanden vertrittst.</p>
 
       <% if (studenten.length === 0) { %>
         <div class="leer">
@@ -29,38 +29,44 @@
           <p>Es ist noch kein Fahrschüler angelegt.</p>
         </div>
       <% } else { %>
-        <div class="tabelle-rahmen">
-          <table>
-            <thead>
-              <tr><th>Name</th><th>Klasse</th><th>Übungsstunden</th><th>Sonderfahrten</th>
-                <th>Letzte Fahrstunde</th><th></th></tr>
-            </thead>
-            <tbody>
-              <% studenten.forEach(function (s) { %>
-                <tr>
-                  <td>
-                    <strong><%= s.firstName %> <%= s.lastName %></strong>
-                    <% if (s.meiner) { %><br><span class="marker blau">mein Fahrschüler</span><% } %>
-                  </td>
-                  <td class="nowrap"><%= s.licenseClass %></td>
-                  <td class="nowrap"><%= s.stand.fahrstunden %></td>
-                  <td class="nowrap"><%= s.stand.sonderGesamt.ist %> / <%= s.stand.sonderGesamt.soll %></td>
-                  <td class="klein nowrap">
-                    <% if (s.letzteFahrstunde) { %>
-                      <%= f.formatDateShort(s.letzteFahrstunde.date) %><br>
-                      <span class="mute"><%= artName(s.letzteFahrstunde.type) %></span>
-                    <% } else { %>
-                      <span class="mute">noch keine</span>
-                    <% } %>
-                  </td>
-                  <td>
-                    <a class="btn btn-primaer btn-klein"
-                       href="/portal/fahrlehrer/fahrschueler/<%= s.id %>">Fahrstunde eintragen</a>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
+
+        <div class="suchleiste">
+          <label class="sr-nur" for="suche">Fahrschüler suchen</label>
+          <input type="search" id="suche" placeholder="Namen suchen …"
+                 autocomplete="off"
+                 data-sucht-in="#schuelerliste"
+                 data-leer-hinweis="#nichts-gefunden">
+          <span class="suche-zaehler" data-suche-zaehler></span>
+        </div>
+
+        <div class="schueler-liste" id="schuelerliste">
+          <% studenten.forEach(function (s) { %>
+            <a class="schueler-karte" href="/portal/fahrlehrer/fahrschueler/<%= s.id %>"
+               data-suche="<%= s.firstName %> <%= s.lastName %> <%= s.licenseClass %> <%= s.email %>">
+              <div class="schueler-name">
+                <strong><%= s.lastName %>, <%= s.firstName %></strong>
+                <% if (s.meiner) { %><span class="marker blau">mein Fahrschüler</span><% } %>
+              </div>
+
+              <div class="schueler-werte">
+                <span><span class="bez">Klasse</span><%= s.licenseClass %></span>
+                <span><span class="bez">Übungsstunden</span><%= s.stand.fahrstunden %></span>
+                <span><span class="bez">Sonderfahrten</span>
+                  <%= s.stand.sonderGesamt.ist %> / <%= s.stand.sonderGesamt.soll %></span>
+                <span><span class="bez">Letzte Fahrt</span>
+                  <% if (s.letzteFahrstunde) { %>
+                    <%= f.formatDateShort(s.letzteFahrstunde.date) %>
+                  <% } else { %>–<% } %>
+                </span>
+              </div>
+
+              <span class="pfeil" aria-hidden="true">›</span>
+            </a>
+          <% }); %>
+        </div>
+
+        <div class="leer" id="nichts-gefunden" hidden>
+          <p>Kein Fahrschüler mit diesem Namen.</p>
         </div>
       <% } %>
     </div>

@@ -82,6 +82,11 @@ Jeder Standort wird von seinen Fahrlehrern selbst verwaltet – üblicherweise s
 zwei pro Standort. Das Büro weist unter „Fahrlehrer“ zu, wer welchen Standort betreut;
 ein Fahrlehrer kann auch mehrere übernehmen.
 
+Im Fahrlehrer-Bereich steht die Liste aller Fahrschüler mit **Suchfeld**: Namen
+eintippen, die Liste filtert sofort mit (Groß- und Kleinschreibung sowie Umlaute sind
+dabei egal, „schafer" findet also auch „Schäfer"). Ein Tippen auf den Namen führt
+direkt zur Seite, auf der die Fahrstunden eingetragen werden.
+
 Für die eigenen Standorte darf ein Fahrlehrer:
 
 - **Theorietermine festlegen**, ändern und löschen – also bestimmen, wann welches Thema
@@ -99,13 +104,20 @@ anlegen; die Seiten sagen ihm das und verweisen aufs Büro.
 
 #### Anwesenheit im Theorieunterricht
 
-Nach dem Unterricht geht der Fahrlehrer unter „Anwesenheit" den Termin durch und hakt
-ab, wer da war. Die Lektion dieses Termins zählt damit für alle Abgehakten – niemand
-muss sie bei jedem Fahrschüler einzeln nachtragen.
+Zu Beginn des Unterrichts geht der Fahrlehrer den Termin durch und hakt ab, wer da
+ist. Die Lektion dieses Termins zählt damit für alle Abgehakten – niemand muss sie
+bei jedem Fahrschüler einzeln nachtragen.
+
+Auf der Liste stehen **die Fahrschüler des Standorts**, an dem der Unterricht
+stattfindet – nicht alle der Fahrschule. Dazu kommen alle, die sich für genau diesen
+Termin angemeldet haben, auch wenn sie sonst zu einem anderen Standort gehören; sie
+sind entsprechend gekennzeichnet, damit niemand aus der Liste fällt, der extra
+gekommen ist. Ab sechs Namen erscheint ein Suchfeld. Dass nur der eigene Standort
+zählt, prüft auch der Server: Wer nicht auf der Liste stehen dürfte, lässt sich auch
+über einen manipulierten Aufruf nicht abhaken.
 
 Die angemeldeten Fahrschüler sind vorausgewählt, weil das der häufigste Fall ist. Wer
-spontan dazukommt, steht darunter und wird einfach mit abgehakt; wer trotz Anmeldung
-gefehlt hat, wird abgewählt. Zwei Schaltflächen wählen alle oder keinen aus, und wer
+trotz Anmeldung gefehlt hat, wird abgewählt. Zwei Schaltflächen wählen alle oder keinen aus, und wer
 abgehakt ist, wird grün hinterlegt – das lässt sich auch im Stehen am Handy bedienen.
 
 Die Liste ist jederzeit korrigierbar: Beim Speichern gilt genau, wer angehakt ist.

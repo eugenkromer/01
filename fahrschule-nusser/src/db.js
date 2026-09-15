@@ -479,7 +479,14 @@ function setAttendance(sessionId, studentIds, recordedBy) {
   const session = getTheorySession(sessionId);
   if (!session) return { error: 'Diesen Termin gibt es nicht mehr.' };
 
-  const gueltig = new Set(getStudents().map((s) => s.id));
+  // Nur Fahrschüler des Standorts oder für diesen Termin Angemeldete -
+  // dieselbe Auswahl, die auch angezeigt wird.
+  const angemeldet = new Set(getBookingsForSession(sessionId).map((b) => b.studentId));
+  const gueltig = new Set(
+    getStudents()
+      .filter((s) => !session.locationId || s.locationId === session.locationId || angemeldet.has(s.id))
+      .map((s) => s.id)
+  );
   const anwesend = [...new Set(studentIds || [])].filter((id) => gueltig.has(id));
 
   const uebrige = getAttendance().filter((a) => a.sessionId !== sessionId);

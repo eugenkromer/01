@@ -933,3 +933,118 @@ td form { display: inline; }
   .rechnung-tabelle th,
   .rechnung-tabelle td { padding: 7px 3px; }
 }
+
+/* ---------- Suchleiste ---------- */
+
+/* Nur für Screenreader sichtbar - die Beschriftung des Suchfelds */
+.sr-nur {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.suchleiste {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.suchleiste input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 15px;
+  border: 1px solid var(--linie);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: #fff;
+}
+.suchleiste input:focus {
+  outline: none;
+  border-color: var(--blau-600);
+  box-shadow: 0 0 0 3px var(--blau-100);
+}
+.suche-zaehler {
+  font-size: .85rem;
+  color: var(--text-mute);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 520px) {
+  .suche-zaehler { display: none; }
+}
+
+/* ---------- Fahrschüler als antippbare Karten ---------- */
+
+.schueler-liste { display: grid; gap: 8px; }
+
+.schueler-karte {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--linie);
+  border-radius: 11px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .12s, transform .12s;
+}
+.schueler-karte:hover {
+  border-color: var(--blau-600);
+  color: inherit;
+  transform: translateX(2px);
+}
+
+.schueler-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.schueler-name strong { font-size: 1rem; }
+
+/* Als Raster statt frei fließend: So bleibt jede Beschriftung über
+   ihrem Wert, statt beim Umbruch gegeneinander zu verrutschen. */
+.schueler-werte {
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  justify-content: start;
+  gap: 4px 22px;
+  font-size: .86rem;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+.schueler-werte .bez {
+  display: block;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-mute);
+  opacity: .75;
+}
+.schueler-werte > span { line-height: 1.3; }
+
+.schueler-karte .pfeil {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  color: var(--text-mute);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .schueler-karte { padding: 12px 14px; }
+  /* Auf dem Handy zwei Paare nebeneinander - vier wären zu gedrängt. */
+  .schueler-werte {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    font-size: .82rem;
+  }
+}

@@ -197,7 +197,7 @@ function anlegen() {
     },
     {
       firstName: 'Paul', lastName: 'Schäfer', email: 'paul.schaefer@beispiel.de',
-      phone: '0152 1112233', licenseClass: 'B', locationId: 'kaukenberg',
+      phone: '0152 1112233', licenseClass: 'B', locationId: 'borchener-strasse',
       fortschritt: {
         theoryDone: [], drivingLessons: 0,
         special: { ueberland: 0, autobahn: 0, nacht: 0 },
@@ -208,6 +208,36 @@ function anlegen() {
       lehrer: 1,
       fahrstunden: [],
     },
+    // Weitere Fahrschüler, damit Suche und Standortverteilung in der
+    // Vorführung überhaupt sichtbar werden.
+    ...[
+      ['Emma',   'Wagner',   'B',    'borchener-strasse', 0],
+      ['Luis',   'Becker',   'BF17', 'borchener-strasse', 1],
+      ['Mia',    'Hoffmann', 'B',    'borchener-strasse', 0],
+      ['Noah',   'Schulz',   'A2',   'elsen',             2],
+      ['Leni',   'Fischer',  'B',    'elsen',             3],
+      ['Ben',    'Koch',     'B',    'elsen',             2],
+      ['Ida',    'Wolf',     'BF17', 'elsen',             3],
+      ['Finn',   'Richter',  'B',    'kaukenberg',        0],
+    ].map(([vorname, nachname, klasse, ort, lehrer], i) => ({
+      firstName: vorname,
+      lastName: nachname,
+      email: vorname.toLowerCase() + '.' + nachname.toLowerCase().replace(/[äöü]/g, 'e') + '@beispiel.de',
+      phone: '0151 ' + (1000000 + i * 37),
+      licenseClass: klasse,
+      locationId: ort,
+      fortschritt: {
+        theoryDone: [], drivingLessons: i % 5,
+        special: { ueberland: 0, autobahn: 0, nacht: 0 },
+        theoryExam: 'offen', practicalExam: 'offen',
+        note: '',
+      },
+      buchungen: i % 3 === 0 ? [0] : [],
+      lehrer,
+      fahrstunden: i % 2 === 0
+        ? [{ vorTagen: 4 + i, units: 1, type: 'uebung', note: '' }]
+        : [],
+    })),
   ];
 
   const angelegtePersonen = [];

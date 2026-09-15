@@ -198,7 +198,16 @@ router.get('/theorie/:id', (req, res) => {
   // das ist der häufigste Fall und spart Klicks.
   const erfasst = anwesend.size > 0;
 
-  const teilnehmer = db.getStudents().map((s) => {
+  // Zur Liste gehören die Fahrschüler dieses Standorts. Dazu kommen alle,
+  // die sich für genau diesen Termin angemeldet haben oder bereits als
+  // anwesend eingetragen sind - wer sich aus einem anderen Standort
+  // angemeldet hat, soll nicht aus der Liste fallen.
+  const gehoertDazu = (s) =>
+    (termin.locationId && s.locationId === termin.locationId)
+    || angemeldet.has(s.id)
+    || anwesend.has(s.id);
+
+  const teilnehmer = db.getStudents().filter(gehoertDazu).map((s) => {
     // Hat der Fahrschüler diese Lektion schon woanders besucht? Die
     // Einträge dieses Termins zählen dabei nicht mit - sonst stünde der
     // Hinweis bei jedem, den man gerade abgehakt hat.
@@ -214,6 +223,8 @@ router.get('/theorie/:id', (req, res) => {
       schonBesucht: termin.lessonNo
         ? anderswo.includes(termin.lessonNo) || uebertrag.includes(termin.lessonNo)
         : false,
+      // Steht nur auf der Liste, weil er sich angemeldet hat
+      fremderStandort: Boolean(termin.locationId) && s.locationId !== termin.locationId,
     };
   });
 
@@ -225,6 +236,9 @@ router.get('/theorie/:id', (req, res) => {
     teilnehmer,
     erfasst,
     anzahlAngemeldet: angemeldet.size,
+    // Wie viele Fahrschüler gehören zu anderen Standorten und stehen
+    // deshalb nicht auf der Liste?
+    andereStandorte: db.getStudents().length - teilnehmer.length,
     hinweis: req.query.hinweis || null,
     fehler: req.query.fehler || null,
   }));

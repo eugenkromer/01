@@ -45,9 +45,23 @@
             Theoriestand der Fahrschüler aus.
           <% } else { %>
             Die angemeldeten Fahrschüler sind vorausgewählt. Hake ab, wer tatsächlich
-            da war – auch wer sich nicht angemeldet hatte.
+            da war.
+          <% } %>
+          <% if (termin.ortName) { %>
+            Aufgeführt sind die Fahrschüler von <strong><%= termin.ortName %></strong><% if (andereStandorte > 0) { %>
+            – <%= andereStandorte %> weitere gehören zu anderen Standorten und stehen
+            deshalb nicht auf der Liste<% } %>.
           <% } %>
         </p>
+
+        <% if (teilnehmer.length > 5) { %>
+          <div class="suchleiste">
+            <label class="sr-nur" for="suche">Fahrschüler suchen</label>
+            <input type="search" id="suche" placeholder="Namen suchen …" autocomplete="off"
+                   data-sucht-in="#anwesenheitsliste" data-leer-hinweis="#keiner-gefunden">
+            <span class="suche-zaehler" data-suche-zaehler></span>
+          </div>
+        <% } %>
 
         <div class="reihe" style="margin-bottom: 16px">
           <button class="btn btn-hell btn-klein" type="button" data-alle="true">Alle auswählen</button>
@@ -55,23 +69,31 @@
         </div>
 
         <% if (teilnehmer.length === 0) { %>
-          <div class="leer"><p>Es ist noch kein Fahrschüler angelegt.</p></div>
+          <div class="leer">
+            <p>An diesem Standort ist noch kein Fahrschüler angemeldet.</p>
+          </div>
         <% } else { %>
-          <div class="anwesenheit-liste">
+          <div class="anwesenheit-liste" id="anwesenheitsliste">
             <% teilnehmer.forEach(function (t) { %>
-              <label class="anwesenheit-zeile <%= t.anwesend ? 'da' : '' %>">
+              <label class="anwesenheit-zeile <%= t.anwesend ? 'da' : '' %>"
+                     data-suche="<%= t.firstName %> <%= t.lastName %> <%= t.licenseClass %>">
                 <input type="checkbox" name="anwesend" value="<%= t.id %>"
                        <%= t.anwesend ? 'checked' : '' %>>
                 <span class="anwesenheit-name">
                   <strong><%= t.lastName %>, <%= t.firstName %></strong>
                   <small>
                     Klasse <%= t.licenseClass %>
-                    <% if (t.angemeldet) { %> · angemeldet<% } else { %> · nicht angemeldet<% } %>
+                    <% if (t.angemeldet) { %> · angemeldet<% } %>
+                    <% if (t.fremderStandort) { %> · anderer Standort<% } %>
                     <% if (t.schonBesucht && termin.lessonNo) { %> · Lektion schon besucht<% } %>
                   </small>
                 </span>
               </label>
             <% }); %>
+          </div>
+
+          <div class="leer" id="keiner-gefunden" hidden>
+            <p>Kein Fahrschüler mit diesem Namen auf der Liste.</p>
           </div>
         <% } %>
 
