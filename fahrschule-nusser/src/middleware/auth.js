@@ -34,4 +34,17 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { attachUser, requireLogin, requireAdmin };
+// Fahrlehrer - und die Fahrschule selbst, die alles darf, was ein
+// Fahrlehrer darf.
+function requireInstructor(req, res, next) {
+  if (!req.user) {
+    req.session.returnTo = req.originalUrl;
+    return res.redirect('/portal/login');
+  }
+  if (req.user.role !== 'instructor' && req.user.role !== 'admin') {
+    return res.status(403).render('portal/forbidden', { title: 'Kein Zugriff' });
+  }
+  next();
+}
+
+module.exports = { attachUser, requireLogin, requireAdmin, requireInstructor };

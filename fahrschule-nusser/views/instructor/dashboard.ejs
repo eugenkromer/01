@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Hallo <%= currentUser.firstName %>!</h1>
+        <p>Wähle einen Fahrschüler aus, um eine Fahrstunde einzutragen.</p>
+      </div>
+      <% if (meineHeute > 0) { %>
+        <span class="marker gruen">Heute <%= meineHeute %> Fahrstunden eingetragen</span>
+      <% } %>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Fahrschüler</h2>
+      <p class="block-info">Deine eigenen stehen oben – du kannst aber bei allen eintragen,
+        etwa wenn du jemanden vertrittst.</p>
+
+      <% if (studenten.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">👥</div>
+          <p>Es ist noch kein Fahrschüler angelegt.</p>
+        </div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Klasse</th><th>Übungsstunden</th><th>Sonderfahrten</th>
+                <th>Letzte Fahrstunde</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% studenten.forEach(function (s) { %>
+                <tr>
+                  <td>
+                    <strong><%= s.firstName %> <%= s.lastName %></strong>
+                    <% if (s.meiner) { %><br><span class="marker blau">mein Fahrschüler</span><% } %>
+                  </td>
+                  <td class="nowrap"><%= s.licenseClass %></td>
+                  <td class="nowrap"><%= s.stand.fahrstunden %></td>
+                  <td class="nowrap"><%= s.stand.sonderGesamt.ist %> / <%= s.stand.sonderGesamt.soll %></td>
+                  <td class="klein nowrap">
+                    <% if (s.letzteFahrstunde) { %>
+                      <%= f.formatDateShort(s.letzteFahrstunde.date) %><br>
+                      <span class="mute"><%= artName(s.letzteFahrstunde.type) %></span>
+                    <% } else { %>
+                      <span class="mute">noch keine</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a class="btn btn-primaer btn-klein"
+                       href="/portal/fahrlehrer/fahrschueler/<%= s.id %>">Fahrstunde eintragen</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

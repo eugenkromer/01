@@ -1,0 +1,134 @@
+<%- include('../partials/head') %>
+
+<div class="rechnung-aktionen">
+  <div class="wrap reihe" style="justify-content: space-between">
+    <a class="btn btn-hell btn-klein"
+       href="<%= currentUser.role === 'admin' ? '/portal/verwaltung/rechnungen' : '/portal/rechnungen' %>">
+      ← Zurück
+    </a>
+    <button class="btn btn-dunkel btn-klein" type="button" onclick="window.print()">
+      Drucken oder als PDF speichern
+    </button>
+  </div>
+</div>
+
+<div class="rechnung-blatt">
+
+  <div class="rechnung-kopf">
+    <div>
+      <div class="rechnung-absender">
+        <strong><%= content.business.name %></strong><br>
+        <%= content.legal.imprint.owner %><br>
+        <%= content.legal.imprint.street %><br>
+        <%= content.legal.imprint.zip %> <%= content.legal.imprint.city %>
+      </div>
+    </div>
+    <div class="rechnung-logo">
+      <% if (content.business.logo) { %>
+        <img src="<%= content.business.logo %>" alt="<%= content.business.name %>" style="max-height: 60px">
+      <% } else { %>
+        <span class="logo-mark" aria-hidden="true"><%= content.business.name.charAt(0) %></span>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="rechnung-empfaenger">
+    <% if (student) { %>
+      <%= student.firstName %> <%= student.lastName %><br>
+      <%= student.email %>
+    <% } else { %>
+      <span class="mute">Empfänger nicht mehr vorhanden</span>
+    <% } %>
+  </div>
+
+  <h1 class="rechnung-titel">Rechnung <%= rechnung.number %></h1>
+
+  <div class="rechnung-eckdaten">
+    <div><span class="bez">Rechnungsdatum</span><%= f.formatDateShort(rechnung.date) %></div>
+    <% if (rechnung.serviceInfo) { %>
+      <div><span class="bez">Leistungszeitraum</span><%= rechnung.serviceInfo %></div>
+    <% } %>
+    <div><span class="bez">Steuernummer</span><%= content.invoicing.taxNumber %></div>
+    <div>
+      <span class="bez">Status</span>
+      <% if (rechnung.status === 'bezahlt') { %>
+        <span class="marker gruen">bezahlt<% if (rechnung.paidAt) { %> am <%= f.formatDateShort(rechnung.paidAt) %><% } %></span>
+      <% } else if (rechnung.status === 'storniert') { %>
+        <span class="marker grau">storniert</span>
+      <% } else { %>
+        <span class="marker">offen</span>
+      <% } %>
+    </div>
+  </div>
+
+  <table class="rechnung-tabelle">
+    <thead>
+      <tr>
+        <th>Leistung</th>
+        <th class="rechts">Menge</th>
+        <th class="rechts">Einzelpreis</th>
+        <th class="rechts">Betrag</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% rechnung.items.forEach(function (p) { %>
+        <tr>
+          <td><%= p.label %></td>
+          <td class="rechts"><%= p.quantity %></td>
+          <td class="rechts nowrap"><%= f.formatEuro(p.unitPrice) %></td>
+          <td class="rechts nowrap"><%= f.formatEuro(p.total) %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" class="rechts">Nettobetrag</td>
+        <td class="rechts nowrap"><%= f.formatEuro(rechnung.net) %></td>
+      </tr>
+      <tr>
+        <td colspan="3" class="rechts">zzgl. <%= rechnung.vatRate %> % Umsatzsteuer</td>
+        <td class="rechts nowrap"><%= f.formatEuro(rechnung.vat) %></td>
+      </tr>
+      <tr class="summe">
+        <td colspan="3" class="rechts">Gesamtbetrag</td>
+        <td class="rechts nowrap"><%= f.formatEuro(rechnung.total) %></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <% if (rechnung.note) { %>
+    <p class="rechnung-notiz"><%= rechnung.note %></p>
+  <% } %>
+
+  <% if (rechnung.status === 'offen') { %>
+    <p class="rechnung-zahlung">
+      Bitte überweise den Betrag innerhalb von <%= content.invoicing.paymentDays %> Tagen
+      unter Angabe der Rechnungsnummer <strong><%= rechnung.number %></strong>.
+    </p>
+  <% } %>
+
+  <div class="rechnung-fuss">
+    <div>
+      <strong><%= content.business.name %></strong><br>
+      <%= content.legal.imprint.street %><br>
+      <%= content.legal.imprint.zip %> <%= content.legal.imprint.city %>
+    </div>
+    <div>
+      Telefon: <%= content.business.phone %><br>
+      <%= content.business.email %>
+    </div>
+    <div>
+      <%= content.invoicing.bankName %><br>
+      IBAN: <%= content.invoicing.iban %><br>
+      BIC: <%= content.invoicing.bic %>
+    </div>
+  </div>
+
+  <% if (content.invoicing.footerNote) { %>
+    <p class="rechnung-dank"><%= content.invoicing.footerNote %></p>
+  <% } %>
+</div>
+
+<script src="/js/todo.js"></script>
+</body>
+</html>

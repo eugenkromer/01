@@ -69,8 +69,12 @@ function emptyProgress() {
   for (const drive of content.specialDrives) special[drive.id] = 0;
   return {
     theoryDone: [], // Nummern der besuchten Pflichtlektionen
-    drivingLessons: 0, // normale Übungsstunden
-    special, // Sonderfahrten je Art
+    // Fahrstunden werden nicht mehr als Zahl gepflegt, sondern von den
+    // Fahrlehrern einzeln eingetragen (Kollektion "lessons"). Die beiden
+    // Felder hier sind nur noch der Übertrag für Fahrschüler, die schon
+    // vor der Einführung des Portals Stunden gefahren haben.
+    drivingLessons: 0,
+    special,
     theoryExam: 'offen', // offen | angemeldet | bestanden
     practicalExam: 'offen', // offen | angemeldet | bestanden
     note: '',
@@ -90,6 +94,7 @@ function createStudent(data) {
     phone: String(data.phone || '').trim(),
     licenseClass: String(data.licenseClass || 'B').trim(),
     locationId: String(data.locationId || '').trim(),
+    instructorId: data.instructorId ? String(data.instructorId) : null, // Stammfahrlehrer
     progress: emptyProgress(),
     createdAt: new Date().toISOString(),
   };
@@ -112,6 +117,9 @@ function updateStudent(id, data) {
   }
   if (data.licenseClass !== undefined) student.licenseClass = String(data.licenseClass).trim();
   if (data.locationId !== undefined) student.locationId = String(data.locationId).trim();
+  if (data.instructorId !== undefined) {
+    student.instructorId = data.instructorId ? String(data.instructorId) : null;
+  }
   saveUsers(users);
   return student;
 }
@@ -151,6 +159,57 @@ function deleteStudent(id) {
   // Anmeldungen zu Theorieterminen mit aufräumen
   saveBookings(getBookings().filter((b) => b.studentId !== id));
   saveDocuments(getDocuments().filter((d) => d.studentId !== id));
+  saveLessons(getLessons().filter((l) => l.studentId !== id));
+  saveInvoices(getInvoices().filter((r) => r.studentId !== id));
+}
+
+function getInstructors() {
+  return getUsers()
+    .filter((u) => u.role === 'instructor')
+    .sort((a, b) => a.lastName.localeCompare(b.lastName, 'de'));
+}
+
+function createInstructor(data) {
+  const users = getUsers();
+  const email = normalizeEmail(data.email);
+  if (!email || users.some((u) => u.email === email)) return null;
+  const instructor = {
+    id: crypto.randomUUID(),
+    role: 'instructor',
+    email,
+    firstName: String(data.firstName || '').trim(),
+    lastName: String(data.lastName || '').trim(),
+    phone: String(data.phone || '').trim(),
+    classes: String(data.classes || '').trim(), // Ausbildungsklassen, z. B. "B, BE, A"
+    createdAt: new Date().toISOString(),
+  };
+  users.push(instructor);
+  saveUsers(users);
+  return instructor;
+}
+
+function updateInstructor(id, data) {
+  const users = getUsers();
+  const instructor = users.find((u) => u.id === id && u.role === 'instructor');
+  if (!instructor) return null;
+  if (data.firstName !== undefined) instructor.firstName = String(data.firstName).trim();
+  if (data.lastName !== undefined) instructor.lastName = String(data.lastName).trim();
+  if (data.phone !== undefined) instructor.phone = String(data.phone).trim();
+  if (data.classes !== undefined) instructor.classes = String(data.classes).trim();
+  if (data.email !== undefined) {
+    const email = normalizeEmail(data.email);
+    if (email && !users.some((u) => u.email === email && u.id !== id)) instructor.email = email;
+  }
+  saveUsers(users);
+  return instructor;
+}
+
+function deleteInstructor(id) {
+  saveUsers(getUsers().filter((u) => !(u.id === id && u.role === 'instructor')));
+  // Eingetragene Fahrstunden bleiben erhalten - sie gehören zur Ausbildung
+  // des Fahrschülers und dürfen nicht verschwinden, nur weil jemand die
+  // Fahrschule verlässt. Der Name wird in der Anzeige dann als unbekannt
+  // ausgewiesen.
 }
 
 function ensureSeedAdmin(seedEmail) {
@@ -275,6 +334,78 @@ function cancelBooking(sessionId, studentId) {
   saveBookings(getBookings().filter((b) => !(b.sessionId === sessionId && b.studentId === studentId)));
 }
 
+// ---------- Fahrstunden ----------
+// Jede Fahrstunde ist ein eigener Eintrag, den der Fahrlehrer nach der
+// Fahrt anlegt. Daraus ergibt sich der Ausbildungsstand - und daraus
+// entstehen später die Rechnungspositionen.
+
+function getLessons() {
+  return readJSON('lessons', []).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function saveLessons(lessons) {
+  writeJSON('lessons', lessons);
+}
+
+function getLessonsForStudent(studentId) {
+  return getLessons().filter((l) => l.studentId === studentId);
+}
+
+function getLesson(id) {
+  return getLessons().find((l) => l.id === id) || null;
+}
+
+function validLessonType(type) {
+  if (type === 'uebung') return true;
+  return content.specialDrives.some((d) => d.id === type);
+}
+
+function createLesson(data) {
+  const student = getUser(data.studentId);
+  if (!student || student.role !== 'student') return { error: 'Dieser Fahrschüler wurde nicht gefunden.' };
+  if (!data.date) return { error: 'Bitte gib an, wann die Fahrstunde war.' };
+  const type = validLessonType(data.type) ? data.type : 'uebung';
+  const units = Math.max(1, Math.min(10, Number(data.units) || 1));
+
+  const lessons = getLessons();
+  const lesson = {
+    id: crypto.randomUUID(),
+    studentId: data.studentId,
+    instructorId: data.instructorId || null,
+    date: String(data.date), // Tag der Fahrstunde
+    units, // Anzahl der Unterrichtseinheiten à 45 Minuten
+    type, // uebung | ueberland | autobahn | nacht
+    note: String(data.note || '').trim(),
+    invoiceId: null, // wird gesetzt, sobald die Stunde abgerechnet ist
+    createdAt: new Date().toISOString(),
+  };
+  lessons.push(lesson);
+  saveLessons(lessons);
+  return { lesson };
+}
+
+function updateLesson(id, data) {
+  const lessons = getLessons();
+  const lesson = lessons.find((l) => l.id === id);
+  if (!lesson) return null;
+  // Eine bereits abgerechnete Fahrstunde bleibt unverändert, sonst würde
+  // die Rechnung nicht mehr zu den Stunden passen.
+  if (lesson.invoiceId) return null;
+  if (data.date) lesson.date = String(data.date);
+  if (data.units !== undefined) lesson.units = Math.max(1, Math.min(10, Number(data.units) || 1));
+  if (data.type !== undefined && validLessonType(data.type)) lesson.type = data.type;
+  if (data.note !== undefined) lesson.note = String(data.note).trim();
+  saveLessons(lessons);
+  return lesson;
+}
+
+function deleteLesson(id) {
+  const lesson = getLesson(id);
+  if (!lesson || lesson.invoiceId) return false; // abgerechnet bleibt bestehen
+  saveLessons(getLessons().filter((l) => l.id !== id));
+  return true;
+}
+
 // ---------- Dokumente (global oder für einen Fahrschüler) ----------
 
 function getDocuments() {
@@ -308,6 +439,133 @@ function createDocument(data) {
 
 function deleteDocument(id) {
   saveDocuments(getDocuments().filter((d) => d.id !== id));
+}
+
+// ---------- Rechnungen ----------
+// Die Beträge sind Bruttopreise, wie sie Fahrschüler auch genannt
+// bekommen. Die enthaltene Umsatzsteuer wird auf der Rechnung getrennt
+// ausgewiesen, wie es § 14 UStG verlangt.
+
+function getInvoices() {
+  return readJSON('invoices', []).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+function saveInvoices(invoices) {
+  writeJSON('invoices', invoices);
+}
+
+function getInvoice(id) {
+  return getInvoices().find((r) => r.id === id) || null;
+}
+
+function getInvoicesForStudent(studentId) {
+  return getInvoices().filter((r) => r.studentId === studentId);
+}
+
+// Fortlaufende Rechnungsnummer im Format JAHR-0001. Rechnungsnummern
+// müssen lückenlos und eindeutig sein, deshalb wird immer von der
+// höchsten bereits vergebenen Nummer des Jahres weitergezählt.
+function nextInvoiceNumber() {
+  const jahr = new Date().getFullYear();
+  const praefix = `${jahr}-`;
+  const hoechste = getInvoices()
+    .filter((r) => typeof r.number === 'string' && r.number.startsWith(praefix))
+    .map((r) => Number(r.number.slice(praefix.length)) || 0)
+    .reduce((max, n) => Math.max(max, n), 0);
+  return `${praefix}${String(hoechste + 1).padStart(4, '0')}`;
+}
+
+function rundeCent(betrag) {
+  return Math.round(betrag * 100) / 100;
+}
+
+function createInvoice(data) {
+  const student = getUser(data.studentId);
+  if (!student || student.role !== 'student') {
+    return { error: 'Dieser Fahrschüler wurde nicht gefunden.' };
+  }
+
+  const positionen = (data.items || [])
+    .map((p) => {
+      const menge = Math.max(0, Number(p.quantity) || 0);
+      const einzel = Math.max(0, Number(p.unitPrice) || 0);
+      return {
+        label: String(p.label || '').trim(),
+        quantity: menge,
+        unitPrice: rundeCent(einzel),
+        total: rundeCent(menge * einzel),
+      };
+    })
+    .filter((p) => p.label && p.quantity > 0);
+
+  if (positionen.length === 0) {
+    return { error: 'Eine Rechnung braucht mindestens eine Position mit Menge und Betrag.' };
+  }
+
+  const brutto = rundeCent(positionen.reduce((summe, p) => summe + p.total, 0));
+  const satz = Number(data.vatRate !== undefined ? data.vatRate : content.invoicing.vatRate) || 0;
+  const netto = rundeCent(brutto / (1 + satz / 100));
+  const steuer = rundeCent(brutto - netto);
+
+  const invoices = getInvoices();
+  const invoice = {
+    id: crypto.randomUUID(),
+    number: nextInvoiceNumber(),
+    studentId: data.studentId,
+    date: data.date || new Date().toISOString().slice(0, 10),
+    serviceInfo: String(data.serviceInfo || '').trim(), // Leistungszeitraum
+    items: positionen,
+    net: netto,
+    vatRate: satz,
+    vat: steuer,
+    total: brutto,
+    status: 'offen', // offen | bezahlt | storniert
+    note: String(data.note || '').trim(),
+    lessonIds: Array.isArray(data.lessonIds) ? data.lessonIds : [],
+    paidAt: null,
+    createdAt: new Date().toISOString(),
+  };
+  invoices.push(invoice);
+  saveInvoices(invoices);
+
+  // Die abgerechneten Fahrstunden festschreiben, damit sie nicht ein
+  // zweites Mal auf einer Rechnung landen.
+  if (invoice.lessonIds.length > 0) {
+    const lessons = getLessons();
+    for (const lesson of lessons) {
+      if (invoice.lessonIds.includes(lesson.id)) lesson.invoiceId = invoice.id;
+    }
+    saveLessons(lessons);
+  }
+
+  return { invoice };
+}
+
+function setInvoiceStatus(id, status) {
+  const invoices = getInvoices();
+  const invoice = invoices.find((r) => r.id === id);
+  if (!invoice) return null;
+  if (!['offen', 'bezahlt', 'storniert'].includes(status)) return null;
+  invoice.status = status;
+  invoice.paidAt = status === 'bezahlt' ? new Date().toISOString() : null;
+
+  // Eine stornierte Rechnung gibt ihre Fahrstunden wieder frei, damit sie
+  // korrigiert neu abgerechnet werden können.
+  if (status === 'storniert' && invoice.lessonIds.length > 0) {
+    const lessons = getLessons();
+    for (const lesson of lessons) {
+      if (lesson.invoiceId === invoice.id) lesson.invoiceId = null;
+    }
+    saveLessons(lessons);
+  }
+
+  saveInvoices(invoices);
+  return invoice;
+}
+
+// Noch nicht abgerechnete Fahrstunden eines Fahrschülers.
+function getUnbilledLessons(studentId) {
+  return getLessonsForStudent(studentId).filter((l) => !l.invoiceId);
 }
 
 // ---------- Mitteilungen im Portal ----------
@@ -425,6 +683,22 @@ function markLoginTokenUsed(tokenValue) {
 
 module.exports = {
   ensureSeedAdmin,
+  getInstructors,
+  createInstructor,
+  updateInstructor,
+  deleteInstructor,
+  getLessons,
+  getLesson,
+  getLessonsForStudent,
+  createLesson,
+  updateLesson,
+  deleteLesson,
+  getInvoices,
+  getInvoice,
+  getInvoicesForStudent,
+  createInvoice,
+  setInvoiceStatus,
+  getUnbilledLessons,
   findUserByEmail,
   getUser,
   getUsers,

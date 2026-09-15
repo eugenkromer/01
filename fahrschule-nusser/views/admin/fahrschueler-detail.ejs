@@ -56,24 +56,33 @@
           </div>
         </div>
 
+        <div class="meldung meldung-hinweis">
+          <p><strong>Fahrstunden tragen die Fahrlehrer ein.</strong> Der aktuelle Stand
+            ergibt sich aus ihren Einträgen – <a href="/portal/fahrlehrer/fahrschueler/<%= student.id %>">hier
+            ansehen oder selbst nachtragen</a>. Die Felder unten sind nur für den
+            <strong>Übertrag</strong> gedacht: Stunden, die vor der Einführung des Portals
+            gefahren wurden.</p>
+        </div>
+
         <div class="feld-reihe">
           <div class="feld">
-            <label for="drivingLessons">Übungsstunden</label>
+            <label for="drivingLessons">Übertrag Übungsstunden</label>
             <input type="number" id="drivingLessons" name="drivingLessons" min="0" step="1"
-                   value="<%= stand.fahrstunden %>">
+                   value="<%= student.progress.drivingLessons || 0 %>">
+            <span class="hinweis">Aktuell insgesamt: <%= stand.fahrstunden %></span>
           </div>
         </div>
 
         <div class="feld">
-          <span class="feld-titel">Sonderfahrten</span>
+          <span class="feld-titel">Übertrag Sonderfahrten</span>
           <div class="feld-reihe">
             <% stand.sonderfahrten.forEach(function (fahrt) { %>
               <div class="feld">
-                <label for="special_<%= fahrt.id %>"><%= fahrt.label %>
-                  <span class="mute klein">(<%= fahrt.required %> vorgeschrieben)</span>
-                </label>
+                <label for="special_<%= fahrt.id %>"><%= fahrt.label %></label>
                 <input type="number" id="special_<%= fahrt.id %>" name="special_<%= fahrt.id %>"
-                       min="0" step="1" value="<%= fahrt.ist %>">
+                       min="0" step="1"
+                       value="<%= (student.progress.special && student.progress.special[fahrt.id]) || 0 %>">
+                <span class="hinweis">Aktuell <%= fahrt.ist %> von <%= fahrt.required %></span>
               </div>
             <% }); %>
           </div>
@@ -164,6 +173,19 @@
           </div>
         </div>
 
+        <div class="feld">
+          <label for="instructorId">Fahrlehrer/in</label>
+          <select id="instructorId" name="instructorId">
+            <option value="">Nicht festgelegt</option>
+            <% fahrlehrer.forEach(function (fl) { %>
+              <option value="<%= fl.id %>" <%= student.instructorId === fl.id ? 'selected' : '' %>>
+                <%= fl.firstName %> <%= fl.lastName %>
+              </option>
+            <% }); %>
+          </select>
+          <span class="hinweis">Andere Fahrlehrer können trotzdem Stunden eintragen.</span>
+        </div>
+
         <button class="btn btn-dunkel" type="submit">Stammdaten speichern</button>
       </form>
     </div>
@@ -209,6 +231,38 @@
             <a class="btn btn-hell btn-klein" href="<%= d.url %>" target="_blank" rel="noopener">Öffnen</a>
           </div>
         <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Rechnungen -->
+    <div class="portal-block">
+      <h2>Rechnungen
+        <a class="btn btn-hell btn-klein"
+           href="/portal/verwaltung/rechnungen/neu/<%= student.id %>">Rechnung schreiben</a>
+      </h2>
+      <% if (rechnungen.length === 0) { %>
+        <div class="leer"><p>Für diesen Fahrschüler gibt es noch keine Rechnung.</p></div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead><tr><th>Nummer</th><th>Datum</th><th>Betrag</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <% rechnungen.forEach(function (r) { %>
+                <tr>
+                  <td><strong><%= r.number %></strong></td>
+                  <td class="nowrap"><%= f.formatDateShort(r.date) %></td>
+                  <td class="nowrap"><%= f.formatEuro(r.total) %></td>
+                  <td>
+                    <% if (r.status === 'bezahlt') { %><span class="marker gruen">bezahlt</span>
+                    <% } else if (r.status === 'storniert') { %><span class="marker grau">storniert</span>
+                    <% } else { %><span class="marker">offen</span><% } %>
+                  </td>
+                  <td><a class="btn btn-hell btn-klein" href="/portal/rechnungen/<%= r.id %>">Ansehen</a></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
       <% } %>
     </div>
 

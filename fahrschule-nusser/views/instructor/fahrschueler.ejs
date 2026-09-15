@@ -1,0 +1,170 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <div class="brotkrumen" style="color: var(--text-mute); margin-bottom: 8px">
+          <a href="/portal/fahrlehrer" style="color: var(--blau-600)">Fahrschüler</a>
+          <span aria-hidden="true">›</span> <%= student.firstName %> <%= student.lastName %>
+        </div>
+        <h1><%= student.firstName %> <%= student.lastName %></h1>
+        <p>Klasse <%= student.licenseClass %>
+          <% if (student.phone) { %> · <a href="tel:<%= student.phone %>"><%= student.phone %></a><% } %>
+        </p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <!-- Stand auf einen Blick -->
+    <div class="kennzahlen">
+      <div class="kennzahl akzent">
+        <span class="wert"><%= stand.fahrstunden %></span>
+        <span class="bez">Übungsstunden</span>
+      </div>
+      <% stand.sonderfahrten.forEach(function (fahrt) { %>
+        <div class="kennzahl <%= fahrt.fertig ? 'gruen' : '' %>">
+          <span class="wert"><%= fahrt.ist %> / <%= fahrt.required %></span>
+          <span class="bez"><%= fahrt.label %></span>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Fahrstunde eintragen -->
+    <div class="portal-block">
+      <h2>Fahrstunde eintragen</h2>
+      <p class="block-info">Der Fahrschüler sieht den neuen Stand sofort in seinem Portal.</p>
+
+      <form class="formular" method="post"
+            action="/portal/fahrlehrer/fahrschueler/<%= student.id %>/fahrstunde">
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label class="feld-pflicht" for="date">Wann war die Fahrstunde?</label>
+            <input type="date" id="date" name="date" required value="<%= heute %>" max="<%= heute %>">
+          </div>
+          <div class="feld">
+            <label for="units">Unterrichtseinheiten</label>
+            <select id="units" name="units">
+              <% [1, 2, 3, 4].forEach(function (n) { %>
+                <option value="<%= n %>" <%= n === 1 ? 'selected' : '' %>>
+                  <%= n %> × 45 Minuten
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="feld">
+          <span class="feld-titel">Art der Fahrt</span>
+          <div class="art-auswahl">
+            <label class="art-option">
+              <input type="radio" name="type" value="uebung" checked>
+              <span>Übungsstunde</span>
+            </label>
+            <% content.specialDrives.forEach(function (fahrt) { %>
+              <label class="art-option">
+                <input type="radio" name="type" value="<%= fahrt.id %>">
+                <span><%= fahrt.label %>
+                  <small><%= fahrt.required %> vorgeschrieben</small>
+                </span>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <% if (currentUser.role === 'admin') { %>
+          <div class="feld">
+            <label for="instructorId">Fahrlehrer/in</label>
+            <select id="instructorId" name="instructorId">
+              <option value="">nicht vermerkt</option>
+              <% fahrlehrer.forEach(function (fl) { %>
+                <option value="<%= fl.id %>"
+                  <%= student.instructorId === fl.id ? 'selected' : '' %>>
+                  <%= fl.firstName %> <%= fl.lastName %>
+                </option>
+              <% }); %>
+            </select>
+            <span class="hinweis">Trägst du als Büro eine Stunde nach, wähle hier den Fahrlehrer.</span>
+          </div>
+        <% } %>
+
+        <div class="feld">
+          <label for="note">Notiz (freiwillig)</label>
+          <input type="text" id="note" name="note"
+                 placeholder="z. B. Einparken geübt, Rückwärtsfahren noch unsicher">
+          <span class="hinweis">Die Notiz sieht nur die Fahrschule – nicht der Fahrschüler.</span>
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Fahrstunde eintragen</button>
+      </form>
+    </div>
+
+    <!-- Bisherige Fahrstunden -->
+    <div class="portal-block">
+      <h2><%= stand.eintraege.length %>
+        <%= stand.eintraege.length === 1 ? 'eingetragene Fahrstunde' : 'eingetragene Fahrstunden' %>
+      </h2>
+
+      <% if (stand.eintraege.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">🚗</div>
+          <p>Noch keine Fahrstunde eingetragen.</p>
+        </div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Datum</th><th>Art</th><th>Dauer</th><th>Fahrlehrer</th>
+                <th>Notiz</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% stand.eintraege.forEach(function (l) { %>
+                <tr>
+                  <td class="nowrap"><%= f.formatDateShort(l.date) %></td>
+                  <td class="nowrap">
+                    <%= artName(l.type) %>
+                    <% if (l.invoiceId) { %><br><span class="marker grau">abgerechnet</span><% } %>
+                  </td>
+                  <td class="nowrap"><%= l.units %> × 45 Min.</td>
+                  <td class="klein"><%= instructorName(l.instructorId) %></td>
+                  <td class="klein mute"><%= l.note || '–' %></td>
+                  <td>
+                    <% if (!l.invoiceId && (currentUser.role === 'admin' || l.instructorId === currentUser.id)) { %>
+                      <form method="post" action="/portal/fahrlehrer/fahrstunde/<%= l.id %>/loeschen"
+                            onsubmit="return confirm('Diese Fahrstunde wirklich löschen?')">
+                        <button class="btn btn-gefahr btn-klein" type="submit">Löschen</button>
+                      </form>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Theorie zur Einordnung -->
+    <div class="portal-block">
+      <h2>Theoriestand</h2>
+      <div class="fortschritt">
+        <div class="fortschritt-kopf">
+          <span class="bez">Besuchte Pflichtlektionen</span>
+          <span class="zahl"><%= stand.theorie.ist %> von <%= stand.theorie.soll %></span>
+        </div>
+        <div class="balken <%= stand.theorie.fertig ? 'fertig' : '' %>">
+          <span style="width: <%= stand.theorie.prozent %>%"></span>
+        </div>
+      </div>
+      <p class="klein mute abstand-oben">Theorielektionen und Prüfungsstand pflegt das Büro.</p>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

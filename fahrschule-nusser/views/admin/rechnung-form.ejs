@@ -1,0 +1,157 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <div class="brotkrumen" style="color: var(--text-mute); margin-bottom: 8px">
+          <a href="/portal/verwaltung/rechnungen" style="color: var(--blau-600)">Rechnungen</a>
+          <span aria-hidden="true">›</span> Neue Rechnung
+        </div>
+        <h1>Rechnung für <%= student.firstName %> <%= student.lastName %></h1>
+        <p>Klasse <%= student.licenseClass %> · <%= student.email %></p>
+      </div>
+    </div>
+
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <% if (!content.pricing.published) { %>
+      <div class="meldung meldung-warnung">
+        <p><strong>Es sind noch keine Preise hinterlegt.</strong> Die Beträge unten bleiben
+          deshalb leer und müssen von Hand eingetragen werden. Sobald die Preisliste in
+          <code>src/content.js</code> gefüllt ist, schlägt das Formular sie selbst vor.</p>
+      </div>
+    <% } %>
+
+    <form class="formular" method="post" action="/portal/verwaltung/rechnungen">
+      <input type="hidden" name="studentId" value="<%= student.id %>">
+
+      <div class="portal-block">
+        <h2>Eckdaten</h2>
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="date">Rechnungsdatum</label>
+            <input type="date" id="date" name="date" value="<%= heute %>">
+          </div>
+          <div class="feld">
+            <label for="serviceInfo">Leistungszeitraum</label>
+            <input type="text" id="serviceInfo" name="serviceInfo" value="<%= zeitraum %>"
+                   placeholder="z. B. Fahrstunden im September 2026">
+          </div>
+        </div>
+      </div>
+
+      <div class="portal-block">
+        <h2>Fahrstunden abrechnen</h2>
+        <% if (offeneStunden.length === 0) { %>
+          <p class="block-info">Für diesen Fahrschüler sind alle Fahrstunden abgerechnet.
+            Du kannst unten trotzdem Positionen von Hand eintragen, etwa den Grundbetrag.</p>
+        <% } else { %>
+          <p class="block-info"><%= offeneStunden.length %> noch nicht abgerechnete
+            <%= offeneStunden.length === 1 ? 'Fahrstunde' : 'Fahrstunden' %>.
+            Sie werden mit dieser Rechnung festgeschrieben und können danach nicht mehr
+            gelöscht werden.</p>
+
+          <div class="tabelle-rahmen">
+            <table>
+              <thead><tr><th>Datum</th><th>Art</th><th>Einheiten</th></tr></thead>
+              <tbody>
+                <% offeneStunden.forEach(function (l) { %>
+                  <tr>
+                    <td class="nowrap"><%= f.formatDateShort(l.date) %></td>
+                    <td><%= l.artLabel %></td>
+                    <td class="nowrap"><%= l.units %> × 45 Min.</td>
+                  </tr>
+                  <input type="hidden" name="lessonIds" value="<%= l.id %>">
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="portal-block">
+        <h2>Rechnungspositionen</h2>
+        <p class="block-info">Beträge sind Bruttopreise. Die enthaltene Umsatzsteuer
+          (<%= content.invoicing.vatRate %> %) wird auf der Rechnung getrennt ausgewiesen.</p>
+
+        <div id="positionen">
+          <% positionen.forEach(function (pos) { %>
+            <div class="position-zeile">
+              <div class="feld">
+                <label>Leistung</label>
+                <input type="text" name="label" value="<%= pos.label %>" required>
+              </div>
+              <div class="feld">
+                <label>Menge</label>
+                <input type="number" name="quantity" value="<%= pos.einheiten %>" min="0" step="1" required>
+              </div>
+              <div class="feld">
+                <label>Einzelpreis (€)</label>
+                <input type="number" name="unitPrice" value="<%= pos.preis %>" min="0" step="0.01"
+                       placeholder="0,00" required>
+              </div>
+            </div>
+          <% }); %>
+
+          <!-- Zwei leere Zeilen für Positionen wie Grundbetrag oder Lernmaterial -->
+          <% for (let i = 0; i < 2; i++) { %>
+            <div class="position-zeile">
+              <div class="feld">
+                <label>Leistung</label>
+                <input type="text" name="label" placeholder="z. B. Grundbetrag Klasse B">
+              </div>
+              <div class="feld">
+                <label>Menge</label>
+                <input type="number" name="quantity" value="1" min="0" step="1">
+              </div>
+              <div class="feld">
+                <label>Einzelpreis (€)</label>
+                <input type="number" name="unitPrice" min="0" step="0.01" placeholder="0,00">
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <button class="btn btn-hell btn-klein" type="button" id="zeile-mehr">
+          Weitere Position hinzufügen
+        </button>
+        <p class="klein mute abstand-oben">Zeilen ohne Leistung oder mit Menge 0 werden
+          einfach weggelassen.</p>
+      </div>
+
+      <div class="portal-block">
+        <h2>Hinweis auf der Rechnung</h2>
+        <div class="feld">
+          <label for="note">Freitext (freiwillig)</label>
+          <textarea id="note" name="note" style="min-height: 80px"
+                    placeholder="z. B. Vielen Dank für die gute Zusammenarbeit."></textarea>
+        </div>
+
+        <div class="reihe abstand-oben">
+          <button class="btn btn-primaer" type="submit">Rechnung erstellen</button>
+          <a class="btn btn-hell" href="/portal/verwaltung/rechnungen">Abbrechen</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Eine weitere Positionszeile anhängen - kopiert die letzte und leert sie.
+  document.getElementById('zeile-mehr').addEventListener('click', function () {
+    const behaelter = document.getElementById('positionen');
+    const vorlage = behaelter.lastElementChild.cloneNode(true);
+    vorlage.querySelectorAll('input').forEach(function (feld, i) {
+      feld.value = i === 1 ? '1' : '';
+      feld.removeAttribute('required');
+    });
+    behaelter.appendChild(vorlage);
+    vorlage.querySelector('input').focus();
+  });
+</script>
+
+<%- include('../partials/footer') %>

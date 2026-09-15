@@ -3,6 +3,7 @@
 // Fahrschüler-Portal als auch im Verwaltungsbereich benutzt.
 
 const content = require('./content');
+const db = require('./db');
 
 function prozent(ist, soll) {
   if (!soll) return 0;
@@ -12,13 +13,22 @@ function prozent(ist, soll) {
 function berechne(student) {
   const progress = student && student.progress ? student.progress : {};
   const theoryDone = Array.isArray(progress.theoryDone) ? progress.theoryDone : [];
-  const special = progress.special || {};
+  // Übertrag für Fahrschüler, die schon vor der Einführung des Portals
+  // Stunden gefahren haben. Alles Neue kommt aus den Einträgen der
+  // Fahrlehrer.
+  const uebertragSpecial = progress.special || {};
+  const uebertragUebung = Number(progress.drivingLessons) || 0;
+
+  const fahrstunden = student && student.id ? db.getLessonsForStudent(student.id) : [];
+  const einheiten = (art) => fahrstunden
+    .filter((l) => l.type === art)
+    .reduce((summe, l) => summe + (Number(l.units) || 0), 0);
 
   const theorieSoll = content.theoryLessons.length;
   const theorieIst = theoryDone.length;
 
   const sonderfahrten = content.specialDrives.map((fahrt) => {
-    const ist = Number(special[fahrt.id]) || 0;
+    const ist = (Number(uebertragSpecial[fahrt.id]) || 0) + einheiten(fahrt.id);
     return {
       ...fahrt,
       ist,
@@ -47,7 +57,11 @@ function berechne(student) {
       prozent: prozent(sonderIst, sonderSoll),
       fertig: sonderIst >= sonderSoll,
     },
-    fahrstunden: Number(progress.drivingLessons) || 0,
+    // Übungsstunden gesamt: Übertrag plus eingetragene Fahrstunden
+    fahrstunden: uebertragUebung + einheiten('uebung'),
+    // Alle Fahrstunden, die Fahrlehrer eingetragen haben - neueste zuerst
+    eintraege: fahrstunden,
+    einheitenGesamt: fahrstunden.reduce((summe, l) => summe + (Number(l.units) || 0), 0),
     theoriePruefung: progress.theoryExam || 'offen',
     praxisPruefung: progress.practicalExam || 'offen',
     notiz: progress.note || '',

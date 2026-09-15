@@ -45,8 +45,9 @@ function termineAufbereiten(sessions, studentId) {
 // ---------- Übersicht ----------
 
 router.get('/', (req, res) => {
-  // Die Fahrschule selbst landet direkt in der Verwaltung.
+  // Jede Rolle landet in ihrem eigenen Bereich.
   if (req.user.role === 'admin') return res.redirect('/portal/verwaltung');
+  if (req.user.role === 'instructor') return res.redirect('/portal/fahrlehrer');
 
   const stand = progress.berechne(req.user);
   const meine = db.getBookingsForStudent(req.user.id).map((b) => b.sessionId);
@@ -66,6 +67,7 @@ router.get('/', (req, res) => {
 
 router.get('/theorie', (req, res) => {
   if (req.user.role === 'admin') return res.redirect('/portal/verwaltung/theorie');
+  if (req.user.role === 'instructor') return res.redirect('/portal/fahrlehrer');
 
   res.render('portal/theorie', basis(req, 'Theorietermine', {
     termine: termineAufbereiten(db.getUpcomingTheorySessions(), req.user.id),
@@ -93,7 +95,7 @@ router.post('/theorie/:id/abmelden', (req, res) => {
 // ---------- Lernfortschritt ----------
 
 router.get('/fortschritt', (req, res) => {
-  if (req.user.role === 'admin') return res.redirect('/portal/verwaltung');
+  if (req.user.role !== 'student') return res.redirect('/portal');
 
   res.render('portal/fortschritt', basis(req, 'Mein Fortschritt', {
     stand: progress.berechne(req.user),
@@ -105,9 +107,41 @@ router.get('/fortschritt', (req, res) => {
 
 router.get('/dokumente', (req, res) => {
   if (req.user.role === 'admin') return res.redirect('/portal/verwaltung/dokumente');
+  if (req.user.role === 'instructor') return res.redirect('/portal/fahrlehrer');
 
   res.render('portal/dokumente', basis(req, 'Unterlagen', {
     dokumente: db.getDocumentsForStudent(req.user.id),
+  }));
+});
+
+// ---------- Rechnungen ----------
+
+router.get('/rechnungen', (req, res) => {
+  if (req.user.role !== 'student') return res.redirect('/portal');
+
+  const rechnungen = db.getInvoicesForStudent(req.user.id);
+  res.render('portal/rechnungen', basis(req, 'Meine Rechnungen', {
+    rechnungen,
+    offenerBetrag: rechnungen
+      .filter((r) => r.status === 'offen')
+      .reduce((summe, r) => summe + r.total, 0),
+  }));
+});
+
+// Einzelne Rechnung in Druckansicht. Fahrschüler sehen nur ihre eigenen.
+router.get('/rechnungen/:id', (req, res) => {
+  const rechnung = db.getInvoice(req.params.id);
+  const darfSehen = rechnung
+    && (req.user.role === 'admin' || rechnung.studentId === req.user.id);
+
+  if (!darfSehen) {
+    return res.status(404).render('site/not-found', { title: 'Seite nicht gefunden' });
+  }
+
+  res.render('portal/rechnung', basis(req, `Rechnung ${rechnung.number}`, {
+    rechnung,
+    student: db.getUser(rechnung.studentId),
+    bodyClass: 'rechnung-body',
   }));
 });
 

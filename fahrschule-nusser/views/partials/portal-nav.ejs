@@ -4,16 +4,27 @@
     <a href="/portal" class="<%= currentPath === '/portal' ? 'aktiv' : '' %>">Übersicht</a>
     <a href="/portal/theorie" class="<%= currentPath.startsWith('/portal/theorie') ? 'aktiv' : '' %>">Theorietermine</a>
     <a href="/portal/fortschritt" class="<%= currentPath === '/portal/fortschritt' ? 'aktiv' : '' %>">Mein Fortschritt</a>
+    <a href="/portal/rechnungen" class="<%= currentPath.startsWith('/portal/rechnungen') ? 'aktiv' : '' %>">Rechnungen</a>
     <a href="/portal/dokumente" class="<%= currentPath === '/portal/dokumente' ? 'aktiv' : '' %>">Unterlagen</a>
     <a href="/portal/profil" class="<%= currentPath === '/portal/profil' ? 'aktiv' : '' %>">Meine Daten</a>
+
+  <% } else if (currentUser.role === 'instructor') { %>
+    <div class="portal-nav-titel">Fahrlehrer</div>
+    <a href="/portal/fahrlehrer" class="<%= currentPath === '/portal/fahrlehrer' ? 'aktiv' : '' %>">Meine Fahrschüler</a>
+    <a href="/portal/profil" class="<%= currentPath === '/portal/profil' ? 'aktiv' : '' %>">Meine Daten</a>
+
   <% } else { %>
     <div class="portal-nav-titel">Verwaltung</div>
     <a href="/portal/verwaltung" class="<%= currentPath === '/portal/verwaltung' ? 'aktiv' : '' %>">Übersicht</a>
     <a href="/portal/verwaltung/anfragen" class="<%= currentPath.startsWith('/portal/verwaltung/anfragen') ? 'aktiv' : '' %>">Anfragen</a>
     <a href="/portal/verwaltung/fahrschueler" class="<%= currentPath.startsWith('/portal/verwaltung/fahrschueler') ? 'aktiv' : '' %>">Fahrschüler</a>
+    <a href="/portal/verwaltung/fahrlehrer" class="<%= currentPath.startsWith('/portal/verwaltung/fahrlehrer') ? 'aktiv' : '' %>">Fahrlehrer</a>
     <a href="/portal/verwaltung/theorie" class="<%= currentPath.startsWith('/portal/verwaltung/theorie') ? 'aktiv' : '' %>">Theorietermine</a>
+    <a href="/portal/verwaltung/rechnungen" class="<%= currentPath.startsWith('/portal/verwaltung/rechnungen') ? 'aktiv' : '' %>">Rechnungen</a>
     <a href="/portal/verwaltung/dokumente" class="<%= currentPath === '/portal/verwaltung/dokumente' ? 'aktiv' : '' %>">Unterlagen</a>
     <a href="/portal/verwaltung/mitteilungen" class="<%= currentPath === '/portal/verwaltung/mitteilungen' ? 'aktiv' : '' %>">Mitteilungen</a>
+    <div class="trenner"></div>
+    <a href="/portal/fahrlehrer" class="<%= currentPath.startsWith('/portal/fahrlehrer') ? 'aktiv' : '' %>">Fahrstunden eintragen</a>
   <% } %>
 
   <div class="trenner"></div>

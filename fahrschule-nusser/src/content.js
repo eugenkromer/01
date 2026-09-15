@@ -287,6 +287,24 @@ const pricing = {
 };
 
 // ---------------------------------------------------------------------
+// Rechnungsstellung
+// Die Beträge auf den Rechnungen sind Bruttopreise; die enthaltene
+// Umsatzsteuer wird getrennt ausgewiesen.
+// ---------------------------------------------------------------------
+const invoicing = {
+  vatRate: 19, // Umsatzsteuersatz in Prozent
+  paymentDays: 14, // Zahlungsziel in Tagen
+  // Bankverbindung für den Rechnungsfuß
+  bankName: 'TODO: Bank', // TODO
+  iban: 'TODO: IBAN', // TODO
+  bic: 'TODO: BIC', // TODO
+  // Steuernummer oder Umsatzsteuer-Identifikationsnummer - eine von
+  // beiden gehört nach § 14 UStG auf jede Rechnung.
+  taxNumber: 'TODO: Steuernummer', // TODO
+  footerNote: 'Vielen Dank für dein Vertrauen!',
+};
+
+// ---------------------------------------------------------------------
 // Ablauf: in wie vielen Schritten komme ich zum Führerschein
 // ---------------------------------------------------------------------
 const steps = [
@@ -452,6 +470,7 @@ const legal = {
 
 module.exports = {
   business,
+  invoicing,
   locations,
   licenseGroups,
   licenseOptions,

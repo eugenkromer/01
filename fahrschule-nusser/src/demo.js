@@ -88,6 +88,17 @@ function anlegen() {
     })
   );
 
+  // ---------- Fahrlehrer ----------
+  const fahrlehrerDaten = [
+    { firstName: 'Mathias', lastName: 'Nusser',   email: 'mathias.nusser@beispiel.de',  phone: '05251 74752', classes: 'B, BE, B96, A' },
+    { firstName: 'Andrea',  lastName: 'Hartmann', email: 'andrea.hartmann@beispiel.de', phone: '05251 74753', classes: 'B, BF17' },
+  ];
+  const fahrlehrer = [];
+  for (const daten of fahrlehrerDaten) {
+    const angelegt = db.createInstructor(daten);
+    if (angelegt) fahrlehrer.push(angelegt);
+  }
+
   // ---------- Fahrschüler ----------
   const personen = [
     {
@@ -100,6 +111,16 @@ function anlegen() {
         note: 'Nur noch zwei Nachtfahrten, dann bist du startklar. Sehr sicher unterwegs!',
       },
       buchungen: [0, 1],
+      lehrer: 0,
+      // Datum als Anzahl Tage in der Vergangenheit
+      fahrstunden: [
+        { vorTagen: 2,  units: 2, type: 'nacht',     note: 'Dunkelheit, Landstraße' },
+        { vorTagen: 5,  units: 2, type: 'autobahn',  note: 'Auffahren und Spurwechsel sicher' },
+        { vorTagen: 9,  units: 2, type: 'autobahn',  note: '' },
+        { vorTagen: 12, units: 2, type: 'ueberland', note: '' },
+        { vorTagen: 16, units: 1, type: 'uebung',    note: 'Einparken wiederholt' },
+        { vorTagen: 20, units: 2, type: 'ueberland', note: '' },
+      ],
     },
     {
       firstName: 'Jonas', lastName: 'Weber', email: 'jonas.weber@beispiel.de',
@@ -111,6 +132,11 @@ function anlegen() {
         note: 'Denk bitte an die Unterschrift deiner Eltern für die Begleitperson.',
       },
       buchungen: [0, 2],
+      lehrer: 1,
+      fahrstunden: [
+        { vorTagen: 3,  units: 1, type: 'uebung', note: 'Anfahren am Berg' },
+        { vorTagen: 10, units: 1, type: 'uebung', note: 'Erste Fahrstunde, Verkehrsraum' },
+      ],
     },
     {
       firstName: 'Merve', lastName: 'Yilmaz', email: 'merve.yilmaz@beispiel.de',
@@ -122,6 +148,11 @@ function anlegen() {
         note: 'Herzlichen Glückwunsch zur bestandenen Prüfung!',
       },
       buchungen: [],
+      lehrer: 0,
+      fahrstunden: [
+        { vorTagen: 6,  units: 2, type: 'nacht',     note: 'Prüfungsvorbereitung' },
+        { vorTagen: 13, units: 2, type: 'autobahn',  note: '' },
+      ],
     },
     {
       firstName: 'Paul', lastName: 'Schäfer', email: 'paul.schaefer@beispiel.de',
@@ -133,12 +164,19 @@ function anlegen() {
         note: '',
       },
       buchungen: [1, 2, 4],
+      lehrer: 1,
+      fahrstunden: [],
     },
   ];
 
   const angelegtePersonen = [];
+  let anzahlFahrstunden = 0;
   for (const person of personen) {
-    const student = db.createStudent(person);
+    const stammlehrer = fahrlehrer[person.lehrer] || null;
+    const student = db.createStudent({
+      ...person,
+      instructorId: stammlehrer ? stammlehrer.id : null,
+    });
     if (!student) {
       console.log(`  übersprungen (E-Mail schon vergeben): ${person.email}`);
       continue;
@@ -147,7 +185,51 @@ function anlegen() {
     for (const index of person.buchungen) {
       if (angelegteTermine[index]) db.bookTheorySession(angelegteTermine[index].id, student.id);
     }
+    for (const fahrt of person.fahrstunden || []) {
+      const datum = new Date();
+      datum.setDate(datum.getDate() - fahrt.vorTagen);
+      db.createLesson({
+        studentId: student.id,
+        instructorId: stammlehrer ? stammlehrer.id : null,
+        date: datum.toISOString().slice(0, 10),
+        units: fahrt.units,
+        type: fahrt.type,
+        note: fahrt.note,
+      });
+      anzahlFahrstunden += 1;
+    }
     angelegtePersonen.push(student);
+  }
+
+  // ---------- Eine bezahlte und eine offene Rechnung ----------
+  let anzahlRechnungen = 0;
+  if (angelegtePersonen[0]) {
+    const ersteRechnung = db.createInvoice({
+      studentId: angelegtePersonen[0].id,
+      serviceInfo: 'Grundbetrag und Lernmaterial',
+      items: [
+        { label: 'Grundbetrag Klasse B', quantity: 1, unitPrice: 450 },
+        { label: 'Lernmaterial und Fahrschul-App', quantity: 1, unitPrice: 79.9 },
+      ],
+      note: 'Beispielrechnung – die Beträge sind erfunden.',
+    });
+    if (ersteRechnung.invoice) {
+      db.setInvoiceStatus(ersteRechnung.invoice.id, 'bezahlt');
+      anzahlRechnungen += 1;
+    }
+
+    // Die zweite Rechnung fasst einen Teil der Fahrstunden zusammen
+    const offene = db.getUnbilledLessons(angelegtePersonen[0].id).slice(0, 3);
+    if (offene.length > 0) {
+      const einheiten = offene.reduce((summe, l) => summe + l.units, 0);
+      const zweite = db.createInvoice({
+        studentId: angelegtePersonen[0].id,
+        serviceInfo: 'Sonderfahrten',
+        items: [{ label: 'Sonderfahrt (45 Minuten)', quantity: einheiten, unitPrice: 69.5 }],
+        lessonIds: offene.map((l) => l.id),
+      });
+      if (zweite.invoice) anzahlRechnungen += 1;
+    }
   }
 
   // ---------- Anfragen ----------
@@ -201,11 +283,16 @@ function anlegen() {
   console.log('');
   console.log('Beispieldaten angelegt:');
   console.log(`  ${angelegteTermine.length} Theorietermine`);
+  console.log(`  ${fahrlehrer.length} Fahrlehrer`);
   console.log(`  ${angelegtePersonen.length} Fahrschüler`);
+  console.log(`  ${anzahlFahrstunden} Fahrstunden, ${anzahlRechnungen} Rechnungen`);
   console.log('  2 Anfragen, 2 Mitteilungen, 3 Unterlagen');
   console.log('');
   console.log('Zugänge für die Vorführung:');
   console.log(`  Fahrschule (Verwaltung):  ${adminEmail}`);
+  for (const fl of fahrlehrer) {
+    console.log(`  Fahrlehrer:               ${fl.email}`);
+  }
   for (const p of angelegtePersonen) {
     console.log(`  Fahrschüler:              ${p.email}`);
   }

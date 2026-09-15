@@ -11,6 +11,7 @@ const { attachUser } = require('./middleware/auth');
 const siteRoutes = require('./routes/site');
 const authRoutes = require('./routes/auth');
 const portalRoutes = require('./routes/portal');
+const instructorRoutes = require('./routes/instructor');
 const adminRoutes = require('./routes/admin');
 
 db.ensureSeedAdmin(process.env.SEED_ADMIN_EMAIL || 'info@fahrschule-nusser.de');
@@ -72,6 +73,7 @@ app.use((req, res, next) => {
 
 app.use('/', siteRoutes);
 app.use('/portal', authRoutes);
+app.use('/portal/fahrlehrer', instructorRoutes);
 app.use('/portal', portalRoutes);
 app.use('/portal/verwaltung', adminRoutes);
 

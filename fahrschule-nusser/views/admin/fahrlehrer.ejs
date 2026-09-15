@@ -1,0 +1,111 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Fahrlehrer</h1>
+        <p>Wer hier angelegt ist, kann Fahrstunden eintragen.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="portal-block">
+      <h2>Fahrlehrer anlegen</h2>
+      <p class="block-info">Die Person bekommt sofort eine E-Mail mit ihrem Zugang.</p>
+
+      <form class="formular" method="post" action="/portal/verwaltung/fahrlehrer">
+        <div class="feld-reihe">
+          <div class="feld">
+            <label class="feld-pflicht" for="firstName">Vorname</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+          <div class="feld">
+            <label class="feld-pflicht" for="lastName">Nachname</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label class="feld-pflicht" for="email">E-Mail</label>
+            <input type="email" id="email" name="email" required>
+            <span class="hinweis">Damit meldet sich der Fahrlehrer im Portal an.</span>
+          </div>
+          <div class="feld">
+            <label for="phone">Telefon</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+        </div>
+
+        <div class="feld">
+          <label for="classes">Ausbildungsklassen</label>
+          <input type="text" id="classes" name="classes" placeholder="z. B. B, BE, A">
+        </div>
+
+        <button class="btn btn-primaer" type="submit">Anlegen und Zugang verschicken</button>
+      </form>
+    </div>
+
+    <div class="portal-block">
+      <h2>Angelegte Fahrlehrer</h2>
+      <% if (fahrlehrer.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">🧑‍🏫</div>
+          <p>Es ist noch kein Fahrlehrer angelegt.</p>
+        </div>
+      <% } else { %>
+        <% fahrlehrer.forEach(function (fl) { %>
+          <div class="portal-block" style="margin-bottom: 14px; background: var(--grund)">
+            <form class="formular" method="post"
+                  action="/portal/verwaltung/fahrlehrer/<%= fl.id %>/aendern">
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label for="v-<%= fl.id %>">Vorname</label>
+                  <input type="text" id="v-<%= fl.id %>" name="firstName" value="<%= fl.firstName %>">
+                </div>
+                <div class="feld">
+                  <label for="n-<%= fl.id %>">Nachname</label>
+                  <input type="text" id="n-<%= fl.id %>" name="lastName" value="<%= fl.lastName %>">
+                </div>
+              </div>
+              <div class="feld-reihe">
+                <div class="feld">
+                  <label for="e-<%= fl.id %>">E-Mail</label>
+                  <input type="email" id="e-<%= fl.id %>" name="email" value="<%= fl.email %>">
+                </div>
+                <div class="feld">
+                  <label for="k-<%= fl.id %>">Klassen</label>
+                  <input type="text" id="k-<%= fl.id %>" name="classes" value="<%= fl.classes || '' %>">
+                </div>
+              </div>
+
+              <div class="reihe" style="justify-content: space-between">
+                <span class="klein mute">
+                  <%= fl.anzahlSchueler %> <%= fl.anzahlSchueler === 1 ? 'Fahrschüler' : 'Fahrschüler' %>
+                  · <%= fl.anzahlStunden %> eingetragene Fahrstunden
+                </span>
+                <span class="reihe">
+                  <button class="btn btn-dunkel btn-klein" type="submit">Speichern</button>
+                </span>
+              </div>
+            </form>
+
+            <form method="post" action="/portal/verwaltung/fahrlehrer/<%= fl.id %>/loeschen"
+                  onsubmit="return confirm('Zugang von <%= fl.firstName %> <%= fl.lastName %> entfernen? Die eingetragenen Fahrstunden bleiben erhalten.')"
+                  style="margin-top: 10px">
+              <button class="btn btn-gefahr btn-klein" type="submit">Zugang entfernen</button>
+            </form>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

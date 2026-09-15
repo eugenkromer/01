@@ -1,0 +1,74 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Meine Rechnungen</h1>
+        <p>Alle Rechnungen deiner Fahrschule – jederzeit einsehbar und zum Ausdrucken.</p>
+      </div>
+    </div>
+
+    <% if (offenerBetrag > 0) { %>
+      <div class="kennzahlen">
+        <div class="kennzahl akzent">
+          <span class="wert"><%= f.formatEuro(offenerBetrag) %></span>
+          <span class="bez">noch offen</span>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="portal-block">
+      <% if (rechnungen.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">🧾</div>
+          <p>Für dich liegt noch keine Rechnung vor.</p>
+        </div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Rechnung</th><th>Datum</th><th>Betrag</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% rechnungen.forEach(function (r) { %>
+                <tr>
+                  <td>
+                    <strong><%= r.number %></strong>
+                    <% if (r.serviceInfo) { %><br><span class="klein mute"><%= r.serviceInfo %></span><% } %>
+                  </td>
+                  <td class="nowrap"><%= f.formatDateShort(r.date) %></td>
+                  <td class="nowrap"><strong><%= f.formatEuro(r.total) %></strong></td>
+                  <td>
+                    <% if (r.status === 'bezahlt') { %>
+                      <span class="marker gruen">bezahlt</span>
+                    <% } else if (r.status === 'storniert') { %>
+                      <span class="marker grau">storniert</span>
+                    <% } else { %>
+                      <span class="marker">offen</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a class="btn btn-hell btn-klein" href="/portal/rechnungen/<%= r.id %>">Ansehen</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="portal-block">
+      <h2>Fragen zu einer Rechnung?</h2>
+      <p class="block-info">Melde dich einfach im Büro – telefonisch unter
+        <a href="tel:<%= content.business.phoneLink %>"><%= content.business.phone %></a>
+        oder über das <a href="/kontakt">Kontaktformular</a>.</p>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

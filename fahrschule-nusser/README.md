@@ -27,6 +27,19 @@ selbst pflegt.
 | Anmeldung | Online-Anmeldung mit Klassen- und Standortwahl |
 | Impressum, Datenschutz | Pflichtseiten (noch zu vervollständigen) |
 
+### Wer darf was
+
+| | Fahrschüler | Fahrlehrer | Fahrschule (Büro) |
+| --- | --- | --- | --- |
+| Eigenen Ausbildungsstand sehen | ✓ | – | – |
+| Theorietermine buchen | ✓ | – | – |
+| Eigene Rechnungen einsehen | ✓ | – | – |
+| Fahrstunden eintragen | – | ✓ | ✓ |
+| Alle Fahrschüler sehen | – | ✓ | ✓ |
+| Fahrschüler und Fahrlehrer anlegen | – | – | ✓ |
+| Theorielektionen abhaken, Prüfungsstand | – | – | ✓ |
+| Rechnungen schreiben | – | – | ✓ |
+
 ### Fahrschüler-Portal
 
 - **Anmeldung ohne Passwort:** E-Mail-Adresse eingeben, Link per Mail bekommen, fertig.
@@ -36,8 +49,28 @@ selbst pflegt.
   inklusive Platzbegrenzung. Bereits besuchte Lektionen sind markiert.
 - **Fortschritt:** besuchte Pflichtlektionen, Übungsstunden, Sonderfahrten je Art,
   Prüfungsstand und eine persönliche Notiz des Fahrlehrers.
+- **Rechnungen:** alle Rechnungen der Fahrschule, mit offenem Gesamtbetrag auf einen
+  Blick. Jede Rechnung lässt sich als sauberes Blatt öffnen, drucken oder als PDF
+  speichern. Fahrschüler sehen ausschließlich ihre eigenen.
 - **Unterlagen:** Dokumente, die für alle oder gezielt für eine Person hinterlegt sind.
 - **Meine Daten:** eigene Kontaktdaten pflegen.
+
+### Fahrlehrer-Bereich
+
+Fahrlehrer melden sich genauso an wie Fahrschüler – mit ihrer E-Mail-Adresse, ohne
+Passwort. Sie sehen eine Liste aller Fahrschüler; die eigenen stehen oben, damit eine
+Vertretung trotzdem möglich bleibt.
+
+Nach der Fahrt wird die Fahrstunde eingetragen: Datum, Dauer in Einheiten zu 45
+Minuten, die Art der Fahrt (Übungsstunde oder eine der Sonderfahrten) und wahlweise
+eine Notiz. Der Ausbildungsstand des Fahrschülers aktualisiert sich damit sofort –
+er sieht ihn unmittelbar in seinem Portal.
+
+Zwei Regeln schützen vor Durcheinander: Ein Fahrlehrer kann nur die eigenen Einträge
+wieder löschen, und eine Fahrstunde, die schon auf einer Rechnung steht, lässt sich
+gar nicht mehr löschen. Sonst würde die Rechnung nicht mehr zu den Stunden passen.
+
+Die Notiz zur Fahrstunde sieht nur die Fahrschule, nicht der Fahrschüler.
 
 ### Verwaltung (für die Fahrschule)
 
@@ -48,6 +81,14 @@ selbst pflegt.
 - **Fahrschüler:** anlegen, Stammdaten pflegen und den kompletten Ausbildungsstand
   eintragen (Lektionen abhaken, Fahrstunden, Sonderfahrten, Prüfungsstatus, Notiz).
 - **Theorietermine:** Termine anlegen und ändern, Teilnehmerlisten ansehen und ausdrucken.
+- **Fahrlehrer:** anlegen, Angaben pflegen, Zugang entfernen. Beim Anlegen geht die
+  Zugangsmail automatisch raus. Wird ein Zugang entfernt, bleiben die eingetragenen
+  Fahrstunden erhalten – sie gehören zur Ausbildung des Fahrschülers.
+- **Rechnungen:** Rechnung schreiben, Zahlungseingang festhalten, stornieren. Die noch
+  nicht abgerechneten Fahrstunden eines Fahrschülers werden dabei automatisch zu
+  Positionen zusammengefasst (gleichartige Fahrten in einer Zeile), weitere Positionen
+  wie Grundbetrag oder Lernmaterial lassen sich ergänzen. Eine Stornierung gibt die
+  Fahrstunden wieder frei, sodass korrigiert neu abgerechnet werden kann.
 - **Unterlagen und Mitteilungen:** Dokumente hinterlegen und kurze Nachrichten
   veröffentlichen, die alle Fahrschüler im Portal sehen.
 
@@ -91,6 +132,7 @@ Die Datei ist in Abschnitte gegliedert:
 | `faq` | Häufige Fragen und Antworten |
 | `theoryLessons` | Die Pflichtlektionen, die im Portal abgehakt werden |
 | `specialDrives` | Vorgeschriebene Sonderfahrten und ihre Anzahl |
+| `invoicing` | Umsatzsteuersatz, Zahlungsziel, Bankverbindung und Steuernummer für die Rechnungen |
 | `legal` | Angaben für Impressum und Datenschutzerklärung |
 
 **Logo:** Die Bilddatei nach `public/img/` legen und in `content.js` unter
@@ -198,6 +240,12 @@ Damit ändern sich zwei Dinge:
 4. **Als Fahrschule anmelden:** die offene Anmeldung von Sophie Klein mit einem Klick
    in einen Portalzugang umwandeln, danach ihren Ausbildungsstand pflegen
 5. **Teilnehmerliste** eines Termins öffnen und ausdrucken
+6. **Als Fahrlehrer anmelden** (Mathias Nusser oder Andrea Hartmann): einen
+   Fahrschüler öffnen und eine Fahrstunde eintragen – danach im Portal des
+   Fahrschülers nachsehen, wie sich der Stand sofort geändert hat
+7. **Als Fahrschule eine Rechnung schreiben:** unter „Rechnungen“ einen Fahrschüler
+   wählen; die offenen Fahrstunden stehen schon als Positionen bereit. Danach als
+   Fahrschüler die fertige Rechnung ansehen und drucken
 
 ### Vorführung im Netz
 
@@ -334,6 +382,9 @@ Diese Punkte müssen vor dem Livegang von der Fahrschule geklärt und in
 - [ ] **Datenschutzerklärung** – Hosting-Anbieter und E-Mail-Dienstleister ergänzen,
       anschließend fachkundig prüfen lassen
 - [ ] **Fotos** von Fahrzeugen, Unterrichtsräumen und Standorten
+- [ ] **Rechnungsangaben** unter `invoicing`: Steuernummer, Bankverbindung, IBAN und BIC.
+      Ohne sie fehlen auf den Rechnungen Pflichtangaben nach § 14 UStG
+- [ ] **Logo** der bisherigen Website unter `business.logo`
 
 Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen aus
 öffentlichen Branchenverzeichnissen und sollten einmal gegengelesen werden.
@@ -366,11 +417,12 @@ fahrschule-nusser/
 │   ├── format.js      Datums- und Währungsformate
 │   ├── mailer.js      E-Mail-Versand (Resend, SMTP oder Protokoll)
 │   ├── middleware/    Anmeldung und Zugriffsschutz
-│   └── routes/        site (öffentlich), auth, portal, admin
+│   └── routes/        site (öffentlich), auth, portal, instructor, admin
 ├── views/
 │   ├── partials/      Kopfzeile, Fußzeile, Portalnavigation
 │   ├── site/          Öffentliche Seiten
-│   ├── portal/        Fahrschüler-Portal
+│   ├── portal/        Fahrschüler-Portal und Rechnungsblatt
+│   ├── instructor/    Fahrlehrer-Bereich
 │   └── admin/         Verwaltung
 ├── public/
 │   ├── css/           site.css (Design-System) und portal.css

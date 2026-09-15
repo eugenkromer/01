@@ -1,0 +1,128 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main id="inhalt" class="portal-layout">
+  <%- include('../partials/portal-nav') %>
+
+  <div class="portal-inhalt">
+    <div class="portal-kopf">
+      <div>
+        <h1>Rechnungen</h1>
+        <p>Rechnungen schreiben und den Zahlungseingang festhalten.</p>
+      </div>
+    </div>
+
+    <% if (hinweis) { %><div class="meldung meldung-erfolg"><p><%= hinweis %></p></div><% } %>
+    <% if (fehler) { %><div class="meldung meldung-fehler"><p><%= fehler %></p></div><% } %>
+
+    <div class="kennzahlen">
+      <div class="kennzahl <%= offen.length > 0 ? 'akzent' : '' %>">
+        <span class="wert"><%= offen.length %></span>
+        <span class="bez">offene Rechnungen</span>
+      </div>
+      <div class="kennzahl">
+        <span class="wert"><%= f.formatEuro(offenerBetrag) %></span>
+        <span class="bez">ausstehender Betrag</span>
+      </div>
+      <div class="kennzahl">
+        <span class="wert"><%= rechnungen.length %></span>
+        <span class="bez">Rechnungen gesamt</span>
+      </div>
+    </div>
+
+    <div class="portal-block">
+      <h2>Neue Rechnung</h2>
+      <p class="block-info">Wähle einen Fahrschüler – die noch nicht abgerechneten Fahrstunden
+        werden dann automatisch als Positionen vorgeschlagen.</p>
+
+      <% if (studenten.length === 0) { %>
+        <div class="leer"><p>Es ist noch kein Fahrschüler angelegt.</p></div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Fahrschüler</th><th>Offene Fahrstunden</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% studenten.forEach(function (s) { %>
+                <tr>
+                  <td><%= s.firstName %> <%= s.lastName %></td>
+                  <td class="nowrap">
+                    <% if (s.offeneStunden > 0) { %>
+                      <span class="marker"><%= s.offeneStunden %> nicht abgerechnet</span>
+                    <% } else { %>
+                      <span class="mute klein">alles abgerechnet</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a class="btn btn-hell btn-klein"
+                       href="/portal/verwaltung/rechnungen/neu/<%= s.id %>">Rechnung schreiben</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="portal-block">
+      <h2>Alle Rechnungen</h2>
+      <% if (rechnungen.length === 0) { %>
+        <div class="leer">
+          <div class="symbol" aria-hidden="true">🧾</div>
+          <p>Es wurde noch keine Rechnung geschrieben.</p>
+        </div>
+      <% } else { %>
+        <div class="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr><th>Nummer</th><th>Fahrschüler</th><th>Datum</th><th>Betrag</th>
+                <th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% rechnungen.forEach(function (r) { %>
+                <tr>
+                  <td><strong><%= r.number %></strong></td>
+                  <td>
+                    <% if (r.student) { %><%= r.student.firstName %> <%= r.student.lastName %>
+                    <% } else { %><span class="mute klein">gelöscht</span><% } %>
+                  </td>
+                  <td class="nowrap"><%= f.formatDateShort(r.date) %></td>
+                  <td class="nowrap"><%= f.formatEuro(r.total) %></td>
+                  <td>
+                    <% if (r.status === 'bezahlt') { %>
+                      <span class="marker gruen">bezahlt</span>
+                    <% } else if (r.status === 'storniert') { %>
+                      <span class="marker grau">storniert</span>
+                    <% } else { %>
+                      <span class="marker">offen</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="reihe">
+                      <a class="btn btn-hell btn-klein" href="/portal/rechnungen/<%= r.id %>">Ansehen</a>
+                      <% if (r.status === 'offen') { %>
+                        <form method="post" action="/portal/verwaltung/rechnungen/<%= r.id %>/status">
+                          <input type="hidden" name="status" value="bezahlt">
+                          <button class="btn btn-dunkel btn-klein" type="submit">Bezahlt</button>
+                        </form>
+                        <form method="post" action="/portal/verwaltung/rechnungen/<%= r.id %>/status"
+                              onsubmit="return confirm('Rechnung stornieren? Die abgerechneten Fahrstunden werden wieder freigegeben.')">
+                          <input type="hidden" name="status" value="storniert">
+                          <button class="btn btn-gefahr btn-klein" type="submit">Stornieren</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
