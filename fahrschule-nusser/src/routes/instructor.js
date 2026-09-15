@@ -105,6 +105,28 @@ router.post('/fahrschueler/:id/fahrstunde', (req, res) => {
   zurueck(res, ziel, 'Fahrstunde eingetragen.');
 });
 
+// Theorielektionen abhaken und Prüfungsstand setzen. Fahrlehrer halten
+// den Unterricht und nehmen die Prüfungen mit ab, deshalb pflegen sie das
+// selbst. Der Übertrag alter Fahrstunden bleibt dem Büro vorbehalten -
+// das ist eine einmalige Verwaltungssache beim Umstieg.
+router.post('/fahrschueler/:id/theorie', (req, res) => {
+  const ziel = '/portal/fahrlehrer/fahrschueler/' + req.params.id;
+
+  const student = db.getUser(req.params.id);
+  if (!student || student.role !== 'student') {
+    return zurueck(res, '/portal/fahrlehrer', null, 'Dieser Fahrschüler wurde nicht gefunden.');
+  }
+
+  db.updateProgress(req.params.id, {
+    theoryDone: req.body.theoryDone || [],
+    theoryExam: req.body.theoryExam,
+    practicalExam: req.body.practicalExam,
+    note: req.body.note,
+  });
+
+  zurueck(res, ziel, 'Theoriestand gespeichert.');
+});
+
 router.post('/fahrstunde/:id/loeschen', (req, res) => {
   const lesson = db.getLesson(req.params.id);
   if (!lesson) return zurueck(res, '/portal/fahrlehrer', null, 'Diese Fahrstunde gibt es nicht mehr.');

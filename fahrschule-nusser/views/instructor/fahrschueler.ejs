@@ -150,9 +150,12 @@
       <% } %>
     </div>
 
-    <!-- Theorie zur Einordnung -->
+    <!-- Theorie und Prüfungen -->
     <div class="portal-block">
-      <h2>Theoriestand</h2>
+      <h2>Theorie und Prüfungen</h2>
+      <p class="block-info">Hake ab, welche Pflichtlektionen besucht wurden, und halte
+        fest, wo die Prüfungen stehen.</p>
+
       <div class="fortschritt">
         <div class="fortschritt-kopf">
           <span class="bez">Besuchte Pflichtlektionen</span>
@@ -162,7 +165,57 @@
           <span style="width: <%= stand.theorie.prozent %>%"></span>
         </div>
       </div>
-      <p class="klein mute abstand-oben">Theorielektionen und Prüfungsstand pflegt das Büro.</p>
+
+      <form class="formular abstand-oben" method="post"
+            action="/portal/fahrlehrer/fahrschueler/<%= student.id %>/theorie">
+
+        <div class="feld">
+          <span class="feld-titel">Besuchte Lektionen</span>
+          <div class="lektionen">
+            <% content.theoryLessons.forEach(function (lektion) { %>
+              <label class="lektion <%= stand.theorie.besucht.includes(lektion.no) ? 'erledigt' : '' %>">
+                <input type="checkbox" name="theoryDone" value="<%= lektion.no %>"
+                       <%= stand.theorie.besucht.includes(lektion.no) ? 'checked' : '' %>>
+                <span class="nr"><%= lektion.no %></span>
+                <span class="titel"><%= lektion.title %></span>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="feld-reihe">
+          <div class="feld">
+            <label for="theoryExam">Theoretische Prüfung</label>
+            <select id="theoryExam" name="theoryExam">
+              <% ['offen', 'angemeldet', 'bestanden'].forEach(function (status) { %>
+                <option value="<%= status %>" <%= stand.theoriePruefung === status ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="feld">
+            <label for="practicalExam">Praktische Prüfung</label>
+            <select id="practicalExam" name="practicalExam">
+              <% ['offen', 'angemeldet', 'bestanden'].forEach(function (status) { %>
+                <option value="<%= status %>" <%= stand.praxisPruefung === status ? 'selected' : '' %>>
+                  <%= status %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="feld">
+          <label for="note">Notiz für den Fahrschüler</label>
+          <textarea id="note" name="note" style="min-height: 80px"
+                    placeholder="z. B. Noch zwei Übungsstunden, dann melden wir dich zur Prüfung an."><%= stand.notiz %></textarea>
+          <span class="hinweis">Diese Notiz sieht der Fahrschüler in seinem Portal –
+            anders als die Notizen an den einzelnen Fahrstunden.</span>
+        </div>
+
+        <button class="btn btn-dunkel" type="submit">Theoriestand speichern</button>
+      </form>
     </div>
   </div>
 </main>
