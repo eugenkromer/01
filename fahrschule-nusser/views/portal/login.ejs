@@ -43,10 +43,35 @@
         <button class="btn btn-primaer btn-voll" type="submit">Anmeldelink schicken</button>
       </form>
 
-      <p class="login-zurueck mute klein">
-        Noch kein Zugang? Deinen Zugang richten wir bei der Anmeldung in der Fahrschule ein.<br>
-        <a href="/anmeldung">Hier geht es zur Anmeldung</a>
-      </p>
+      <% if (zugaenge) { %>
+        <div class="demo-zugaenge">
+          <div class="demo-zugaenge-titel">Vorführung – direkt hineinschauen</div>
+          <p class="klein mute">Kein Passwort, keine E-Mail nötig. Einfach eine Rolle auswählen:</p>
+
+          <% zugaenge.fahrschule.forEach(function (u) { %>
+            <a class="btn btn-dunkel btn-voll" href="/portal/demo-login/<%= u.id %>">
+              Als Fahrschule anmelden (Verwaltung)
+            </a>
+          <% }); %>
+
+          <% if (zugaenge.fahrschueler.length > 0) { %>
+            <div class="demo-zugaenge-titel" style="margin-top: 16px">Als Fahrschüler</div>
+            <% zugaenge.fahrschueler.forEach(function (u) { %>
+              <a class="btn btn-hell btn-voll" href="/portal/demo-login/<%= u.id %>">
+                <%= u.firstName %> <%= u.lastName %> · Klasse <%= u.licenseClass %>
+              </a>
+            <% }); %>
+          <% } else { %>
+            <p class="klein mute">Noch keine Fahrschüler angelegt – mit
+              <code>npm run demo</code> entstehen Beispieldaten.</p>
+          <% } %>
+        </div>
+      <% } else { %>
+        <p class="login-zurueck mute klein">
+          Noch kein Zugang? Deinen Zugang richten wir bei der Anmeldung in der Fahrschule ein.<br>
+          <a href="/anmeldung">Hier geht es zur Anmeldung</a>
+        </p>
+      <% } %>
     <% } %>
 
     <p class="login-zurueck"><a href="/">← Zurück zur Website</a></p>

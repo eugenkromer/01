@@ -134,6 +134,80 @@ Funktioniert auf einem eigenen Server oder VPS. In `.env` `SMTP_HOST`, `SMTP_POR
 `SMTP_USER`, `SMTP_PASS` und `SMTP_FROM` eintragen. Sind beide Wege konfiguriert,
 wird Resend benutzt.
 
+## Als Vorführung laufen lassen
+
+Bevor die Seite echt in Betrieb geht, lässt sie sich mit Beispieldaten vorführen –
+etwa, um sie der Fahrschule zu zeigen. Dafür gibt es zwei Zutaten.
+
+### 1. Beispieldaten erzeugen
+
+```bash
+npm run demo
+```
+
+Das legt sechs Theorietermine (immer in der kommenden Woche, Montag bis Donnerstag),
+vier Fahrschüler mit unterschiedlichem Ausbildungsstand, zwei offene Anfragen,
+Mitteilungen und Unterlagen an. Alle Personen darin sind frei erfunden.
+
+`npm run demo -- reset` löscht vorher alles und legt frisch an – praktisch, wenn in
+einer Vorführung etwas durcheinandergeraten ist.
+
+### 2. Den Vorführmodus einschalten
+
+```bash
+DEMO_MODE=true npm start
+```
+
+Damit ändern sich zwei Dinge:
+
+- Auf der Anmeldeseite stehen **alle Zugänge zum Anklicken** – als Fahrschule oder als
+  einer der Fahrschüler. Ohne das käme niemand ins Portal, denn der Anmeldelink wird
+  sonst per E-Mail verschickt.
+- Oben auf jeder Seite läuft ein Hinweisband, das klarstellt, dass es sich um eine
+  Vorführung mit erfundenen Daten handelt.
+
+> **Der Vorführmodus gehört niemals in den echten Betrieb.** Solange er an ist, kann
+> jeder Besucher in jedes Konto – auch in die Verwaltung. Beim Start warnt der Server
+> deshalb deutlich in der Konsole. Ist `DEMO_MODE` nicht gesetzt, existiert der
+> Direktzugang schlicht nicht (die Adresse antwortet mit „Seite nicht gefunden“).
+
+### Was sich gut vorführen lässt
+
+1. **Öffentliche Seite** durchklicken – besonders am Handy, das ist der größte
+   Unterschied zur alten Seite
+2. **Als Fahrschülerin Lena Brinkmann anmelden:** Sie steht kurz vor der Prüfung, hat
+   neun Lektionen besucht und eine Notiz ihres Fahrlehrers
+3. **Einen Theorietermin buchen** und wieder absagen
+4. **Als Fahrschule anmelden:** die offene Anmeldung von Sophie Klein mit einem Klick
+   in einen Portalzugang umwandeln, danach ihren Ausbildungsstand pflegen
+5. **Teilnehmerliste** eines Termins öffnen und ausdrucken
+
+### Vorführung im Netz
+
+Soll die Fahrschule selbst hineinschauen können, ohne dass etwas installiert wird,
+reicht für eine reine Vorführung der **kostenlose Tarif** bei Render – dass die Daten
+bei jeder Veröffentlichung zurückgesetzt werden, ist hier ja gerade kein Problem.
+Vorgehen wie unter „Die Seite veröffentlichen“, aber:
+
+- in `render.yaml` `plan: starter` auf `plan: free` ändern und den Block `disk:`
+  sowie die Variable `DATA_DIR` entfernen
+- unter „Environment“ zusätzlich `DEMO_MODE` auf `true` setzen
+- `BASE_URL` auf die Adresse setzen, die Render vergibt (endet auf `.onrender.com`)
+
+Zwei Eigenheiten des kostenlosen Tarifs: Der Dienst schläft nach etwa 15 Minuten
+Leerlauf ein, der erste Aufruf danach dauert knapp eine Minute. Und weil die Daten bei
+jedem Neustart zurückgesetzt werden, sind auch die Beispieldaten weg – deshalb
+`npm run demo` im Startbefehl mit erledigen lassen:
+
+```
+startCommand: npm run demo && npm start
+```
+
+Sobald aus der Vorführung Ernst wird: `DEMO_MODE` entfernen, auf den bezahlten Tarif
+mit Festplatte wechseln, `DATA_DIR` setzen und die Beispieldaten mit
+`npm run demo -- reset` löschen – oder besser gleich mit einem leeren Datenbestand neu
+beginnen.
+
 ## Die Seite veröffentlichen
 
 Die Anwendung braucht einen laufenden Node.js-Prozess – ein Webspace, auf den man

@@ -4,3 +4,4 @@ data/*.json
 data/outbox.log
 public/uploads/*
 !public/uploads/.gitkeep
+!public/uploads/beispiel-merkblatt.txt

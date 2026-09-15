@@ -16,6 +16,20 @@ const adminRoutes = require('./routes/admin');
 db.ensureSeedAdmin(process.env.SEED_ADMIN_EMAIL || 'info@fahrschule-nusser.de');
 db.pruneExpiredTokens();
 
+// Vorführmodus: Damit lässt sich das Portal ohne eingerichteten
+// E-Mail-Versand betreten - auf der Anmeldeseite stehen dann alle
+// Zugänge zum Anklicken. Das ist nur für Vorführungen gedacht und muss im
+// echten Betrieb ausgeschaltet bleiben, weil sonst jeder Besucher in
+// jedes Konto käme.
+const demoMode = process.env.DEMO_MODE === 'true';
+if (demoMode) {
+  console.warn('');
+  console.warn('  ACHTUNG: Der Vorführmodus ist eingeschaltet (DEMO_MODE=true).');
+  console.warn('  Jeder Besucher kann sich ohne E-Mail in jedes Konto einloggen.');
+  console.warn('  Für den echten Betrieb DEMO_MODE entfernen oder auf false setzen.');
+  console.warn('');
+}
+
 const app = express();
 
 // Hosting-Plattformen beenden TLS in einem vorgelagerten Proxy und
@@ -51,6 +65,7 @@ app.use((req, res, next) => {
   res.locals.content = content;
   res.locals.f = format;
   res.locals.emailConfigured = emailConfigured;
+  res.locals.demoMode = demoMode;
   res.locals.currentPath = req.path;
   next();
 });

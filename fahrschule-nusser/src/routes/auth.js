@@ -14,6 +14,17 @@ const router = express.Router();
 const TOKEN_GUELTIG_MS = 30 * 60 * 1000; // 30 Minuten
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Nur im Vorführmodus: alle Konten, die zum Anklicken angeboten werden.
+function demoZugaenge() {
+  const alle = db.getUsers();
+  return {
+    fahrschule: alle.filter((u) => u.role === 'admin'),
+    fahrschueler: alle
+      .filter((u) => u.role === 'student')
+      .sort((a, b) => a.lastName.localeCompare(b.lastName, 'de')),
+  };
+}
+
 router.get('/login', (req, res) => {
   if (req.user) return res.redirect('/portal');
   res.render('portal/login', {
@@ -22,7 +33,23 @@ router.get('/login', (req, res) => {
     bodyClass: 'portal-body',
     gesendet: false,
     fehler: null,
+    zugaenge: res.locals.demoMode ? demoZugaenge() : null,
   });
+});
+
+// Anmeldung per Klick, ohne E-Mail - ausschließlich im Vorführmodus.
+// Ist er aus, gibt es diese Adresse schlicht nicht.
+router.get('/demo-login/:id', (req, res) => {
+  // Ohne Vorführmodus gibt es diese Adresse schlicht nicht.
+  if (!res.locals.demoMode) {
+    return res.status(404).render('site/not-found', { title: 'Seite nicht gefunden' });
+  }
+
+  const user = db.getUser(req.params.id);
+  if (!user) return res.redirect('/portal/login');
+
+  req.session.email = user.email;
+  req.session.save(() => res.redirect('/portal'));
 });
 
 router.post('/login', async (req, res, next) => {
@@ -36,6 +63,7 @@ router.post('/login', async (req, res, next) => {
         bodyClass: 'portal-body',
         gesendet: false,
         fehler: 'Bitte trage eine gültige E-Mail-Adresse ein.',
+        zugaenge: res.locals.demoMode ? demoZugaenge() : null,
       });
     }
 
@@ -71,6 +99,7 @@ router.post('/login', async (req, res, next) => {
       bodyClass: 'portal-body',
       gesendet: true,
       fehler: null,
+      zugaenge: null,
     });
   } catch (err) {
     next(err);
@@ -88,6 +117,7 @@ router.get('/login/bestaetigen', (req, res) => {
       bodyClass: 'portal-body',
       gesendet: false,
       fehler: 'Dieser Anmeldelink ist abgelaufen oder wurde schon benutzt. Fordere unten einfach einen neuen an.',
+      zugaenge: res.locals.demoMode ? demoZugaenge() : null,
     });
   }
 
@@ -109,6 +139,7 @@ router.get('/login/bestaetigen', (req, res) => {
         bodyClass: 'portal-body',
         gesendet: false,
         fehler: 'Bei der Anmeldung ist etwas schiefgegangen. Bitte fordere einen neuen Link an.',
+        zugaenge: res.locals.demoMode ? demoZugaenge() : null,
       });
     }
     res.redirect(ziel);

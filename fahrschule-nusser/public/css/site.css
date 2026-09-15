@@ -840,3 +840,35 @@ tbody tr:hover { background: var(--blau-50); }
   .kopf, .fuss, .cta, .nav-toggle { display: none; }
   body { background: #fff; }
 }
+
+/* ---------- Hinweisband für Vorführungen ---------- */
+
+.demo-band {
+  background: var(--akzent);
+  color: #3a2103;
+  font-size: .89rem;
+  line-height: 1.45;
+  padding: 9px 0;
+  text-align: center;
+}
+.demo-band strong { font-weight: 800; }
+.demo-band a { color: #3a2103; font-weight: 700; }
+.demo-band a:hover { color: #000; }
+
+/* Zugänge zum Anklicken auf der Anmeldeseite (nur im Vorführmodus) */
+.demo-zugaenge {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--linie);
+  display: grid;
+  gap: 9px;
+}
+.demo-zugaenge p { margin: 0 0 4px; }
+.demo-zugaenge-titel {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-mute);
+}
+.demo-zugaenge .btn { justify-content: flex-start; font-size: .94rem; }
