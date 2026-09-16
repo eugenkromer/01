@@ -353,6 +353,13 @@ Leerlauf ein, der erste Aufruf danach dauert knapp eine Minute. Und bei jedem St
 werden die Beispieldaten neu angelegt – was in einer Vorführung eingetragen wurde,
 ist danach wieder weg.
 
+> **Achtung beim Umbenennen:** Render erkennt einen bestehenden Dienst am `name` in
+> `render.yaml`. Wird der Name geändert, findet der Blueprint den alten Dienst nicht
+> mehr wieder – er läuft unverändert weiter und die Änderung kommt nie an. Dasselbe
+> gilt für `rootDir`: Zeigt er auf einen Ordner, den es nicht mehr gibt, scheitert der
+> Build. Beides lässt sich am laufenden Dienst unter „Settings" nachziehen, oder man
+> legt den Blueprint neu an.
+
 ### Vom Vorführ- in den echten Betrieb
 
 In `render.yaml` ist an jeder betroffenen Stelle vermerkt, was zu ändern ist. Kurz
