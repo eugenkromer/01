@@ -15,7 +15,7 @@
 
 services:
   - type: web
-    name: fahrschule-nusser-demo
+    name: fahrschule-portal-demo
     runtime: node
 
     # Server in Frankfurt: die Daten bleiben damit in der EU, was die
@@ -28,7 +28,7 @@ services:
     plan: free
 
     # Die Anwendung liegt in einem Unterordner dieses Repositorys.
-    rootDir: fahrschule-nusser
+    rootDir: fahrschule
     buildCommand: npm install
 
     # Legt vor jedem Start frische Beispieldaten an. Nötig, weil der

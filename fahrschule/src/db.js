@@ -248,8 +248,8 @@ function ensureSeedAdmin(seedEmail) {
     id: crypto.randomUUID(),
     role: 'admin',
     email: normalizeEmail(seedEmail),
-    firstName: 'Fahrschule',
-    lastName: 'Nusser',
+    firstName: 'Verwaltung',
+    lastName: content.business.name,
     phone: '',
     createdAt: new Date().toISOString(),
   });

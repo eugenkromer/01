@@ -24,7 +24,7 @@ function notificationAddress() {
 
 router.get('/', (req, res) => {
   res.render('site/home', {
-    title: 'Fahrschule in Paderborn',
+    title: 'Deine Fahrschule vor Ort',
     description: content.business.intro.slice(0, 155),
   });
 });
@@ -49,7 +49,7 @@ router.get('/standorte', (req, res) => {
   res.render('site/standorte', {
     title: 'Standorte',
     headline: 'Unsere Standorte',
-    subline: 'Theorieunterricht an fünf Orten in und um Paderborn.',
+    subline: `Theorieunterricht an ${content.locations.length} Standorten in der Region.`,
   });
 });
 

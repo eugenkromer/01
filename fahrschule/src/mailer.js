@@ -44,7 +44,7 @@ async function sendViaResend({ to, subject, text, html }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM || 'Fahrschule Nusser <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM || 'Fahrschule <onboarding@resend.dev>',
       to,
       subject,
       text,
@@ -90,7 +90,7 @@ async function sendViaSmtp({ to, subject, text, html }) {
     socketTimeout: 10_000,
   });
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'Fahrschule Nusser <no-reply@example.com>',
+    from: process.env.SMTP_FROM || 'Fahrschule <no-reply@example.com>',
     to,
     subject,
     text,

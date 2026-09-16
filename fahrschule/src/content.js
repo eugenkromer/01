@@ -6,11 +6,14 @@
 //  Preise und Zeiten stehen. Wer Inhalte ändern will, ändert sie hier –
 //  ohne HTML oder Code anfassen zu müssen.
 //
-//  WICHTIG – vor dem Livegang prüfen:
-//  Alles, was mit  TODO  markiert ist, ist ein Platzhalter und muss durch
-//  echte Angaben der Fahrschule ersetzt werden. Die übrigen Angaben
-//  (Adressen, Telefonnummer, Klassen) stammen aus öffentlichen
-//  Branchenverzeichnissen und sollten trotzdem einmal gegengelesen werden.
+//  Diese Datei enthält die Angaben einer **Musterfahrschule**. Alles hier
+//  ist erfunden und dient nur der Vorführung. Für den echten Betrieb
+//  werden die Werte durch die Angaben der jeweiligen Fahrschule ersetzt –
+//  Name, Standorte, Preise, Team, Impressum.
+//
+//  Die Führerscheinklassen, die Theorielektionen und die vorgeschriebenen
+//  Sonderfahrten sind dagegen gesetzlich einheitlich und passen für jede
+//  Fahrschule in Deutschland.
 //
 // =====================================================================
 
@@ -18,18 +21,18 @@
 // Stammdaten der Fahrschule
 // ---------------------------------------------------------------------
 const business = {
-  name: 'Fahrschule Nusser',
-  owner: 'Mathias Nusser',
-  claim: 'Deine Fahrschule in Paderborn',
+  name: 'Fahrschule Muster',
+  owner: 'Alex Muster',
+  claim: 'Deine Fahrschule vor Ort',
   // Kurzer Satz unter der großen Überschrift auf der Startseite
   intro:
-    'Seit über 40 Jahren begleiten wir Fahrschülerinnen und Fahrschüler in Paderborn und Umgebung sicher zum Führerschein – mit erfahrenen Fahrlehrern, modernen Fahrzeugen und Unterricht an fünf Standorten.',
+    'Seit über 30 Jahren begleiten wir Fahrschülerinnen und Fahrschüler sicher zum Führerschein – mit erfahrenen Fahrlehrern, modernen Fahrzeugen und Unterricht an mehreren Standorten.',
 
   // Logo der Fahrschule. Die Bilddatei nach public/img/ legen und hier den
   // Pfad eintragen, z. B. '/img/logo.png' oder '/img/logo.svg'.
   // Bleibt der Wert leer, zeigt die Seite ersatzweise ein Kästchen mit dem
   // Anfangsbuchstaben - so wie jetzt.
-  logo: '', // TODO: Logo der alten Seite hier eintragen
+  logo: '', // Pfad zum Logo der Fahrschule, z. B. '/img/logo.png'
   // Fassung für dunkle Hintergründe (Fußzeile), z. B. das Logo in Weiß.
   // Bleibt der Wert leer, wird das normale Logo dort auf ein helles
   // Plättchen gesetzt, damit es in jedem Fall lesbar bleibt.
@@ -39,19 +42,19 @@ const business = {
   logoMitText: false,
   // Quadratisches Symbol für den Browser-Tab (mindestens 180 x 180 Pixel).
   // Leer lassen, dann wird ein Kästchen mit dem Anfangsbuchstaben benutzt.
-  favicon: '', // TODO: optional
+  favicon: '', // optional
 
-  phone: '05251 74752',
+  phone: '01234 567890',
   // In dieser Schreibweise landet die Nummer im „anrufen“-Link
-  phoneLink: '+49525174752',
-  email: 'TODO-info@fahrschule-nusser.de', // TODO: echte E-Mail-Adresse eintragen
+  phoneLink: '+491234567890',
+  email: 'info@musterfahrschule.de',
   whatsapp: '', // optional, z. B. '+49 171 1234567' – leer lassen blendet den Button aus
 
   // Zahlen für die Vertrauensleiste auf der Startseite
   facts: [
-    { value: 'über 40', label: 'Jahre Erfahrung' },
-    { value: '5', label: 'Standorte in und um Paderborn' },
-    { value: '4,9 ★', label: 'Durchschnitt aus Kundenbewertungen' },
+    { value: 'über 30', label: 'Jahre Erfahrung' },
+    { value: '3', label: 'Standorte in der Region' },
+    { value: '4,8 ★', label: 'Durchschnitt aus Kundenbewertungen' },
     { value: 'alle', label: 'Auto- und Motorradklassen' },
   ],
 };
@@ -64,64 +67,40 @@ const business = {
 // ---------------------------------------------------------------------
 const locations = [
   {
-    id: 'borchener-strasse',
-    name: 'Paderborn – Hauptsitz',
-    street: 'Borchener Str. 15',
-    zip: '33098',
-    city: 'Paderborn',
+    id: 'mitte',
+    name: 'Standort Mitte',
+    street: 'Hauptstraße 1',
+    zip: '12345',
+    city: 'Musterstadt',
     main: true,
-    phone: '05251 74752',
+    phone: '01234 567890',
     theory: 'Montag bis Donnerstag, 18:00 – 20:30 Uhr',
-    office: 'TODO: Bürozeiten eintragen', // TODO
+    office: 'Montag bis Freitag, 15:00 – 18:00 Uhr',
     note: 'Anmeldung, Beratung und Theorieunterricht',
   },
   {
-    id: 'elsen',
-    name: 'Paderborn-Elsen',
-    street: 'Am Spieker 2',
-    zip: '33106',
-    city: 'Paderborn',
+    id: 'nord',
+    name: 'Standort Nord',
+    street: 'Nordring 42',
+    zip: '12347',
+    city: 'Musterstadt',
     main: false,
-    phone: '05251 74752',
-    theory: 'TODO: Unterrichtszeiten eintragen', // TODO
+    phone: '01234 567891',
+    theory: 'Dienstag und Donnerstag, 18:00 – 20:30 Uhr',
     office: '',
     note: '',
   },
   {
-    id: 'kaukenberg',
-    name: 'Paderborn – Am Kaukenberg',
-    street: 'Am Kaukenberg 12',
-    zip: '33102',
-    city: 'Paderborn',
+    id: 'west',
+    name: 'Standort West',
+    street: 'Weststraße 7',
+    zip: '12349',
+    city: 'Musterdorf',
     main: false,
-    phone: '05251 74752',
-    theory: 'TODO: Unterrichtszeiten eintragen', // TODO
+    phone: '01234 567892',
+    theory: 'Mittwoch, 18:00 – 20:30 Uhr',
     office: '',
     note: '',
-  },
-  {
-    id: 'schlangen',
-    name: 'Schlangen',
-    street: 'Paderborner Str. 15',
-    zip: '33189',
-    city: 'Schlangen',
-    main: false,
-    phone: '05251 74752',
-    theory: 'TODO: Unterrichtszeiten eintragen', // TODO
-    office: '',
-    note: '',
-  },
-  {
-    id: 'lange-strasse',
-    name: 'Standort Lange Straße',
-    street: 'Lange Str. 15',
-    zip: 'TODO',
-    city: 'TODO',
-    main: false,
-    phone: '05251 74752',
-    theory: 'TODO: Unterrichtszeiten eintragen', // TODO
-    office: '',
-    note: 'TODO: Ort und Postleitzahl prüfen',
   },
 ];
 
@@ -147,7 +126,7 @@ const licenseGroups = [
           'Anhänger bis 750 kg sind eingeschlossen',
           'Schließt die Klassen AM und L mit ein',
         ],
-        price: null, // TODO: Grundbetrag eintragen, z. B. 450
+        price: 450,
       },
       {
         code: 'BF17',
@@ -159,7 +138,7 @@ const licenseGroups = [
           'Nach bestandener Prüfung fährst du bis 18 nur mit eingetragener Begleitperson',
           'Statistisch deutlich weniger Unfälle in den ersten Jahren',
         ],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'B197',
@@ -171,7 +150,7 @@ const licenseGroups = [
           'Abschließende Testfahrt mit Schaltgetriebe in der Fahrschule',
           'Kein Automatik-Vermerk im Führerschein',
         ],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'B96',
@@ -183,7 +162,7 @@ const licenseGroups = [
           'Eintägige Schulung, keine Prüfung',
           'Ideal für Wohnwagen und Pferdeanhänger',
         ],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'BE',
@@ -195,7 +174,7 @@ const licenseGroups = [
           'Nur praktische Prüfung, kein Theorieunterricht nötig',
           'Für große Wohnwagen, Bootsanhänger und Transporter',
         ],
-        price: null, // TODO
+        price: null,
       },
     ],
   },
@@ -211,7 +190,7 @@ const licenseGroups = [
         minAge: 'ab 15 Jahren',
         summary: 'Zweirädrige Kleinkrafträder bis 45 km/h.',
         details: ['Bis 50 cm³ Hubraum, maximal 45 km/h', 'In Klasse B enthalten'],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'A1',
@@ -219,7 +198,7 @@ const licenseGroups = [
         minAge: 'ab 16 Jahren',
         summary: 'Der Einstieg ins Motorradfahren.',
         details: ['Bis 125 cm³ und maximal 11 kW', 'Leistungsgewicht höchstens 0,1 kW/kg'],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'A2',
@@ -227,7 +206,7 @@ const licenseGroups = [
         minAge: 'ab 18 Jahren',
         summary: 'Maschinen bis 35 kW – der Zwischenschritt zur offenen Klasse A.',
         details: ['Maximal 35 kW', 'Nach zwei Jahren Aufstieg auf Klasse A möglich'],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'A',
@@ -235,7 +214,7 @@ const licenseGroups = [
         minAge: 'ab 24 Jahren (oder ab 20 mit A2-Vorbesitz)',
         summary: 'Alle Motorräder ohne Leistungsbegrenzung.',
         details: ['Keine Leistungsbegrenzung', 'Direkteinstieg ab 24 Jahren'],
-        price: null, // TODO
+        price: null,
       },
     ],
   },
@@ -251,7 +230,7 @@ const licenseGroups = [
         minAge: 'ab 16 Jahren',
         summary: 'Traktoren bis 40 km/h in der Land- und Forstwirtschaft.',
         details: ['Bis 40 km/h bauartbedingte Höchstgeschwindigkeit', 'In Klasse B enthalten'],
-        price: null, // TODO
+        price: null,
       },
       {
         code: 'Mofa',
@@ -259,7 +238,7 @@ const licenseGroups = [
         minAge: 'ab 15 Jahren',
         summary: 'Die Prüfbescheinigung für Mofas bis 25 km/h.',
         details: ['Theorieunterricht und Fahrpraxis', 'Abschluss mit theoretischer Prüfung'],
-        price: null, // TODO
+        price: null,
       },
     ],
   },
@@ -273,16 +252,19 @@ const licenseGroups = [
 // auf Anfrage genannt werden.
 // ---------------------------------------------------------------------
 const pricing = {
-  published: false, // TODO: auf true setzen, sobald die echten Preise eingetragen sind
-  note: 'Alle Preise verstehen sich inklusive Mehrwertsteuer. Die Gebühren von TÜV/DEKRA und Führerscheinstelle werden separat berechnet.',
+  // Auf false setzen, wenn statt der Tabelle „Preise auf Anfrage“
+  // erscheinen soll.
+  published: true,
+  note: 'Beispielpreise zur Veranschaulichung. Alle Beträge verstehen sich inklusive '
+    + 'Mehrwertsteuer; die Gebühren von TÜV/DEKRA und Führerscheinstelle werden separat berechnet.',
   rows: [
-    { label: 'Grundbetrag Klasse B', value: null }, // TODO
-    { label: 'Fahrstunde (45 Minuten)', value: null }, // TODO
-    { label: 'Überlandfahrt (Sonderfahrt)', value: null }, // TODO
-    { label: 'Autobahnfahrt (Sonderfahrt)', value: null }, // TODO
-    { label: 'Nachtfahrt (Sonderfahrt)', value: null }, // TODO
-    { label: 'Vorstellungsentgelt praktische Prüfung', value: null }, // TODO
-    { label: 'Lernmaterial und Fahrschul-App', value: null }, // TODO
+    { label: 'Grundbetrag Klasse B', value: 450 },
+    { label: 'Fahrstunde (45 Minuten)', value: 59.9 },
+    { label: 'Überlandfahrt (Sonderfahrt)', value: 69.5 },
+    { label: 'Autobahnfahrt (Sonderfahrt)', value: 69.5 },
+    { label: 'Nachtfahrt (Sonderfahrt)', value: 69.5 },
+    { label: 'Vorstellungsentgelt praktische Prüfung', value: 210 },
+    { label: 'Lernmaterial und Fahrschul-App', value: 79.9 },
   ],
 };
 
@@ -295,12 +277,12 @@ const invoicing = {
   vatRate: 19, // Umsatzsteuersatz in Prozent
   paymentDays: 14, // Zahlungsziel in Tagen
   // Bankverbindung für den Rechnungsfuß
-  bankName: 'TODO: Bank', // TODO
-  iban: 'TODO: IBAN', // TODO
-  bic: 'TODO: BIC', // TODO
+  bankName: 'Musterbank',
+  iban: 'DE00 1234 5678 9012 3456 00',
+  bic: 'MUSTDEXXX',
   // Steuernummer oder Umsatzsteuer-Identifikationsnummer - eine von
   // beiden gehört nach § 14 UStG auf jede Rechnung.
-  taxNumber: 'TODO: Steuernummer', // TODO
+  taxNumber: '123/456/78901',
   footerNote: 'Vielen Dank für dein Vertrauen!',
 };
 
@@ -336,38 +318,38 @@ const steps = [
 
 // ---------------------------------------------------------------------
 // Team
-// TODO: echte Namen, Funktionen, Klassen und Fotos eintragen.
-// Fotos gehören nach public/img/team/ und werden hier mit
-// "photo: '/img/team/dateiname.jpg'" referenziert.
+// Erfundene Personen für die Vorführung. Fotos gehören nach
+// public/img/team/ und werden hier mit
+// "photo: '/img/team/dateiname.jpg'" eingetragen.
 // ---------------------------------------------------------------------
 const team = [
   {
-    name: 'Mathias Nusser',
+    name: 'Alex Muster',
     role: 'Inhaber und Fahrlehrer',
-    classes: 'TODO: Ausbildungsklassen',
+    classes: 'B, BE, B96, A',
     photo: '',
-    text: 'TODO: kurzer Text zur Person.',
+    text: 'Bildet seit über 30 Jahren aus und führt die Fahrschule in zweiter Generation.',
   },
   {
-    name: 'TODO: Name',
-    role: 'Fahrlehrer/in',
-    classes: 'TODO: Ausbildungsklassen',
+    name: 'Andrea Hartmann',
+    role: 'Fahrlehrerin',
+    classes: 'B, BF17',
     photo: '',
-    text: 'TODO: kurzer Text zur Person.',
+    text: 'Betreut den Standort Mitte und begleitet besonders gern Fahranfänger beim Begleiteten Fahren.',
   },
   {
-    name: 'TODO: Name',
-    role: 'Fahrlehrer/in',
-    classes: 'TODO: Ausbildungsklassen',
+    name: 'Tobias Kramer',
+    role: 'Fahrlehrer',
+    classes: 'B, A1, A2, A',
     photo: '',
-    text: 'TODO: kurzer Text zur Person.',
+    text: 'Verantwortlich für den Standort Nord und für alle Motorradklassen.',
   },
   {
-    name: 'TODO: Name',
+    name: 'Sandra Lohmann',
     role: 'Büro und Anmeldung',
     classes: '',
     photo: '',
-    text: 'TODO: kurzer Text zur Person.',
+    text: 'Erste Ansprechpartnerin bei Fragen zu Anmeldung, Unterlagen und Rechnungen.',
   },
 ];
 
@@ -405,7 +387,9 @@ const faq = [
   },
   {
     q: 'Bildet ihr auch Fahrschüler mit einer anderen Muttersprache aus?',
-    a: 'TODO: bitte ergänzen – z. B. in welchen Sprachen die Theorieprüfung abgelegt werden kann und ob Unterricht in weiteren Sprachen möglich ist.',
+    a: 'Die theoretische Prüfung kann in mehreren Sprachen abgelegt werden, unter anderem '
+      + 'Englisch, Französisch, Türkisch, Russisch und Arabisch. Sprich uns an – wir sagen dir, '
+      + 'was in deinem Fall möglich ist.',
   },
 ];
 
@@ -453,19 +437,19 @@ const specialDrives = [
 // ---------------------------------------------------------------------
 const legal = {
   imprint: {
-    company: 'Fahrschule Nusser',
-    owner: 'Mathias Nusser',
-    street: 'Borchener Str. 15',
-    zip: '33098',
-    city: 'Paderborn',
-    phone: '05251 74752',
-    email: 'TODO-info@fahrschule-nusser.de', // TODO
-    vatId: 'TODO: Umsatzsteuer-Identifikationsnummer', // TODO
-    authority: 'TODO: zuständige Aufsichtsbehörde eintragen', // TODO
-    licenseInfo: 'TODO: Fahrlehrererlaubnis nach dem Fahrlehrergesetz (FahrlG), erteilt in Deutschland', // TODO
-    responsible: 'TODO: inhaltlich verantwortliche Person nach § 18 Abs. 2 MStV', // TODO
+    company: 'Fahrschule Muster',
+    owner: 'Alex Muster',
+    street: 'Hauptstraße 1',
+    zip: '12345',
+    city: 'Musterstadt',
+    phone: '01234 567890',
+    email: 'info@musterfahrschule.de',
+    vatId: 'DE123456789',
+    authority: 'Führerscheinstelle des Landkreises Musterland',
+    licenseInfo: 'Fahrlehrererlaubnis nach dem Fahrlehrergesetz (FahrlG), erteilt in Deutschland',
+    responsible: 'Alex Muster, Anschrift wie oben',
   },
-  privacyContact: 'TODO: Ansprechpartner für den Datenschutz', // TODO
+  privacyContact: 'Alex Muster, info@musterfahrschule.de',
 };
 
 module.exports = {

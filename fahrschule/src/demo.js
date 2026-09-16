@@ -83,17 +83,17 @@ function leeren() {
 }
 
 function anlegen() {
-  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'info@fahrschule-nusser.de';
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'info@musterfahrschule.de';
   db.ensureSeedAdmin(adminEmail);
 
   // ---------- Theorietermine ----------
   const termine = [
-    { tag: 1, lessonNo: 4,  topic: 'Vorfahrt und Verkehrsregelungen',            ort: 'borchener-strasse', kapazitaet: 18 },
-    { tag: 2, lessonNo: 5,  topic: 'Verkehrszeichen, Einfahren und Anfahren',    ort: 'borchener-strasse', kapazitaet: 18 },
-    { tag: 3, lessonNo: 6,  topic: 'Geschwindigkeit, Abstand und Überholen',     ort: 'elsen',             kapazitaet: 12 },
-    { tag: 5, lessonNo: 7,  topic: 'Ruhender Verkehr und besondere Situationen', ort: 'borchener-strasse', kapazitaet: 18 },
-    { tag: 6, lessonNo: 8,  topic: 'Lebenslanges Lernen, Alkohol und Drogen',    ort: 'kaukenberg',        kapazitaet: 3 },
-    { tag: 8, lessonNo: 12, topic: 'Fahrgeschwindigkeit, Bremsen, Abstand',      ort: 'borchener-strasse', kapazitaet: 0 },
+    { tag: 1, lessonNo: 4,  topic: 'Vorfahrt und Verkehrsregelungen',            ort: 'mitte', kapazitaet: 18 },
+    { tag: 2, lessonNo: 5,  topic: 'Verkehrszeichen, Einfahren und Anfahren',    ort: 'mitte', kapazitaet: 18 },
+    { tag: 3, lessonNo: 6,  topic: 'Geschwindigkeit, Abstand und Überholen',     ort: 'nord',             kapazitaet: 12 },
+    { tag: 5, lessonNo: 7,  topic: 'Ruhender Verkehr und besondere Situationen', ort: 'mitte', kapazitaet: 18 },
+    { tag: 6, lessonNo: 8,  topic: 'Lebenslanges Lernen, Alkohol und Drogen',    ort: 'west',        kapazitaet: 3 },
+    { tag: 8, lessonNo: 12, topic: 'Fahrgeschwindigkeit, Bremsen, Abstand',      ort: 'mitte', kapazitaet: 0 },
   ];
 
   const angelegteTermine = termine.map((t) =>
@@ -102,7 +102,7 @@ function anlegen() {
       locationId: t.ort,
       lessonNo: t.lessonNo,
       topic: t.topic,
-      instructor: 'M. Nusser',
+      instructor: 'A. Muster',
       capacity: t.kapazitaet,
     })
   );
@@ -111,16 +111,16 @@ function anlegen() {
   // Zwei davon haben eine geführte Anwesenheitsliste, einer noch nicht -
   // so lässt sich in der Vorführung beides zeigen.
   const vergangeneTermine = [
-    { tag: 2, lessonNo: 1, topic: 'Persönliche Voraussetzungen, Risikofaktoren', ort: 'borchener-strasse' },
-    { tag: 4, lessonNo: 2, topic: 'Rechtliche Rahmenbedingungen',                ort: 'borchener-strasse' },
-    { tag: 1, lessonNo: 3, topic: 'Straßenverkehrssystem und seine Nutzung',     ort: 'elsen' },
+    { tag: 2, lessonNo: 1, topic: 'Persönliche Voraussetzungen, Risikofaktoren', ort: 'mitte' },
+    { tag: 4, lessonNo: 2, topic: 'Rechtliche Rahmenbedingungen',                ort: 'mitte' },
+    { tag: 1, lessonNo: 3, topic: 'Straßenverkehrssystem und seine Nutzung',     ort: 'nord' },
   ].map((t) =>
     db.createTheorySession({
       ...vergangenerTermin(t.tag, 18),
       locationId: t.ort,
       lessonNo: t.lessonNo,
       topic: t.topic,
-      instructor: 'M. Nusser',
+      instructor: 'A. Muster',
       capacity: 18,
     })
   );
@@ -137,18 +137,18 @@ function anlegen() {
   }
 
   const heutigeTermine = [
-    { ...heuteUm(18, 0),  locationId: 'borchener-strasse', lessonNo: 9,  topic: 'Technische Bedingungen und Umweltbewusstsein', instructor: 'A. Hartmann', capacity: 18 },
-    { ...heuteUm(18, 30), locationId: 'elsen',             lessonNo: 10, topic: 'Fahren mit Solokraftfahrzeugen und Zügen',     instructor: 'T. Kramer',   capacity: 12 },
+    { ...heuteUm(18, 0),  locationId: 'mitte', lessonNo: 9,  topic: 'Technische Bedingungen und Umweltbewusstsein', instructor: 'A. Hartmann', capacity: 18 },
+    { ...heuteUm(18, 30), locationId: 'nord',             lessonNo: 10, topic: 'Fahren mit Solokraftfahrzeugen und Zügen',     instructor: 'T. Kramer',   capacity: 12 },
   ].map((t) => db.createTheorySession(t));
 
   // ---------- Fahrlehrer ----------
   // Je Standort zwei Fahrlehrer - sie verwalten ihn selbst: Termine
   // festlegen, Fahrschüler aufnehmen, Anwesenheit führen.
   const fahrlehrerDaten = [
-    { firstName: 'Mathias', lastName: 'Nusser',   email: 'mathias.nusser@beispiel.de',  phone: '05251 74752', classes: 'B, BE, B96, A', locationIds: ['borchener-strasse'] },
-    { firstName: 'Andrea',  lastName: 'Hartmann', email: 'andrea.hartmann@beispiel.de', phone: '05251 74753', classes: 'B, BF17',       locationIds: ['borchener-strasse'] },
-    { firstName: 'Tobias',  lastName: 'Kramer',   email: 'tobias.kramer@beispiel.de',   phone: '05251 74754', classes: 'B, A1, A2, A',  locationIds: ['elsen'] },
-    { firstName: 'Sandra',  lastName: 'Lohmann',  email: 'sandra.lohmann@beispiel.de',  phone: '05251 74755', classes: 'B, BF17, L',    locationIds: ['elsen'] },
+    { firstName: 'Alex',    lastName: 'Muster',   email: 'alex.muster@beispiel.de',     phone: '01234 567890', classes: 'B, BE, B96, A', locationIds: ['mitte'] },
+    { firstName: 'Andrea',  lastName: 'Hartmann', email: 'andrea.hartmann@beispiel.de', phone: '01234 567891', classes: 'B, BF17',       locationIds: ['mitte'] },
+    { firstName: 'Tobias',  lastName: 'Kramer',   email: 'tobias.kramer@beispiel.de',   phone: '01234 567892', classes: 'B, A1, A2, A',  locationIds: ['nord'] },
+    { firstName: 'Sandra',  lastName: 'Lohmann',  email: 'sandra.lohmann@beispiel.de',  phone: '01234 567893', classes: 'B, BF17, L',    locationIds: ['nord'] },
   ];
   const fahrlehrer = [];
   for (const daten of fahrlehrerDaten) {
@@ -160,7 +160,7 @@ function anlegen() {
   const personen = [
     {
       firstName: 'Lena', lastName: 'Brinkmann', email: 'lena.brinkmann@beispiel.de',
-      phone: '0151 2345678', licenseClass: 'B', locationId: 'borchener-strasse',
+      phone: '0151 2345678', licenseClass: 'B', locationId: 'mitte',
       fortschritt: {
         theoryDone: [4, 5, 6, 7, 8, 9], drivingLessons: 18,
         special: { ueberland: 5, autobahn: 4, nacht: 1 },
@@ -181,7 +181,7 @@ function anlegen() {
     },
     {
       firstName: 'Jonas', lastName: 'Weber', email: 'jonas.weber@beispiel.de',
-      phone: '0160 9876543', licenseClass: 'BF17', locationId: 'borchener-strasse',
+      phone: '0160 9876543', licenseClass: 'BF17', locationId: 'mitte',
       fortschritt: {
         theoryDone: [4], drivingLessons: 6,
         special: { ueberland: 0, autobahn: 0, nacht: 0 },
@@ -197,7 +197,7 @@ function anlegen() {
     },
     {
       firstName: 'Merve', lastName: 'Yilmaz', email: 'merve.yilmaz@beispiel.de',
-      phone: '0171 5556677', licenseClass: 'A2', locationId: 'elsen',
+      phone: '0171 5556677', licenseClass: 'A2', locationId: 'nord',
       fortschritt: {
         theoryDone: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], drivingLessons: 24,
         special: { ueberland: 5, autobahn: 4, nacht: 3 },
@@ -213,7 +213,7 @@ function anlegen() {
     },
     {
       firstName: 'Paul', lastName: 'Schäfer', email: 'paul.schaefer@beispiel.de',
-      phone: '0152 1112233', licenseClass: 'B', locationId: 'borchener-strasse',
+      phone: '0152 1112233', licenseClass: 'B', locationId: 'mitte',
       fortschritt: {
         theoryDone: [], drivingLessons: 0,
         special: { ueberland: 0, autobahn: 0, nacht: 0 },
@@ -227,14 +227,14 @@ function anlegen() {
     // Weitere Fahrschüler, damit Suche und Standortverteilung in der
     // Vorführung überhaupt sichtbar werden.
     ...[
-      ['Emma',   'Wagner',   'B',    'borchener-strasse', 0],
-      ['Luis',   'Becker',   'BF17', 'borchener-strasse', 1],
-      ['Mia',    'Hoffmann', 'B',    'borchener-strasse', 0],
-      ['Noah',   'Schulz',   'A2',   'elsen',             2],
-      ['Leni',   'Fischer',  'B',    'elsen',             3],
-      ['Ben',    'Koch',     'B',    'elsen',             2],
-      ['Ida',    'Wolf',     'BF17', 'elsen',             3],
-      ['Finn',   'Richter',  'B',    'kaukenberg',        0],
+      ['Emma',   'Wagner',   'B',    'mitte', 0],
+      ['Luis',   'Becker',   'BF17', 'mitte', 1],
+      ['Mia',    'Hoffmann', 'B',    'mitte', 0],
+      ['Noah',   'Schulz',   'A2',   'nord',             2],
+      ['Leni',   'Fischer',  'B',    'nord',             3],
+      ['Ben',    'Koch',     'B',    'nord',             2],
+      ['Ida',    'Wolf',     'BF17', 'nord',             3],
+      ['Finn',   'Richter',  'B',    'west',        0],
     ].map(([vorname, nachname, klasse, ort, lehrer], i) => ({
       firstName: vorname,
       lastName: nachname,
@@ -338,13 +338,13 @@ function anlegen() {
     type: 'anmeldung',
     firstName: 'Sophie', lastName: 'Klein', email: 'sophie.klein@beispiel.de',
     phone: '0157 4443322', birthDate: '2008-06-14',
-    licenseClass: 'BF17', locationId: 'borchener-strasse',
+    licenseClass: 'BF17', locationId: 'mitte',
     message: 'Ich werde im Dezember 17 und möchte vorher schon anfangen.',
   });
   db.createInquiry({
     type: 'kontakt',
     firstName: 'Michael', lastName: 'Hoffmann', email: 'm.hoffmann@beispiel.de',
-    phone: '05251 998877',
+    phone: '01234 998877',
     message: 'Guten Tag, ich habe Klasse B und möchte auf B96 erweitern. '
       + 'Wann findet die nächste Schulung statt und was kostet sie?',
   });
@@ -352,7 +352,7 @@ function anlegen() {
   // ---------- Mitteilungen ----------
   db.createAnnouncement({
     title: 'Theorieunterricht am 3. Oktober fällt aus',
-    body: 'Wegen des Feiertags entfällt der Unterricht in der Borchener Straße. '
+    body: 'Wegen des Feiertags entfällt der Unterricht am Standort Mitte. '
       + 'Der Termin wird in der Woche darauf nachgeholt – die Anmeldung ist im Portal schon freigeschaltet.',
   });
   db.createAnnouncement({

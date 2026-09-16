@@ -1,15 +1,19 @@
-# Fahrschule Nusser – neue Website mit Fahrschüler-Portal
+# Website und Portal für Fahrschulen
 
-Ein vollständiger Neuaufbau des Internetauftritts der Fahrschule Nusser in Paderborn:
-eine moderne, für Handys optimierte Website plus ein Bereich, in dem sich Fahrschüler
-anmelden und ihren Ausbildungsstand einsehen können – und in dem die Fahrschule alles
-selbst pflegt.
+Eine moderne, für Handys gebaute Website plus ein Portal, in dem Fahrschüler ihren
+Ausbildungsstand einsehen, Fahrlehrer ihren Standort verwalten und das Büro alles
+zusammenhält.
 
-> **Wichtig vor dem Livegang:** Diese Fassung enthält an mehreren Stellen Platzhalter,
-> die noch durch echte Angaben ersetzt werden müssen – vor allem Preise, Team, Bürozeiten,
-> Impressum und Datenschutzerklärung. Alle Platzhalter sind im Text mit `TODO` markiert
-> und werden beim Aufruf im Browser gelb hervorgehoben, damit keiner übersehen wird.
-> Eine Liste steht weiter unten unter „Was noch fehlt“.
+Die Anwendung ist **nicht auf eine bestimmte Fahrschule zugeschnitten**. Sämtliche
+Inhalte – Name, Logo, Standorte, Preise, Team, Impressum – stehen in einer einzigen
+Datei ([`src/content.js`](src/content.js)) und werden für jede Fahrschule dort
+eingetragen. Was mitgeliefert wird, sind die Angaben einer erfundenen
+**„Fahrschule Muster"** in Musterstadt, damit sich die Anwendung sofort vorführen lässt.
+
+Was gesetzlich einheitlich ist, passt dagegen für jede deutsche Fahrschule und muss
+nicht angepasst werden: die Führerscheinklassen, die zwölf Grundstoff- und zwei
+Zusatzstoff-Lektionen der Theorie sowie die vorgeschriebenen Sonderfahrten
+(5 Überland, 4 Autobahn, 3 bei Dunkelheit).
 
 ## Was die Seite kann
 
@@ -164,7 +168,7 @@ Prüfungen“ steht im Portal des Fahrschülers.
 Voraussetzung: [Node.js](https://nodejs.org) ab Version 18.
 
 ```bash
-cd fahrschule-nusser
+cd fahrschule
 npm install
 cp .env.example .env
 npm start
@@ -210,7 +214,7 @@ Anfangsbuchstaben.
 
 Drei Punkte dazu:
 
-- Trägt das Logo den Schriftzug „Fahrschule Nusser" bereits selbst, bleibt
+- Trägt das Logo den Schriftzug „Fahrschule" bereits selbst, bleibt
   `logoMitText` auf `false` – sonst stünde der Name doppelt da. Ist das Logo nur ein
   Bildzeichen, `logoMitText: true` setzen.
 - In der Fußzeile steht das Logo auf dunklem Grund. Gibt es eine helle Fassung, diese
@@ -220,7 +224,7 @@ Drei Punkte dazu:
   hinterlegt werden.
 
 **Fotos** gehören nach `public/img/` (Teamfotos zum Beispiel nach `public/img/team/`)
-und werden in `content.js` mit ihrem Pfad eingetragen, etwa `photo: '/img/team/nusser.jpg'`.
+und werden in `content.js` mit ihrem Pfad eingetragen, etwa `photo: '/img/team/muster.jpg'`.
 
 **Dateien zum Herunterladen** (Merkblätter, Formulare) werden nach `public/uploads/`
 gelegt und im Verwaltungsbereich unter „Unterlagen“ mit dem Pfad `/uploads/dateiname.pdf`
@@ -247,8 +251,8 @@ deshalb auch dort zuverlässig.
 
 ```
 RESEND_API_KEY=der-erzeugte-schluessel
-RESEND_FROM="Fahrschule Nusser <no-reply@fahrschule-nusser.de>"
-BASE_URL=https://www.fahrschule-nusser.de
+RESEND_FROM="Fahrschule <no-reply@deine-domain.de>"
+BASE_URL=https://www.deine-fahrschule.de
 ```
 
 Die Absenderadresse muss zu der bei Resend bestätigten Domain gehören, sonst lehnt
@@ -307,8 +311,8 @@ Damit ändern sich zwei Dinge:
 4. **Als Fahrschule anmelden:** die offene Anmeldung von Sophie Klein mit einem Klick
    in einen Portalzugang umwandeln, danach ihren Ausbildungsstand pflegen
 5. **Teilnehmerliste** eines Termins öffnen und ausdrucken
-6. **Als Fahrlehrer anmelden** (Andrea Hartmann betreut den Hauptsitz, Tobias Kramer
-   den Standort Elsen): unter „Theorietermine" steht oben der Block **Heute** mit dem
+6. **Als Fahrlehrer anmelden** (Andrea Hartmann betreut den Standort Mitte, Tobias Kramer
+   den Standort Nord): unter „Theorietermine" steht oben der Block **Heute** mit dem
    Unterricht des Tages – für den eigenen Standort mit Knopf zum Abhaken, für den
    anderen nur zur Ansicht. Darunter einen neuen Termin festlegen
 7. Denselben Weg für die **Anwesenheit**: einen gehaltenen Termin öffnen und abhaken,
@@ -394,7 +398,7 @@ Ordner auf einem dauerhaften Laufwerk liegt.
    Repositorys – dort stehen auch die Stellen, die für den echten Betrieb von der
    Vorführung umgestellt werden müssen
 3. Unter „Environment" noch eintragen:
-   - `BASE_URL` – die echte Adresse, z. B. `https://www.fahrschule-nusser.de`
+   - `BASE_URL` – die echte Adresse, z. B. `https://www.deine-fahrschule.de`
    - `SEED_ADMIN_EMAIL` – die E-Mail-Adresse des ersten Verwaltungszugangs
    - `RESEND_API_KEY` und `RESEND_FROM` – für den E-Mail-Versand (siehe oben)
 4. Eigene Domain unter „Settings" → „Custom Domain" hinterlegen und die angezeigten
@@ -441,26 +445,29 @@ Dafür muss der Server selbst gepflegt werden. Grober Ablauf:
 Der letzte Punkt ist kein Formalkram: Im Portal stehen Namen, Kontaktdaten und
 Ausbildungsstände von Fahrschülern, von denen viele minderjährig sind.
 
-## Was noch fehlt
+## Für eine echte Fahrschule einrichten
 
-Diese Punkte müssen vor dem Livegang von der Fahrschule geklärt und in
-`src/content.js` eingetragen werden:
+Alles Folgende steht in [`src/content.js`](src/content.js) und wird dort ersetzt:
 
-- [ ] **Preise** – alle Beträge, danach `pricing.published` auf `true` setzen
-- [ ] **E-Mail-Adresse** der Fahrschule (steht aktuell als Platzhalter drin)
-- [ ] **Team** – Namen, Funktionen, Ausbildungsklassen und Fotos
-- [ ] **Bürozeiten** und die Unterrichtszeiten der vier Zweigstellen
-- [ ] **Standort „Lange Straße“** – Postleitzahl und Ort prüfen
-- [ ] **Impressum** – Umsatzsteuer-Nummer, Aufsichtsbehörde, verantwortliche Person
-- [ ] **Datenschutzerklärung** – Hosting-Anbieter und E-Mail-Dienstleister ergänzen,
+- [ ] **Stammdaten** unter `business`: Name, Inhaber, Telefon, E-Mail, Einleitungstext
+- [ ] **Logo** unter `business.logo` – Datei nach `public/img/` legen
+- [ ] **Standorte** unter `locations`: Adressen, Unterrichts- und Bürozeiten
+- [ ] **Preise** unter `pricing` – oder `published: false` setzen, dann erscheint
+      „Preise auf Anfrage“ statt der Tabelle
+- [ ] **Team** unter `team`: Namen, Funktionen, Klassen, Fotos
+- [ ] **Häufige Fragen** unter `faq` an die eigene Fahrschule anpassen
+- [ ] **Rechnungsangaben** unter `invoicing`: Steuernummer, Bankverbindung, IBAN, BIC
+- [ ] **Impressum** unter `legal.imprint`: Umsatzsteuer-Nummer, Aufsichtsbehörde,
+      verantwortliche Person
+- [ ] **Datenschutzerklärung**: Hosting-Anbieter und E-Mail-Dienstleister ergänzen,
       anschließend fachkundig prüfen lassen
-- [ ] **Fotos** von Fahrzeugen, Unterrichtsräumen und Standorten
-- [ ] **Rechnungsangaben** unter `invoicing`: Steuernummer, Bankverbindung, IBAN und BIC.
-      Ohne sie fehlen auf den Rechnungen Pflichtangaben nach § 14 UStG
-- [ ] **Logo** der bisherigen Website unter `business.logo`
 
-Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen aus
-öffentlichen Branchenverzeichnissen und sollten einmal gegengelesen werden.
+Impressum und Datenschutzerklärung sind gesetzlich verpflichtend. Die mitgelieferten
+Texte beschreiben korrekt, was die Anwendung technisch tut, ersetzen aber keine
+rechtliche Prüfung.
+
+Nicht angepasst werden müssen: Führerscheinklassen, Theorielektionen und Sonderfahrten –
+die sind bundesweit einheitlich.
 
 ## Technisches
 
@@ -497,7 +504,7 @@ Die vorhandenen Adressen, die Telefonnummer und die Führerscheinklassen stammen
 ### Aufbau
 
 ```
-fahrschule-nusser/
+fahrschule/
 ├── src/
 │   ├── server.js      Startet den Server
 │   ├── app.js         Express-Einrichtung, Sitzungen, Routen

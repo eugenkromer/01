@@ -1,8 +1,8 @@
 {
-  "name": "fahrschule-nusser",
+  "name": "fahrschule-portal",
   "version": "1.0.0",
   "private": true,
-  "description": "Moderne Website der Fahrschule Nusser in Paderborn mit Fahrschueler-Portal und Verwaltungsbereich.",
+  "description": "Website und Portal fuer Fahrschulen: oeffentliche Seite, Fahrschueler-Portal, Fahrlehrer-Bereich und Verwaltung.",
   "main": "src/server.js",
   "engines": {
     "node": ">=18"

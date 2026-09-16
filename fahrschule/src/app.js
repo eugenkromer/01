@@ -15,7 +15,7 @@ const portalRoutes = require('./routes/portal');
 const instructorRoutes = require('./routes/instructor');
 const adminRoutes = require('./routes/admin');
 
-db.ensureSeedAdmin(process.env.SEED_ADMIN_EMAIL || 'info@fahrschule-nusser.de');
+db.ensureSeedAdmin(process.env.SEED_ADMIN_EMAIL || 'info@musterfahrschule.de');
 db.pruneExpiredTokens();
 
 // Vorführmodus: Damit lässt sich das Portal ohne eingerichteten
